@@ -22,4 +22,7 @@ Prepare the Open Score Lieder data for training.
 
 ```
 make prepare-lieder-svg-and-mxl-files
+
+# on the compute cluster run in virtual X-Server:
+xvfb-run make prepare-lieder-svg-and-mxl-files
 ```

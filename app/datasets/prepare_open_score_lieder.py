@@ -3,8 +3,11 @@ import yaml
 
 
 SKIP = set([
-    # freezes MuseScore, cannot be openned, no crash, no nothing
-    6264558, # datasets/OpenScore-Lieder/scores/Chaminade,_Cécile/_/Ballade_à_la_lune
+    # freezes MuseScore 4.2, cannot be openned, no crash, no nothing
+    # 6264558, # datasets/OpenScore-Lieder/scores/Chaminade,_Cécile/_/Ballade_à_la_lune
+    # 5935864, # datasets/OpenScore-Lieder/scores/Holmès,_Augusta_Mary_Anne/_/Ogier_le_Danois
+    # 5712131, # datasets/OpenScore-Lieder/scores/Holmès,_Augusta_Mary_Anne/Les_Heures/1_L’Heure_Rose
+    # ==> resolved by using MuseScore 3.6.2
 ])
 
 

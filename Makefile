@@ -10,8 +10,8 @@ install-lilypond:
 install-musescore:
 	rm -rf musescore
 	mkdir -p musescore
-	wget https://cdn.jsdelivr.net/musescore/v4.2.0/MuseScore-4.2.0.233521125-x86_64.AppImage
-	mv MuseScore-4.2.0.233521125-x86_64.AppImage musescore/musescore.AppImage
+	wget https://github.com/musescore/MuseScore/releases/download/v3.6.2/MuseScore-3.6.2.548021370-x86_64.AppImage
+	mv MuseScore-3.6.2.548021370-x86_64.AppImage musescore/musescore.AppImage
 	chmod +x musescore/musescore.AppImage
 
 install-open-score-lieder-dataset:
