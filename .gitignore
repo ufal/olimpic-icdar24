@@ -1,3 +1,5 @@
 /lilypond
 /.venv
 __pycache__
+/datasets
+/musescore
