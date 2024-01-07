@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as ET
-from typing import Iterable
+from typing import Iterable, Optional
 import os
 from .OpenScoreLiederMxlFile import OpenScoreLiederMxlFile
 
@@ -11,13 +11,18 @@ class MusicXml2Sequence:
         # (none)
 
         # within part state
+        self._divisions: Optional[int] = None
+        self._beats_per_measure: Optional[int] = None
+        self._beat_type: Optional[int] = None
         self._page_index = 0
         self._system_index = 0 # system within page
 
         # within measure state
-        self._stem_orientation = None
-        self._staff = 0
+        self._stem_orientation: Optional[str] = None
+        self._staff: Optional[str] = None
+        self._onset = 0 # in duration units
         self._voice = 0
+        self._last_note_duration: Optional[int] = None # for chord checks
 
     def process_part(self, measures: Iterable[ET.Element]):
         self._system_index = 0
@@ -29,8 +34,10 @@ class MusicXml2Sequence:
     
     def process_measure(self, measure: ET.Element):
         self._stem_orientation = None
-        self._staff = 0
+        self._staff = None
+        self._onset = 0
         self._voice = 0
+        self._last_note_duration = None
         
         print(measure, measure.attrib)
         for element in measure:
@@ -41,9 +48,30 @@ class MusicXml2Sequence:
                     self._system_index += 1
                 if element.attrib.get("new-page") == "yes":
                     self._page_index += 1
+            elif element.tag == "attributes":
+                self._divisions = int(element.find("divisions").text)
+                self._beats_per_measure = int(element.find("time/beats").text)
+                self._beat_type = int(element.find("time/beat-type").text)
+                assert element.find("staves").text == "2", "So far, only piano supported"
+                # TODO: clefs
+                print("TODO: clefs!")
+            elif element.tag == "backup":
+                backup_duration = int(element.find("duration").text)
+                # print("\t", self._onset, backup_duration)
+                assert self._onset == backup_duration, "Backups can only be to measure start"
+                print("\t", "backup")
+                # backup resets these values
+                self._onset = 0
+                self._staff = None
+                self._stem_orientation = None
+            elif element.tag == "forward":
+                forward_duration = int(element.find("duration").text)
+                print("\t", self._onset, forward_duration)
+                self._onset += forward_duration
+                print("\t", "forward") # TODO: duration to type!!!
             elif element.tag == "direction":
                 # we will ignore direction markings, too niche
-                # (such as dynamics or pedals)
+                # (such as dynamics, text, or pedals)
                 # https://www.w3.org/2021/06/musicxml40/musicxml-reference/elements/direction-type/
                 pass
             else:
@@ -57,6 +85,12 @@ class MusicXml2Sequence:
 
         # the token sequence representing the note
         seq = []
+
+        # <grace>
+        grace = note.find("grace")
+        if grace is not None:
+            seq.append("grace")
+            consumed_elements.add(grace)
 
         # <chord>
         # chord (next chord note)
@@ -79,24 +113,44 @@ class MusicXml2Sequence:
 
         # <duration>
         # actual temporal note duration is ignored
-        consumed_elements.add(note.find("duration"))
+        duration = note.find("duration")
+        if duration is None:
+            assert grace is not None, "Non-duration notes must be grace notes"
+        elif chord is not None:
+            assert self._last_note_duration is not None, \
+                "Chord extension note may not be the first note in a measure"
+            assert self._last_note_duration == int(duration.text), \
+                "Chord notes must have the same duration"
+        else:
+            self._onset += int(duration.text)
+            self._last_note_duration = int(duration.text)
+        consumed_elements.add(duration)
 
-        # <type>
-        # note type (visual duration)
-        seq.append(note.find("type").text)
-        consumed_elements.add(note.find("type"))
+        # <tie>
+        # tie is an audio information, notation/tied is the graphical one
+        consumed_elements.add(note.find("tie"))
 
         # <voice>
         # voices don't have explicit names in the sequence,
         # instead, voice changes are performed with <backups>
         consumed_elements.add(note.find("voice"))
 
+        # <type>
+        # note type (visual duration)
+        seq.append(note.find("type").text)
+        consumed_elements.add(note.find("type"))
+
         # <dot>
         for dot in note.findall("dot"):
             seq.append("dot")
             consumed_elements.add(dot)
 
-        # TODO: accidentals
+        # <accidental>
+        accidental = note.find("accidental")
+        if accidental is not None:
+            consumed_elements.add(accidental)
+            assert accidental.text in ["sharp", "flat", "natural"]
+            seq.append(accidental.text)
 
         # TODO: tuplets
 
@@ -124,7 +178,14 @@ class MusicXml2Sequence:
             seq.append("staff:" + staff.text)
             self._staff = staff.text
 
-        print("\t\t", " ".join(seq))
+        # <beam>
+        for beam in note.findall("beam"):
+            assert beam.text in ["begin", "end", "continue"]
+            if beam.text != "continue":
+                seq.append("beam:" + beam.text)
+            consumed_elements.add(beam)
+
+        # print("\t\t", " ".join(seq))
 
         # check consumed elements
         for element in note:
