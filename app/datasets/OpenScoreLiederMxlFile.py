@@ -36,7 +36,7 @@ class OpenScoreLiederMxlFile:
                 + str(ET.tostring(part_list), "utf-8")
         )
     
-    def get_piano_part(self) -> Iterable[ET.Element]:
+    def get_piano_part(self) -> ET.Element:
         part_id = self.resolve_piano_part_id()
 
         parts = [
