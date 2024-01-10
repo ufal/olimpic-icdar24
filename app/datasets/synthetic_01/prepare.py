@@ -7,8 +7,46 @@ import json
 import glob
 import cv2
 import numpy as np
+from app.symbolic.MxlFile import MxlFile
+from app.symbolic.Mxl2Msq import Mxl2Msq
+from app.symbolic.split_part_to_systems import split_part_to_systems
 
 
+IGNORED_SCORE_IDS = [
+    # Does not contain piano part:
+    8708253, # https://musescore.com/openscore-lieder-corpus/scores/8708253
+    8708688, # https://musescore.com/openscore-lieder-corpus/scores/8708688
+    8712405, # https://musescore.com/openscore-lieder-corpus/scores/8712405
+    8712648, # https://musescore.com/openscore-lieder-corpus/scores/8712648
+    8702982, # https://musescore.com/openscore-lieder-corpus/scores/8702982
+    8718660, # https://musescore.com/openscore-lieder-corpus/scores/8718660
+    6022950, # https://musescore.com/openscore-lieder-corpus/scores/6022950
+    6023075, # https://musescore.com/openscore-lieder-corpus/scores/6023075
+    6024601, # https://musescore.com/openscore-lieder-corpus/scores/6024601
+    6034442, # https://musescore.com/openscore-lieder-corpus/scores/6034442
+    6034473, # https://musescore.com/openscore-lieder-corpus/scores/6034473
+    6034767, # https://musescore.com/openscore-lieder-corpus/scores/6034767
+    5092551, # https://musescore.com/openscore-lieder-corpus/scores/5092551
+
+    # Has three staves per system for piano
+    6005658, # https://musescore.com/openscore-lieder-corpus/scores/6005658
+
+    # Has four voices (on piano) written as four part lines, no pianoform here
+    5908953, # https://musescore.com/openscore-lieder-corpus/scores/5908953
+
+    # The piano is two monophonic staves, not one grandstaff
+    4982535, # https://musescore.com/openscore-lieder-corpus/scores/4982535
+
+    # Guitar part, one or two staves, complicated -> ignore
+    # Also, may lack the grand-staff brace
+    6598368, # https://musescore.com/openscore-lieder-corpus/scores/6598368
+    6666995, # https://musescore.com/openscore-lieder-corpus/scores/6666995
+    6158642, # https://musescore.com/openscore-lieder-corpus/scores/6158642
+    6159296, # https://musescore.com/openscore-lieder-corpus/scores/6159296
+    6159273, # https://musescore.com/openscore-lieder-corpus/scores/6159273
+    6163298, # https://musescore.com/openscore-lieder-corpus/scores/6163298
+    6158825, # https://musescore.com/openscore-lieder-corpus/scores/6158825
+]
 OS_CORPUS_PATH = "datasets/OpenScore-Lieder"
 TEST_SCORES_YAML = "testset/test_scores.yaml"
 DATASET_PATH = "datasets/synthetic_01"
@@ -81,37 +119,40 @@ def prepare():
     with open(TEST_SCORES_YAML) as f:
         test_scores = yaml.load(f, Loader=yaml.FullLoader)
     
+    for score_id in IGNORED_SCORE_IDS:
+        del corpus_scores[score_id]
+    
     # TODO: split up the dataset into slices and run only one slice
     # in order to be parallelizable via slurm
 
     # DEBUG: reduce the size to something iterable
-    corpus_scores = dict(list(corpus_scores.items())[:10])
+    # corpus_scores = dict(list(corpus_scores.items())[:10])
     
-    # # clear the dataset folder to get a fresh start
-    # assert os.system(f"rm -rf {DATASET_PATH}") == 0
-    # assert os.system(f"mkdir -p {DATASET_PATH}") == 0
-    # assert os.system(f"mkdir -p {DATASET_PATH}/svg") == 0
-    # assert os.system(f"mkdir -p {DATASET_PATH}/mxl") == 0
-    # assert os.system(f"mkdir -p {DATASET_PATH}/png") == 0
+    # clear the dataset folder to get a fresh start
+    assert os.system(f"rm -rf {DATASET_PATH}") == 0
+    assert os.system(f"mkdir -p {DATASET_PATH}") == 0
+    assert os.system(f"mkdir -p {DATASET_PATH}/svg") == 0
+    assert os.system(f"mkdir -p {DATASET_PATH}/mxl") == 0
+    assert os.system(f"mkdir -p {DATASET_PATH}/png") == 0
     
-    # # use musescore to create svg and mxl files
-    # conversion = []
-    # for suffix in ["mxl", "svg", "png"]:
-    #     for score_id, score in corpus_scores.items():
-    #         conversion.append({
-    #             "in": os.path.join(
-    #                 OS_CORPUS_PATH, "scores", score["path"], f"lc{score_id}.mscx"
-    #             ),
-    #             "out": os.path.join(
-    #                 DATASET_PATH, suffix, f"{score_id}.{suffix}"
-    #             )
-    #         })
+    # use musescore to create svg and mxl files
+    conversion = []
+    for suffix in ["mxl", "svg", "png"]:
+        for score_id, score in corpus_scores.items():
+            conversion.append({
+                "in": os.path.join(
+                    OS_CORPUS_PATH, "scores", score["path"], f"lc{score_id}.mscx"
+                ),
+                "out": os.path.join(
+                    DATASET_PATH, suffix, f"{score_id}.{suffix}"
+                )
+            })
     
-    # with open(MS_CONVERSION_JSON, "w") as file:
-    #     json.dump(conversion, file)
+    with open(MS_CONVERSION_JSON, "w") as file:
+        json.dump(conversion, file)
     
-    # assert os.system(f"{MSCORE} -j {MS_CONVERSION_JSON}") == 0
-
+    assert os.system(f"{MSCORE} -j {MS_CONVERSION_JSON}") == 0
+    
     # slice up the SVG into PNG pages
     for score_id in corpus_scores.keys():
         pattern = os.path.join(DATASET_PATH, "svg", f"{score_id}-*.svg")
@@ -137,4 +178,36 @@ def prepare():
                 cv2.imwrite(system_png_path, system_img)
 
     # convert MusicXML to MusicSequence (msq)
-    # TODO...
+    msq_vocabulary = set()
+    with open(os.path.join(DATASET_PATH, "msq_errors.txt"), "w") as errout:
+        for score_id in corpus_scores.keys():
+            mxl_path = os.path.join(DATASET_PATH, "mxl", f"{score_id}.mxl")
+
+            print("Converting to MSQ:", mxl_path, "...")
+
+            print("\n\n", file=errout)
+            print("#" * (len(mxl_path) + 4), file=errout)
+            print("# " + mxl_path + " #", file=errout)
+            print("#" * (len(mxl_path) + 4), file=errout)
+            
+            mxl = MxlFile.load_mxl(mxl_path)
+            part = mxl.get_piano_part()
+
+            for (page_number, system_number), system in split_part_to_systems(part):
+                convertor = Mxl2Msq(errout=errout)
+                msq = convertor.process_part(system)
+                msq_vocabulary.update(convertor.msq_tokens)
+                
+                msq_path = os.path.join(
+                    DATASET_PATH, "samples", str(score_id),
+                    f"p{page_number}-s{system_number}.msq"
+                )
+                os.makedirs(os.path.dirname(msq_path), exist_ok=True)
+                with open(msq_path, "w") as file:
+                    print(msq, file=file)
+
+    with open(os.path.join(DATASET_PATH, "vocabulary.txt"), "w") as file:
+        for token in sorted(msq_vocabulary):
+            print(token, file=file)
+    print(msq_vocabulary)
+        
