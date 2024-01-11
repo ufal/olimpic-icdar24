@@ -33,6 +33,10 @@ build_parser.add_argument(
     "--inspect", type=int, default=None,
     help="Inspect just a single score"
 )
+build_parser.add_argument(
+    "--msq_only", action="store_true", default=False,
+    help="Only process the semantic data, not images (MXL, MSQ)"
+)
 
 subparsers.add_parser(
     "finalize",
@@ -63,7 +67,8 @@ elif args.command_name == "build":
     build(
         slice_index=args.slice_index,
         slice_count=args.slice_count,
-        inspect=args.inspect
+        inspect=args.inspect,
+        msq_only=args.msq_only
     )
 elif args.command_name == "finalize":
     finalize()

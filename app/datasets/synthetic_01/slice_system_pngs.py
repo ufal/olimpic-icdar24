@@ -1,5 +1,6 @@
 import os
 import glob
+import json
 import cv2
 import re
 from typing import Iterable
@@ -17,7 +18,14 @@ def slice_system_pngs(score_ids: Iterable[int]):
             png_path = svg_path.replace("svg", "png")
             
             print("Slicing to PNG:", svg_path, "...")
-            system_cropboxes = find_systems_in_svg(svg_path)
+            system_cropboxes, page_geometry = find_systems_in_svg(svg_path)
+
+            page_geometry_filename = os.path.join(
+                DATASET_PATH, "samples", str(score_id),
+                f"p{page_number}_geometry.json"
+            )
+            with open(page_geometry_filename, "w") as file:
+                json.dump(page_geometry, file, indent=2)
             
             img = cv2.imread(png_path, cv2.IMREAD_UNCHANGED)
             img = 255 - img[:, :, 3] # alpha becomes black on white
@@ -123,5 +131,28 @@ def find_systems_in_svg(
         system_cropboxes.append((
             int(x1), int(y1), int(x2), int(y2)
         ))
+    
+    page_geometry = {
+        "page_width": svg_file.width,
+        "page_height": svg_file.height,
+        "systems": [
+            {
+                "left": int(x1),
+                "top": int(y1),
+                "right": int(x2),
+                "bottom": int(y2)
+            }
+            for x1, y1, x2, y2 in system_bboxes
+        ],
+        "cropboxes": [
+            {
+                "left": int(x1),
+                "top": int(y1),
+                "right": int(x2),
+                "bottom": int(y2)
+            }
+            for x1, y1, x2, y2 in system_cropboxes
+        ]
+    }
 
-    return system_cropboxes
+    return system_cropboxes, page_geometry
