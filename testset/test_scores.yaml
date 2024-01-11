@@ -299,13 +299,6 @@
   imslp: '#97202'
   set_id: 5103561
   lyricist_url: https://imslp.org/wiki/Category:Herrick,_Robert
-6593095:
-  path: Duchambge,_Pauline/_/Prière_des_laboureurs
-  name: Prière des laboureurs
-  link: https://musescore.com/openscore-lieder-corpus/scores/6593095
-  imslp: '#348196'
-  set_id: 5106919
-  lyricist_url: https://imslp.org/wiki/Category:Brizeux,_Auguste
 6236150:
   path: Elgar,_Edward/7_Lieder/2_Queen_Mary’s_Song
   name: Queen Mary’s Song
@@ -403,6 +396,13 @@
   link: https://musescore.com/openscore-lieder-corpus/scores/5079391
   imslp: '#518017'
   set_id: 5079369
+  lyricist_url: null
+6620845:
+  path: Gray,_Louisa/_/Yes_and_No
+  name: Yes and No
+  link: https://musescore.com/openscore-lieder-corpus/scores/6620845
+  imslp: '#676305'
+  set_id: 5107149
   lyricist_url: null
 6174661:
   path: Greger,_Luise/3_Lieder,_Opp.122-124/3_Ihr_Gärtchen
@@ -628,6 +628,13 @@
   imslp: '#621374'
   set_id: 5103328
   lyricist_url: https://imslp.org/wiki/Category:Goethe,_Johann_Wolfgang_von
+6207073:
+  path: Kralik,_Mathilde/Jugend-Lieder/08_Das_Mädchen_und_die_Haselstaude
+  name: Das Mädchen und die Haselstaude
+  link: https://musescore.com/openscore-lieder-corpus/scores/6207073
+  imslp: '#621374'
+  set_id: 5103328
+  lyricist_url: https://imslp.org/wiki/Category:Herder,_Johann_Gottfried
 6577688:
   path: Lang,_Josephine/6_Deutsche_Lieder,_Op.11/5_Sängers_Trost
   name: Sängers Trost
@@ -915,13 +922,6 @@
   imslp: '#529227'
   set_id: 5103592
   lyricist_url: https://imslp.org/wiki/Category:Housman,_Alfred_Edward
-6670960:
-  path: Thys,_Pauline/_/Petit_nègre
-  name: Petit nègre
-  link: https://musescore.com/openscore-lieder-corpus/scores/6670960
-  imslp: '#517100'
-  set_id: 5107708
-  lyricist_url: null
 6641170:
   path: Viardot,_Pauline/6_Mélodies_et_une_havanaise/6b_Chanson_mélancolique
   name: Chanson mélancolique

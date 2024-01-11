@@ -9,6 +9,8 @@ SEED = 280507783
 CORPUS_SCORES_YAML = "../datasets/OpenScore-Lieder/data/scores.yaml"
 TEST_SCORES_YAML = "./test_scores.yaml"
 IMSLP_FILES_TSV = "./imslp_files.tsv"
+with open("../ignored_scores.yaml") as file:
+    IGNORED_SCORE_IDS = yaml.safe_load(file)["ignored_score_ids"]
 
 
 def load_all_scores() -> Dict[str, Dict[str, Any]]:
@@ -25,7 +27,13 @@ def select_test_scores(
     rng = random.Random(SEED)
     rng.shuffle(all_score_ids)
 
-    testset_score_ids = all_score_ids[:TEST_SCORE_COUNT]
+    testset_score_ids = []
+    i = 0
+    while len(testset_score_ids) < TEST_SCORE_COUNT:
+        id = all_score_ids[i]
+        if id not in IGNORED_SCORE_IDS:
+            testset_score_ids.append(id)
+        i += 1
 
     testset_scores = {
         id: score
