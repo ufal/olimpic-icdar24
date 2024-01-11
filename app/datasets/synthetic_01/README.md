@@ -13,6 +13,5 @@ To build on your machine:
 To run on the compute cluster with slurm:
 
 ```bash
-# THE xvfb-run IS IMPORTANT FOR MUSESCORE! (virtual X-Server)
-xvfb-run bash slurm/build_dataset_synthetic_01.sh
+bash slurm/build_dataset_synthetic_01.sh
 ```

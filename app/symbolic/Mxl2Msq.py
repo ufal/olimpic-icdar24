@@ -68,6 +68,7 @@ class Mxl2Msq:
         self._last_note_duration = None
         
         self._err(measure, measure.attrib)
+        self.emit("measure")
         for element in measure:
             if element.tag == "note":
                 self.process_note(element)

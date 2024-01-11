@@ -26,15 +26,14 @@ def split_part_to_systems(part: ET.Element) -> List[Tuple[Tuple[int, int], ET.El
 
     for measure in part:
         print_element = measure.find("print")
-        if print_element is None:
-            continue
-        if print_element.attrib.get("new-system") == "yes":
-            yield_system()
-            system_index += 1
-        if print_element.attrib.get("new-page") == "yes":
-            yield_system()
-            page_index += 1
-            system_index = 1
+        if print_element is not None:
+            if print_element.attrib.get("new-system") == "yes":
+                yield_system()
+                system_index += 1
+            if print_element.attrib.get("new-page") == "yes":
+                yield_system()
+                page_index += 1
+                system_index = 1
         system.append(measure)
     yield_system()
 

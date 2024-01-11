@@ -29,6 +29,10 @@ build_parser.add_argument(
 build_parser.add_argument(
     "--slice_count", type=int, default=1
 )
+build_parser.add_argument(
+    "--inspect", type=int, default=None,
+    help="Inspect just a single score"
+)
 
 subparsers.add_parser(
     "finalize",
@@ -58,7 +62,8 @@ if args.command_name == "clear":
 elif args.command_name == "build":
     build(
         slice_index=args.slice_index,
-        slice_count=args.slice_count
+        slice_count=args.slice_count,
+        inspect=args.inspect
     )
 elif args.command_name == "finalize":
     finalize()

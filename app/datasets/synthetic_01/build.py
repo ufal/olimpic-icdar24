@@ -4,15 +4,26 @@ from .config import *
 from .musescore_conversion import musescore_conversion
 from .produce_msq import produce_msq
 from .slice_system_pngs import slice_system_pngs
+from typing import Optional
 
 
-def build(slice_index: int, slice_count: int):
+def build(slice_index: int, slice_count: int, inspect: Optional[int]):
     # load and filter corpus scores
     with open(os.path.join(LIEDER_CORPUS_PATH, "data/scores.yaml")) as f:
         corpus_scores = yaml.load(f, Loader=yaml.FullLoader)
     for score_id in IGNORED_SCORE_IDS:
         del corpus_scores[score_id]
     
+    # inspection
+    if inspect is not None:
+        print("INSPECTING SCORE", inspect, "...")
+        assert inspect in corpus_scores.keys()
+        corpus_scores = {
+            inspect: corpus_scores[inspect]
+        }
+        slice_count = 1
+        slice_index = 0
+
     # slice score IDs
     assert slice_index >= 0
     assert slice_index < slice_count
