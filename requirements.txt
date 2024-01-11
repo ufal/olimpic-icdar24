@@ -1,4 +1,5 @@
-svgelements==1.9.6
-pyyaml==6.0.1
-opencv-python==4.8.0.74
-scikit-image==0.17.2
+svgelements>=1.9.6
+pyyaml>=6.0.1
+numpy>= 1.24.4
+opencv-python>=4.8.0.74
+scikit-image>=0.17.2
