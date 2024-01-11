@@ -1,5 +1,7 @@
 import argparse
-from .prepare import prepare
+from .clear import clear
+from .build import build
+from .finalize import finalize
 
 
 ##########
@@ -13,13 +15,35 @@ subparsers = parser.add_subparsers(
     dest="command_name"
 )
 
-subparsers.add_parser(
-    "prepare",
+build_parser = subparsers.add_parser(
+    "build",
     aliases=[],
     help="Prepare the dataset",
     description=
         "Builds the dataset up from the downloaded Open Score " + \
         "Lieder corpus."
+)
+build_parser.add_argument(
+    "--slice_index", type=int, default=0
+)
+build_parser.add_argument(
+    "--slice_count", type=int, default=1
+)
+
+subparsers.add_parser(
+    "finalize",
+    aliases=[],
+    help="Finalize build",
+    description=
+        "Join results from all the build slices"
+)
+
+subparsers.add_parser(
+    "clear",
+    aliases=[],
+    help="Remove the dataset",
+    description=
+        "Removes the dataset folder so that the next build starts from scratch"
 )
 
 
@@ -29,8 +53,15 @@ subparsers.add_parser(
 
 args = parser.parse_args()
 
-if args.command_name == "prepare":
-    prepare()
+if args.command_name == "clear":
+    clear()
+elif args.command_name == "build":
+    build(
+        slice_index=args.slice_index,
+        slice_count=args.slice_count
+    )
+elif args.command_name == "finalize":
+    finalize()
 else:
     parser.print_help()
     exit(2)
