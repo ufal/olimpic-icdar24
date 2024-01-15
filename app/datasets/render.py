@@ -1,10 +1,10 @@
 import xml.etree.ElementTree as ET
 from typing import Iterable, List, Optional, Tuple
 import os
-from .OpenScoreLiederMxlFile import OpenScoreLiederMxlFile
+from ..symbolic.MxlFile import MxlFile
 
 
-def prune_mxl_file(mxl: OpenScoreLiederMxlFile):
+def prune_mxl_file(mxl: MxlFile):
     # remove the voice part completely
     id = mxl.resolve_piano_part_id()
     part_list = mxl.tree.find("part-list")
@@ -57,7 +57,7 @@ def prune_mxl_file(mxl: OpenScoreLiederMxlFile):
         p.remove(e)
 
 
-def append_mxl_file(mxl: OpenScoreLiederMxlFile, mxl_extension: OpenScoreLiederMxlFile):
+def append_mxl_file(mxl: MxlFile, mxl_extension: MxlFile):
     piano_part = mxl.get_piano_part()
     extension = mxl_extension.get_piano_part()
 
@@ -90,13 +90,13 @@ MUSESCORE = "musescore/musescore.AppImage"
 TMP_FILE = "app/datasets/render"
 
 
-mxl = OpenScoreLiederMxlFile.load(
+mxl = MxlFile.load(
     "Chaminade,_Cécile/_/Alleluia",
     "6260992"
 )
 prune_mxl_file(mxl)
 
-mxl_extension = OpenScoreLiederMxlFile.load(
+mxl_extension = MxlFile.load(
     "Chaminade,_Cécile/_/Amertume",
     "6261036"
 )
