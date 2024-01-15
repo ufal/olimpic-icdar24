@@ -1,11 +1,4 @@
-.PHONY: install-lilypond install-musescore install-open-score-lieder-dataset
-
-install-lilypond:
-	rm -rf lilypond
-	wget https://gitlab.com/lilypond/lilypond/-/releases/v2.24.3/downloads/lilypond-2.24.3-linux-x86_64.tar.gz
-	tar -xf lilypond-2.24.3-linux-x86_64.tar.gz
-	mv lilypond-2.24.3 lilypond
-	rm lilypond-2.24.3-linux-x86_64.tar.gz
+.PHONY: install-musescore install-open-score-lieder-dataset
 
 install-musescore:
 	rm -rf musescore
@@ -21,6 +14,3 @@ install-open-score-lieder-dataset:
 	unzip OpenScore-Lieder-Snapshot-2023-10-30.zip
 	mv Lieder-main datasets/OpenScore-Lieder
 	rm OpenScore-Lieder-Snapshot-2023-10-30.zip
-
-prepare-lieder-svg-and-mxl-files:
-	.venv/bin/python3 -c 'from app.datasets.prepare_open_score_lieder import prepare_open_score_lieder; prepare_open_score_lieder()'
