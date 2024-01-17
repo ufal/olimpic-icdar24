@@ -2,6 +2,7 @@ import xml.etree.ElementTree as ET
 from typing import Optional, List, TextIO, Dict
 import io
 from .vocabulary import *
+from fractions import Fraction
 
 
 IGNORED_MEASURE_ELEMENTS = set([
@@ -9,6 +10,16 @@ IGNORED_MEASURE_ELEMENTS = set([
     "direction", "harmony", "figured-bass", "print", "sound", "listening",
     "grouping", "link", "bookmark"
 ])
+
+IGNORED_ATTRIBUTES_ELEMENTS = set([
+    # https://www.w3.org/2021/06/musicxml40/musicxml-reference/elements/attributes/
+    "footnote", "level", "part-symbol", "instruments", "staff-details",
+    "directive", "measure-style"
+])
+
+
+# NOTE: Use assert only for very major things. For everything else,
+# use self._error, so that the code works fine with slightly unexpected input
 
 
 class Linearizer:
@@ -25,9 +36,10 @@ class Linearizer:
         # within-part state
         self._page_index = 0 # page within part, zero-indexed
         self._system_index = 0 # system within page, zero-indexed
-        self._divisions: Optional[int] = None # duration conversion
+        self._divisions: Optional[int] = None # time units per one quarter note
         self._beats_per_measure: Optional[int] = None # time signature top
         self._beat_type: Optional[int] = None # time signature bottom
+        self._measure_duration: Optional[int] = None # time-units per measure
         self._staves: Optional[int] = None # number of staves
         self._clefs: Dict[Optional[str], _Clef] = {} # clef for staves
 
@@ -36,7 +48,8 @@ class Linearizer:
         self._staff: Optional[str] = None # "1", "2", None
         self._onset: int = 0 # in duration units
         self._voice: int = 0 # voice index in implicit numbering
-        self._last_note_duration: Optional[int] = None # for chord checks
+        self._previous_note_duration: Optional[int] = None # for chord checks
+        self._previous_note_pitch: Optional[str] = None # for chord checks
 
     def _error(self, *values):
         print(*values, file=self._errout)
@@ -47,7 +60,7 @@ class Linearizer:
         self.output_tokens.append(token)
 
         # TODO: DEBUG PRINTING
-        print(token)
+        # print(token)
 
     def process_part(self, part: ET.Element):
         # reset within-part state
@@ -56,6 +69,7 @@ class Linearizer:
         self._divisions = None
         self._beats_per_measure = None
         self._beat_type = None
+        self._measure_duration = None
         self._staves = None
         self._clefs = {}
         
@@ -66,12 +80,15 @@ class Linearizer:
             self.process_measure(measure)
     
     def process_measure(self, measure: ET.Element):
+        assert measure.tag == "measure"
+
         # reset within-measure state
         self._stem_orientation = None
         self._staff = None
         self._onset = 0
         self._voice = 0
-        self._last_note_duration = None
+        self._previous_note_duration = None
+        self._previous_note_pitch = None
 
         self._handle_new_system_or_page(measure)
         
@@ -80,19 +97,25 @@ class Linearizer:
 
         for element in measure:
             if element.tag == "note":
-                self.process_note(element)
+                self.process_note(element, measure)
             elif element.tag == "attributes":
                 self.process_attributes(element)
             elif element.tag == "backup":
-                self.process_backup(element, measure)
+                # self.process_backup(element, measure)
+                pass
             elif element.tag == "forward":
-                self.process_forward(element)
+                # self.process_forward(element)
+                pass
             elif element.tag in IGNORED_MEASURE_ELEMENTS:
                 pass # ignored
             else:
-                self._error("Unexpected measure element:", element, element.attrib)
+                # TODO: DEBUG disabled temporarily (barlines spam now)
+                pass
+                # self._error("Unexpected <measure> element:", element, element.attrib)
     
     def _handle_new_system_or_page(self, measure: ET.Element):
+        assert measure.tag == "measure"
+
         for element in measure:
             if element.tag == "print":
                 if element.attrib.get("new-system") == "yes":
@@ -102,24 +125,184 @@ class Linearizer:
                     self._page_index += 1
                     return
     
-    def process_note(self, note: ET.Element):
-        note_type = note.find("type")
-        if note_type is not None:
-            assert note_type.text in NOTE_TYPE_TOKENS
-            self._emit(note_type.text)
+    def process_note(self, note: ET.Element, measure: ET.Element):
+        assert note.tag == "note"
+
+        # print-object="no" attribute
+        no_print_object = False
+        if note.attrib.get("print-object") == "no":
+            no_print_object = True
+            # self._error("TODO: handle non-printing objects")
+
+        # [grace]
+        grace_element = note.find("grace")
+        is_grace_note = grace_element is not None
+        if is_grace_note:
+            self._emit("grace")
+            if grace_element.attrib.get("slash") == "yes":
+                self._emit("grace:slash")
+        
+        # [chord]
+        chord_element = note.find("chord")
+        is_chord = chord_element is not None
+        if is_chord:
+            self._emit("chord")
+
+        # [rest]
+        rest_element = note.find("rest")
+
+        # [rest] or [pitch]
+        rest_element = note.find("rest")
+        is_measure_rest = False
+        pitch_token: Optional[str] = None
+        if rest_element is not None:
+            self._emit("rest")
+            is_measure_rest = rest_element.attrib.get("measure") == "yes"
+        else:
+            pitch_element = note.find("pitch")
+            pitch_token = pitch_element.find("step").text + pitch_element.find("octave").text
+            assert pitch_token in PITCH_TOKENS, "Invalid pitch: " + pitch_token
+            self._emit(pitch_token)
+        
+        # [type] or [rest:measure] - the ROOT of the [note] sequence
+        type_element = note.find("type")
+        if type_element is not None:
+            assert type_element.text in NOTE_TYPE_TOKENS
+            self._emit(type_element.text)
+        elif is_measure_rest:
+            self._emit("rest:measure")
         else:
             self._error("Note does not have <type>:", ET.tostring(note))
+        
+        # extract duration
+        duration_element = note.find("duration")
+        duration: Optional[int] = None
+        if duration_element is None and not is_grace_note:
+            self._error("Note lacks duration:", ET.tostring(note))
+            duration = int(duration_element.text)
+            assert duration > 0
+
+        # check assumptions about the linearization process
+        self._verify_note_duration(duration, note, measure, is_measure_rest, is_grace_note)
+        self._verify_chords(duration, pitch_token, is_chord, note, measure)
+
+        # perform on-exit state changes
+        self._previous_note_duration = duration
+        self._previous_note_pitch = pitch_token
+    
+    def _verify_note_duration(
+        self, duration: Optional[int], note: ET.Element, measure: ET.Element,
+        is_measure_rest: bool, is_grace_note: bool
+    ):
+        if duration is None:
+            return
+
+        # verify for measure rests
+        if is_measure_rest:
+            # TODO: DEBUG disabled
+            # if duration != self._measure_duration:
+            #     self._error(
+            #         "Measure rest does not have expected duration.",
+            #         "Divisions: " + str(self._divisions),
+            #         "Time signature: " + str(self._beats_per_measure) + "/" + str(self._beat_type),
+            #         "Measure duration: " + str(self._measure_duration),
+            #         "Measure: " + repr(measure.attrib),
+            #         "Note: " + repr(note.attrib),
+            #         ET.tostring(note)
+            #     )
+            return
+        
+        # TODO: triplets
+
+        # verify for regular notes
+        # TODO
+    
+    def _verify_chords(
+        self, duration: Optional[int], pitch_token: Optional[str],
+        is_chord: bool, note: ET.Element, measure: ET.Element
+    ):
+        if not is_chord:
+            return
+        
+        # verify duration
+        if duration != self._previous_note_duration:
+            self._error(
+                "Chord notes have varying duration.",
+                "Measure: " + repr(measure.attrib),
+                ET.tostring(note)
+            )
+        
+        # verify pitch order
+        previous_order = PITCH_TOKENS.index(self._previous_note_pitch)
+        current_order = PITCH_TOKENS.index(pitch_token)
+        if previous_order > current_order:
+            self._error(
+                "Chord notes must have ascending pitches.",
+                "Measure: " + repr(measure.attrib),
+                ET.tostring(note)
+            )
 
     def process_attributes(self, attributes: ET.Element):
-        self._error("TODO: parse attributes")
+        # the order of elements is well defined
+        # https://www.w3.org/2021/06/musicxml40/musicxml-reference/elements/attributes/
+        assert attributes.tag == "attributes"
+
+        for element in attributes:
+            if element.tag == "divisions":
+                self.process_divisions(element)
+            elif element.tag == "key":
+                pass # TODO
+            elif element.tag == "time":
+                self.process_time_signature(element)
+            elif element.tag == "staves":
+                pass # TODO
+            elif element.tag == "clef":
+                pass # TODO
+            elif element.tag in IGNORED_ATTRIBUTES_ELEMENTS:
+                pass # ignored
+            else:
+                self._error("Unexpected <attributes> element:", element, element.attrib)
+
+        # self._error("TODO: parse attributes")
         # self._divisions = int(element.find("divisions").text)
         # self._beats_per_measure = int(element.find("time/beats").text)
         # self._beat_type = int(element.find("time/beat-type").text)
         # assert element.find("staves").text == "2", "So far, only piano supported"
         # TODO: clefs
-        self._error("TODO: clefs!")
+        # self._error("TODO: clefs!")
+
+    def process_divisions(self, divisions: ET.Element):
+        assert divisions.tag == "divisions"
+
+        self._divisions = int(divisions.text)
+        assert self._divisions > 0, "<divisions> should be a positive number"
+
+    def process_time_signature(self, time: ET.Element):
+        assert time.tag == "time"
+
+        assert self._divisions is not None, "Time signature should follow <divisions>"
+        
+        beats = time.find("beats")
+        assert beats is not None, "<beats> must be present in <time> element"
+        beat_type = time.find("beat-type")
+        assert beat_type is not None, "<beat-type> must be present in <time> element"
+        
+        self._beats_per_measure = int(beats.text)
+        assert self._beats_per_measure > 0
+        self._beat_type = int(beat_type.text)
+        assert self._beat_type > 0
+
+        # compute measure duration
+        beat_type_fraction = Fraction(1, self._beat_type)
+        quarters_per_beat_type = beat_type_fraction / Fraction(1, 4)
+        quarters_per_measure = quarters_per_beat_type * self._beats_per_measure
+        time_units_per_measure = quarters_per_measure * self._divisions
+        assert time_units_per_measure.denominator == 1, "Measure duration calculation failed"
+        self._measure_duration = time_units_per_measure.numerator
     
     def process_backup(self, backup: ET.Element, measure: ET.Element):
+        assert backup.tag == "backup"
+
         backup_duration = int(backup.find("duration").text)
         # print("\t", self._onset, backup_duration)
         # assert self._onset == backup_duration, "Backups can only be to measure start"
@@ -134,6 +317,8 @@ class Linearizer:
         self._stem_orientation = None
 
     def process_forward(self, forward: ET.Element):
+        assert forward.tag == "forward"
+
         forward_duration = int(forward.find("duration").text)
         self._error("\t", self._onset, forward_duration)
         self._onset += forward_duration

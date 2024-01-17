@@ -2,9 +2,6 @@ import xml.etree.ElementTree as ET
 
 
 def linearize():
-    """Convert MusicXML <part> element"""
-    pass
-
-def linearize_etree_part(part: ET.Element):
-    """Convert MusicXML <part> element loaded in xml.etree"""
+    # this should be a nice-to-use wrapper around Linearizer,
+    # that accepts all sorts of values (raw xml string, file stream, ET element)
     pass

@@ -131,6 +131,12 @@ Rest is a kind of notation that behaves like a note without pitch. A note that i
 
 Vertical rest position is not encoded (used in polyphony).
 
+If a rest is alone in a measure, it is considered to be a **measure rest** and it always looks like a whole rest, even if the measure contains only three quarter notes at maximum. Because of this, measure rests are encoded in MusicXML with a `measure="yes"` attribute. This rest lacks the `<type>` element (since its meaning is kind of dissolved because of the duration-exception).
+
+For this reason measure rests cannot use the `[type]` token and a new token `rest:measure` is introduced in its place to serve as the new syntactic root of the `[note]` token sequence.
+
+Note that sometimes the measure rest may not even be displayed, because there are multiple staves and this rests applies only to one of the staves. See measure 40 [here](https://musescore.com/user/27638568/scores/5087729).
+
 
 ### Stem `<stem>`, `[stem]`
 
@@ -264,6 +270,8 @@ Grace notes are regular notes, that (are smaller) and don't have duration. Other
 
 In MusicXML these are represented by an element `<grace>`, that behave similarly to the `<chord>` element. Therefore in the linearized representation, grace notes are represented by a `grace` token.
 
+Grace notes can be slashed, which in MusicXML is represented by an attribute `slash="yes"`. If that attribute is present, then the `"grace"` token is followed by a `"grace:slash"` token.
+
 
 ### Clef `<clef>`
 
@@ -321,6 +329,8 @@ In MusicXML, key signatures at the beginning of systems are NOT explicitly encod
 
 ### Time signature `<time>`, `[time]`
 
+> **On reading time in music:**<br>
+> Time signature consist of two numbers on top of each other (`C` means `4/4` and `crossed C` means `2/2`). The top number states the number *beats* per mesure, the bottom one states the type of the *beat*. `/2` means one beat is one half note, `/4` means one beat is one quarter note. The tempo (e.g. `tempo: 140`) means the number of *beats* per minute. The `<divisions>` MusicXML states the number of time units per *quarter note* (not the *beat*!) - a quarter note may be half a beat in a `2/2` meter. Because of this, whole notes do not fit into less-than whole measures (e.g. `3/4` is filled by a dotted half note, or three quarter notes). Measure rests are an exception! They look like whole restst, but if they are alone in the measure, they are used even if the measure is less-than-whole. This is the only exception and MusicXML encodes them with a special attribute.
 
 When analyzing the OpenScore Lieder corpus, we find these time signatures being used:
 
@@ -527,16 +537,71 @@ This is an attempt at modelling the linearized MusicXML by a simple grammar:
 
 # [measure] starts with the "measure" terminal and then contains notes
 # and other notation primitives (noted as measure-item)
-[measure] = "measure" # ...TODO
+[measure] = "measure" [measure-element]*
 
-# ... TODO ...
+# an element inside a measure
+[measure-element] =
+    | [note]
+    | [key]
+    | [time]
+    | [clef]
+    | [backup]
+    | [forward]
 
-#
+[key] =
+    | "key:fifths:-7"
+    | "key:fifths:-6"
+    | "key:fifths:-5"
+    | "key:fifths:-4"
+    | "key:fifths:-3"
+    | "key:fifths:-2"
+    | "key:fifths:-1"
+    | "key:fifths:0"
+    | "key:fifths:1"
+    | "key:fifths:2"
+    | "key:fifths:3"
+    | "key:fifths:4"
+    | "key:fifths:5"
+    | "key:fifths:6"
+    | "key:fifths:7"
+
+[time] = "time" [beats] [beat-type]
+
+[beats] =
+    | "beats:1"
+    | "beats:2"
+    | "beats:3"
+    | "beats:4"
+    | "beats:5"
+    | "beats:6"
+    | "beats:7"
+    | "beats:8"
+    | "beats:9"
+    | "beats:10"
+    | "beats:11"
+    | "beats:12"
+    | "beats:13"
+    | "beats:14"
+    | "beats:15"
+    | "beats:16"
+
+[beat-type] =
+    | "beat-type:2"
+    | "beat-type:4"
+    | "beat-type:8"
+    | "beat-type:16"
+
+[clef] = ???? #TODO
+
+[backup] = ???? #TODO
+
+[forward] = ???? #TODO
+
 [note] = (
     [grace]?
     [chord]?
     ([rest] | [pitch])
-    [type]  # this is the ROOT of a [note], must be present, is used for parsing
+    ([type] | "rest:measure")  # this is the ROOT of a [note], must be present, is used for parsing
     [dot]*
     [accidental]?
     [stem]?
@@ -544,19 +609,48 @@ This is an attempt at modelling the linearized MusicXML by a simple grammar:
     [beam]*
 )
 
+# [grace] indicates that the note is a grace note, can be slashed
+[grace] = "grace" "grace:slash"?
+
+# [chord] indicates that the note is a chord extension from the previous note
+[chord] = "chord"
+
+# [rest] indicates that the note is in fact a rest
+[rest] = "rest"
+
+# [dot] is a duration dot, one occurence for each notated dot
+[dot] = "dot"
+
 # possible accidentals
 [accidental] =
     # the ususal ones
-    | sharp
-    | flat
-    | natural
+    | "sharp"
+    | "flat"
+    | "natural"
     # the weird ones from accidental overriding
-    | double-sharp
-    | flat-flat
-    | natural-sharp
-    | natural-flat
+    | "double-sharp"
+    | "flat-flat"
+    | "natural-sharp"
+    | "natural-flat"
     # no microtonal music, this is enough
     # https://www.w3.org/2021/06/musicxml40/musicxml-reference/data-types/accidental-value/
+
+# a change in orientation of stems
+[stem] =
+    | "stem:up"
+    | "stem:down"
+
+# a change in current staff
+[staff] =
+    | "staff:1"
+    | "staff:2"
+
+# beam start or end or a hook
+[beam] =
+    | "beam:begin"
+    | "beam:end"
+    | "beam:forward-hook"
+    | "beam:backward-hook"
 
 ```
 
