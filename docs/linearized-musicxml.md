@@ -40,8 +40,9 @@ While MusicXML may allow more freedom in how music is represented (say, voices, 
 ## Pending questions
 
 - Should grace notes be core or extended?
-- Tremolo signs?
 - Half and whole notes in 3/4 and weird/16 time signatures? How does counting "up" works?
+- `print-object="no"` creates invisible objects, check how they are used and why
+- double barlines, repeats
 
 
 ## Reference documentation
@@ -265,13 +266,61 @@ Grace notes are regular notes, that (are smaller) and don't have duration. Other
 In MusicXML these are represented by an element `<grace>`, that behave similarly to the `<chord>` element. Therefore in the linearized representation, grace notes are represented by a `grace` token.
 
 
-### Clef
+### Clef `<clef>`
+
+In MusicXML a clef is represented within the `<attributes>` element in between notes. It has three important values:
+
+- `<sign>` - what type of clef is this (G, C, F)
+- `<line>` - what staffline it sits on (1, 2, 3, 4, 5 - numbered from the bottom line up)
+- `number` - attribute containing the staff number (1 or 2 or missing)
+
+This is the distribution of clefs in the OpenScore Lieder corpus:
+
+```py
+Counter({'G2': 4018, 'F4': 2825, 'G1': 4, 'C1': 2, 'F3': 1})
+```
+
+Clefs often change at the beginning of a measure. The first measure defines both clefs in one `<attributes>` element (staff 1 first, then staff 2). If the part is not a piano grandstaff, the staff number is omitted.
+
+If a clef changes in the middle of a measure, it is annotated in the first voice of a staff. So second staff clef change is annotated in the sequence of notes of the first voice of the second staff. This is very likely defined by MuseScore, since MusicXML just states that the modification happens score-wise, not MusicXML note-order-wise. If at the beginning of a measure only one clef changes, only that one clef is notated. The other one is not - it is kept implicit from the previous measures. The specific placement of clefs in the note stream for these experiments is driven by the output ordering and formatting of MuseScore.
+
+Sometimes a clef is notated at the end of a system, because it changes at the beginning of the next system. This is only typesetting feature and is not encoded in MusicXML nor its linearization (but the clef change on the next system is of course encoded).
+
+In MusicXML, clefs at the beginning of systems are NOT explicitly encoded. However we train an end-to-end model that only gets systems, without the information of preceeding notation. So to correctly decode a system, we add explicit repetition of clefs at the beginning of each system measure (just like what is done in the actual printed score). (note that this does not apply for time signatures, only clefs and key signatures)
 
 
-### Key signature
+### Key signature `<key>`, `<fifths>`
+
+Key signature is represented in MusicXML by the `<key>` element inside of the `<attributes>` element. It can contain:
+
+- `<fifths>` - encodes the number of sharps or flats
+- `<cancel>` - explicit cancelling of the previous key signature, since not used in OpenScore Lieder corpus, we ignore this element
+- `<mode>` - specifies the mode of the key (major, minor, dorian, ... unusual ones), here only "major", "minor", and "none" are used in the corpus; but this element is ignored because it encodes a semantic "meaning" or "understanding" of the key with respect to the song - it has no effect on the number, or positioning of the key signature accidentals
+
+The `<fifths>` element value is a number - the number of flats/sharps, in range:
+
+```
+-7 -6 -5 ... -2 -1 0 1 2 ... 5 6 7
+```
+
+Negative values are flats, zero is no signature, positive are sharps (the number of them). This is the distribution of signatures in the corpus:
+
+```py
+Counter({'0': 228, '1': 226, '-1': 212, '-3': 194, '2': 173, '4': 167,
+    '-2': 160, '-4': 152, '3': 130, '5': 78, '-5': 77, '-6': 30, '6': 17,
+    '7': 4, '-7': 3})
+```
+
+Key signature is in MusicXML explicitly notated at the begining of a part even if it's 0. (maybe because MuseScore does that, not that MusicXML requires it). Then it's notated at the beginning of a measure whenever the signature changes.
+
+Key changes mid-measure are not allowed in MuseScore (see [this thread](https://musescore.org/en/node/91516)) and so they will not appear in our data.
+
+Sometimes a key change is notated at the end of a system, because it changes at the beginning of the next system. This is only typesetting feature and is not encoded in MusicXML nor its linearization (but the key change on the next system is of course encoded).
+
+In MusicXML, key signatures at the beginning of systems are NOT explicitly encoded. However we train an end-to-end model that only gets systems, without the information of preceeding notation. So to correctly decode a system, we add explicit repetition of key signatures at the beginning of each system measure (just like what is done in the actual printed score). (note that this does not apply for time signatures, only clefs and key signatures)
 
 
-### Time signature `<time>`
+### Time signature `<time>`, `[time]`
 
 
 When analyzing the OpenScore Lieder corpus, we find these time signatures being used:
@@ -296,7 +345,7 @@ When analyzing the OpenScore Lieder corpus, we find these time signatures being 
 
 Although the frequency is biased towards a few, the distribution is still quite broad:
 
-```
+```py
 Counter({'4/4': 705, '3/4': 546, '2/4': 538, '6/8': 326, '3/8': 149,
     '9/8': 114, '2/2': 83, '12/8': 50, '3/2': 48, '6/4': 40, '4/8': 16,
     '9/4': 10, '5/4': 10, '7/8': 10, '4/2': 7, '2/8': 5, '1/4': 3, '8/8': 3,
@@ -327,7 +376,9 @@ Which neatly mirrors the XML:
 </time>
 ```
 
-Time signature in MusicXML is stated at the first measure and then during changes. In notation, the same behaviour occus (another words, time signature is NOT re-stated at the begining of each system). Sometimes the notation setting software places time signature at the end of a line, when the measure on the next line has a different time signature. This cautionary time signature is not encoded, only the next measure's time signature will be encoded.
+Time signature in MusicXML is stated at the first measure and then during changes. In notation, the same behaviour occus (another words, time signature is NOT re-stated at the begining of each system). We DO NOT re-state the time signature at the beginning of each system even though we train an end-to-end model on individual systems. We don't do this because the printed notation does not do that AND the model does not need it, because the encoding does not enforce measure durations explicitly and note durations are encoded visually via the note type.
+
+Sometimes the notation setting software places time signature at the end of a line, when the measure on the next line has a different time signature. This cautionary time signature is not encoded, only the next measure's time signature will be encoded.
 
 Here are some interesting scores, time signature-wise, for testing:
 - https://musescore.com/score/6196804 (12/8, 6/8, 9/8)
@@ -337,19 +388,69 @@ Here are some interesting scores, time signature-wise, for testing:
 - https://musescore.com/score/5861338 (4/4, 3/2, 2/2, 4/4)
 
 
+### Tuplets `<tuplet>`, `[tuplet]`
+
+TODO: (do it like beams, ignore nested tuplets)
+
+
 ### Measure `<measure>`, `[measure]`
+
+Measures begin with a `measure` token, and then a sequence of inner elements continues. So the `measure` token can be used as the measure separator and all information about the measure after the `measure` token and before the next `measure` token.
 
 
 ### Staff `<staff>`, `[staff]`
 
+Monophonic music is typically written on only one-staff systems, whereas piano music is written onto two-staff systems. The piano two-staff system is sometimes called a grandstaff.
+
+There may be even three-staff systems and there is [one example in the corpus](https://musescore.com/openscore-lieder-corpus/scores/6005658)! But these cases are rare and will ignore them.
+
+For single-staff music, there is no need to annotate which staff a given note belongs to. So none of the mentioned tokens are used in such a case. NOT EVEN EXPLICIT `staff:1` TOKENS! (because MusicXML does not include the `<staff>` elements in such a case either)
+
+For grandstaff music, a voice may transition from one staff to the other, so we need explicit notation. A multi-staff part begins its first `<measure>` with a `<staves>` element inside the `<attributes>` element, which contains `2` - the number of staves that will be used. Since stave count changes mid-part are rare, we chose to ignore this element during linearization.
+
+The staff number is tracked in the same way to the stem orientation with tokens `staff:1` and `staff:2` (1 = upper, 2 = lower). The tracking is reset with measure start and voice change (`<backup>`), so the first notes of each voice always include the staff information and then notes that first switch to another staff include staff information.
+
+During decoding, a measure can be checked to see if it contains these tokens and that can be used to disambiguate monophonic music from pianoforms.
+
 
 ### Voices `<voice>`
+
+TODO
 
 
 #### Backup `<backup>`, `[backup]`
 
+TODO
+
 
 #### Forward `<forward>`, `[forward]`
+
+important: contains staff and voice information, since it's almost a rest, needed if the voice does not start at the beginning of the measure; but should be encoded?? Can be left to the note... What does MuseScore do?
+
+
+### Other note notations
+
+First, some statistics to get a sense:
+
+```py
+# <notations>
+Counter({'slur': 145962, 'tied': 71064, 'articulations': 56520,
+'tuplet': 50560, 'arpeggiate': 23582, 'ornaments': 5069, 'fermata': 3691,
+'technical': 320, 'non-arpeggiate': 177, 'slide': 12})
+
+# <notations>/<articulations>
+Counter({'staccato': 48882, 'accent': 14571, 'strong-accent': 4648,
+'tenuto': 4613, 'staccatissimo': 1288, 'detached-legato': 1167,
+'breath-mark': 198, 'soft-accent': 32, 'caesura': 12, 'doit': 1, 'scoop': 1})
+
+# <notations>/<ornaments>
+Counter({'tremolo': 5652, 'trill-mark': 437, 'wavy-line': 393,
+'turn': 80, 'inverted-mordent': 77, 'accidental-mark': 26,
+'inverted-turn': 19})
+
+# <notations>/<technical>
+Counter({'fingering': 511})
+```
 
 
 ## Pseudo grammar
@@ -408,16 +509,195 @@ This is an attempt at modelling the linearized MusicXML by a simple grammar:
 ```
 
 
+## MusicXML element reference with implementation notes
+
+At [this page](https://www.w3.org/2021/06/musicxml40/musicxml-reference/element-tree/) you can see the list of all MusicXML elements in a tree-structure. Here we list these elements (or element groups) and state, whether they belong to the core encoding, the extended, or are ignored for some reason:
 
 
----
+### Used elements
 
-Remaining undocumented tokens:
+```xml
+Root of the MusicXML document
+<score-partwise>
+```
 
-backup
-forward
-dot
-grace
-measure
-staff:1
-staff:2
+```xml
+Root of the actual musical content
+= The thing that we convert back and forth
+<part>
+```
+
+```xml
+Used, Linearization: CORE
+<measure> converted to [measure]
+<attributes> not explicitly linearized, only its contents
+<clef><line><sign> converted to [clef]
+<divisions> used but not explicitly linearized
+<key><fifths> converted to [key]
+<staves> used but not explicitly linearized
+<time><beat-type><beats> converted to [time]
+<backup> used for voice changes
+<duration> used in backup/forward, implicitly used in notes and rests
+<forward> used for invisible restst within voices
+<note> converted to [note]
+<accidental> converted to [accidental]
+<beam> converted to [beam]
+<chord> converted to [chord]
+<dot> converted to [dot]
+<grace> converted to [grace]
+<pitch><octave><step> converted to [pitch]
+<rest> converted to [rest]
+<staff> converted to [staff]
+<stem> converted to [stem]
+<time-modification> used for tuplets
+<type> converted to [type], encodes duration
+<voice> used but not explicitly linearized
+<notations> not explicitly linearized, only its contents
+<articulations> not explicitly linearized, only its contents
+<ornaments> not explicitly linearized, only its contents
+<technical> not explicitly linearized, only its contents
+<tied> converted to [tied]
+
+================
+
+<tuplet> TODO
+    <tuplet-actual>
+    <tuplet-dot>
+    <tuplet-number>
+    <tuplet-type>
+    <tuplet-normal>
+    <tuplet-dot>
+    <tuplet-number>
+    <tuplet-type>
+```
+
+```xml
+Used, Linearization: EXTENDED
+<slur>
+<fermata>
+<arpeggiate>
+<staccato>
+<accent>
+<strong-accent>
+<tenuto>
+<tremolo>
+<trill-mark>
+
+================
+
+<measure-style> TODO
+    <beat-repeat>
+    <except-voice>
+    <slash-dot>
+    <slash-type>
+    <measure-repeat>
+    <multiple-rest>
+    <slash>
+    <except-voice>
+    <slash-dot>
+    <slash-type>
+<barline> TODO
+    <bar-style>
+    <coda>
+    <ending>
+    <fermata>
+    <repeat>
+    <segno>
+    <wavy-line>
+```
+
+
+### Ignored elements
+
+```xml
+Ignored, because they are metadata that do not affect the music itself:
+<score-partwise>
+<credit>
+<defaults>
+<identification>
+<movement-number>
+<movement-title>
+<part-list>
+<work>
+```
+
+```xml
+Ignored knowingly - it should never be added for some reason
+<directive> deprecated since MXL 2.0
+<print> contains layout information only, we DO use it for system slicing, but not for linearization
+<sound> contains non-visual data
+<alter> pitch alter is linearized implicitly by key signature and accidentals
+<play><ipa><mute><other-play><semi-pitched> sound data? (i guess)
+<tie> indicates sound, tied indicates notation
+```
+
+```xml
+Ignored by omission - it is rare, strange, obscure, but may be added in theory
+<clef-octave-change> rare
+<footnote> contains free text
+<for-part>
+<instruments>
+{key}<cancel><key-accidental><key-alter><key-octave><key-step><mode> key signature features
+<level> contains free text
+<part-symbol>
+<staff-details>
+{time}<interchangeable><time-relation><senza-misura> time signature features
+<transpose><chromatic><diatonic><double><octave-change>
+<bookmark>
+<direction> dynamic, hairpins, piano pedals - ignored because it's non essential to notes themselves
+<figured-bass>
+<grouping><feature>
+<harmony>
+<link>
+<listening><offset><other-listening><sync>
+<cue> cue notes
+<instrument>
+<listen><assess><other-listen><wait>
+<lyric> contains free text
+<notehead>
+<notehead-text><accidental-text><display-text>
+{rest}<display-octave><display-step> positional information for rests is not important for reading, only printing
+<unpitched><display-octave><display-step> we are not currently interested in drums
+{note}<dynamics> MuseScore attaches dynamics to direction, not to notes, so there are none of these elements
+```
+
+```xml
+Ignored notations - exist, but are too infrequent, pain to implement:
+<non-arpeggiate>
+<glissando>
+<slide>
+<fingering>
+<staccatissimo>
+<detached-legato>
+<breath-mark>
+<soft-accent>
+<caesura>
+<wavy-line>
+<turn>
+<inverted-mordent>
+<inverted-turn>
+<accidental-mark>
+```
+
+```xml
+Ignored notations - rare:
+<doit>
+<scoop>
+<falloff>
+<other-articulation>
+<plop>
+<spiccato>
+<stress>
+<unstress>
+<other-notation>
+<delayed-inverted-turn>
+<delayed-turn>
+<haydn>
+<inverted-vertical-turn>
+<mordent>
+<other-ornament>
+<schleifer>
+<shake>
+<vertical-turn>
+<technical> all except for fingering, that does occur a bit
+```
