@@ -39,7 +39,6 @@ While MusicXML may allow more freedom in how music is represented (say, voices, 
 
 ## Pending questions
 
-- Should grace notes be core or extended?
 - Half and whole notes in 3/4 and weird/16 time signatures? How does counting "up" works?
 - `print-object="no"` creates invisible objects, check how they are used and why
 - double barlines, repeats
@@ -388,9 +387,59 @@ Here are some interesting scores, time signature-wise, for testing:
 - https://musescore.com/score/5861338 (4/4, 3/2, 2/2, 4/4)
 
 
-### Tuplets `<tuplet>`, `[tuplet]`
+### Tuplets and tremolos `<tuplet>`, `<tremolo>`, `[tuplet]`, `[tremolo]`
 
 TODO: (do it like beams, ignore nested tuplets)
+
+There are tuplets and tremolos, they both use the `<tuplet>` element, but tremolo also has the `<tremolo>` element.
+
+There are (almost?) no nested tuplets in the corpus, so we ignore these.
+
+Interesting scores to test on:
+- https://musescore.com/user/27638568/scores/5974308 (sixteenth triplets)
+- https://musescore.com/user/27638568/scores/6581327 (tremolos)
+- https://musescore.com/user/27638568/scores/5015573 (triplets with invisible numbers - rule of continuation)
+- https://musescore.com/user/27638568/scores/4985999 (triplets with invisible numbers - rule of continuation)
+- https://musescore.com/openscore-lieder-corpus/scores/5052823 (more tremolos)
+
+Some tuplet statistics:
+
+```xml
+<tuplet type="stop" />: 24967
+<tuplet type="start" bracket="no" />: 14057
+<tuplet type="start" bracket="no" show-number="none" />: 6628
+<tuplet type="start" bracket="yes" />: 4471
+<tuplet type="start" bracket="yes" show-number="none" />: 96
+<tuplet type="stop" number="1" />: 3
+<tuplet type="start" number="1" bracket="no" show-number="none" />: 2
+<tuplet type="start" number="1" bracket="yes" />: 1
+
+# nested tuplets?
+<tuplet type="start" bracket="no" show-number="none">
+    <tuplet-actual><tuplet-number>8</tuplet-number><tuplet-type>16th</tuplet-type></tuplet-actual>
+    <tuplet-normal><tuplet-number>8</tuplet-number><tuplet-type>16th</tuplet-type></tuplet-normal>
+</tuplet>: 16
+<tuplet type="start" number="2" bracket="yes">
+    <tuplet-actual><tuplet-number>3</tuplet-number><tuplet-type>eighth</tuplet-type></tuplet-actual>
+    <tuplet-normal><tuplet-number>2</tuplet-number><tuplet-type>eighth</tuplet-type></tuplet-normal>
+</tuplet>: 2
+<tuplet type="start" bracket="no" show-number="none">
+    <tuplet-actual><tuplet-number>2</tuplet-number><tuplet-type>16th</tuplet-type></tuplet-actual>
+    <tuplet-normal><tuplet-number>2</tuplet-number><tuplet-type>16th</tuplet-type></tuplet-normal>
+</tuplet>: 2
+<tuplet type="start" bracket="no" show-number="none">
+    <tuplet-actual><tuplet-number>2</tuplet-number><tuplet-type>16th</tuplet-type></tuplet-actual>
+    <tuplet-normal><tuplet-number>4</tuplet-number><tuplet-type>16th</tuplet-type></tuplet-normal>
+</tuplet>: 2
+<tuplet type="start" bracket="no" show-number="none">
+    <tuplet-actual><tuplet-number>2</tuplet-number><tuplet-type>quarter</tuplet-type></tuplet-actual>
+    <tuplet-normal><tuplet-number>2</tuplet-number><tuplet-type>quarter</tuplet-type></tuplet-normal>
+</tuplet>: 2
+<tuplet type="start" number="2" bracket="no">
+    <tuplet-actual><tuplet-number>5</tuplet-number><tuplet-type>32nd</tuplet-type></tuplet-actual>
+    <tuplet-normal><tuplet-number>4</tuplet-number><tuplet-type>32nd</tuplet-type></tuplet-normal>
+</tuplet>: 1
+```
 
 
 ### Measure `<measure>`, `[measure]`
@@ -450,6 +499,9 @@ Counter({'tremolo': 5652, 'trill-mark': 437, 'wavy-line': 393,
 
 # <notations>/<technical>
 Counter({'fingering': 511})
+
+# grace notes (not <notations>, but very similar)
+Counter({'grace': 7067})
 ```
 
 
