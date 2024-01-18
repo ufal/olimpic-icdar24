@@ -32,13 +32,15 @@ CLEF_TOKENS = [
 ]
 
 NOTE_TYPE_TOKENS = [
+    # ORDER MATTERS! (is used)
+    # (from shortest to longest duration, doubles with each)
     "1024th", "512th", "256th", "128th", "64th",
     "32nd", "16th", "eighth", "quarter", "half", "whole",
     "breve", "long", "maxima"
 ]
 
 PITCH_TOKENS = [
-    # ORDER MATTERS FOR COMPARISON!
+    # ORDER MATTERS! (is used)
     # (from lowest to highest pitch)
     "C0", "D0", "E0", "F0", "G0", "A0", "B0",
     "C1", "D1", "E1", "F1", "G1", "A1", "B1",
@@ -52,23 +54,34 @@ PITCH_TOKENS = [
     "C9", "D9", "E9", "F9", "G9", "A9", "B9"
 ]
 
+VOICE_TOKENS = [
+    "voice:1", "voice:2", "voice:3", "voice:4",
+    "voice:5", "voice:6", "voice:7", "voice:8"
+]
+
 STEM_TOKENS = [
     "stem:up", "stem:down", "stem:none"
 ]
 
+STAFF_TOKENS = [
+    "staff:1", "staff:2"
+]
+
 ALL_TOKENS = [
     "measure",
+
+    # attributes tokens
     *KEY_TOKENS,
     *TIME_SIGNATURE_TOKENS,
     *CLEF_TOKENS,
-    # "backup",
-    # "forward",
-    *NOTE_TYPE_TOKENS,
-    *PITCH_TOKENS,
-    "rest",
-    "rest:measure",
-    "grace",
-    "grace:slash",
+    
+    # note tokens
+    "print-object:no",
+    "grace", "grace:slash",
     "chord",
+    *PITCH_TOKENS, "rest", "forward", "backup", # note kind
+    *VOICE_TOKENS,
+    *NOTE_TYPE_TOKENS, "rest:measure", # ROOT of a note
     *STEM_TOKENS,
+    *STAFF_TOKENS,
 ]

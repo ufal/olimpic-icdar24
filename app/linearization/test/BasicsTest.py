@@ -1,6 +1,4 @@
-import unittest
 from .LinearizerTestCase import LinearizerTestCase
-from ..Linearizer import Linearizer
 
 
 class BasicsTest(LinearizerTestCase):
@@ -9,3 +7,6 @@ class BasicsTest(LinearizerTestCase):
     
     def test_note_types(self):
         self.process_sample("basics/note_types")
+    
+    def test_grandstaff(self):
+        self.process_sample("basics/grandstaff")

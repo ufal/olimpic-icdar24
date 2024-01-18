@@ -1,5 +1,6 @@
+from __future__ import division
 import xml.etree.ElementTree as ET
-from typing import Optional, List, TextIO, Dict
+from typing import Iterator, Optional, List, TextIO, Dict
 import io
 from .vocabulary import *
 from fractions import Fraction
@@ -51,7 +52,7 @@ class Linearizer:
         self._stem_orientation: Optional[str] = None # "up", "down", None
         self._staff: Optional[str] = None # "1", "2", None
         self._onset: int = 0 # in duration units
-        self._voice: int = 0 # voice index in implicit numbering
+        self._voice: Optional[str] = None # "1", "2", ... "8", None
         self._previous_note_duration: Optional[int] = None # for chord checks
         self._previous_note_pitch: Optional[str] = None # for chord checks
 
@@ -100,7 +101,7 @@ class Linearizer:
         self._stem_orientation = None
         self._staff = None
         self._onset = 0
-        self._voice = 0
+        self._voice = None
         self._previous_note_duration = None
         self._previous_note_pitch = None
 
@@ -115,11 +116,9 @@ class Linearizer:
             elif element.tag == "attributes":
                 self.process_attributes(element)
             elif element.tag == "backup":
-                # self.process_backup(element, measure)
-                pass
+                self.process_backup(element, measure)
             elif element.tag == "forward":
-                # self.process_forward(element)
-                pass
+                self.process_forward(element)
             elif element.tag in IGNORED_MEASURE_ELEMENTS:
                 pass # ignored
             else:
@@ -143,11 +142,9 @@ class Linearizer:
     def process_note(self, note: ET.Element, measure: ET.Element):
         assert note.tag == "note"
 
-        # print-object="no" attribute
-        no_print_object = False
+        # [print-object:no]
         if note.attrib.get("print-object") == "no":
-            no_print_object = True
-            # self._error("TODO: handle non-printing objects")
+            self._emit("print-object:no")
 
         # [grace]
         grace_element = note.find("grace")
@@ -178,6 +175,13 @@ class Linearizer:
             pitch_token = pitch_element.find("step").text + pitch_element.find("octave").text
             assert pitch_token in PITCH_TOKENS, "Invalid pitch: " + pitch_token
             self._emit(pitch_token)
+        
+        # [voice]
+        voice_element = note.find("voice")
+        if voice_element is not None:
+            if self._voice != voice_element.text:
+                self._emit("voice:" + voice_element.text)
+                self._voice = voice_element.text
         
         # [type] or [rest:measure] - the ROOT of the [note] sequence
         type_element = note.find("type")
@@ -212,11 +216,31 @@ class Linearizer:
                     self._emit("stem:" + stem_element.text)
                     self._stem_orientation = stem_element.text
         
+        # [staff]
+        # like stems, staves are indicated at the beginning
+        # of a measure, voice, and during a change of staff
+        staff_element = note.find("staff")
+        if staff_element is not None:
+            assert staff_element.text in ["1", "2"]
+            assert self._staves == 2
+            if self._staff != staff_element.text:
+                self._emit("staff:" + staff_element.text)
+                self._staff = staff_element.text
+
+        # TODO: [beam]
+
+        # TODO: [tied]
+
+        # TODO: [tuplets]
+        
+        # TODO: extended notations
+        
         # extract duration
         duration_element = note.find("duration")
         duration: Optional[int] = None
         if duration_element is None and not is_grace_note:
             self._error("Note lacks duration:", ET.tostring(note))
+        elif duration_element is not None:
             duration = int(duration_element.text)
             assert duration > 0
 
@@ -227,6 +251,8 @@ class Linearizer:
         # perform on-exit state changes
         self._previous_note_duration = duration
         self._previous_note_pitch = pitch_token
+        if duration is not None and not is_chord:
+            self._onset += duration
     
     def _verify_note_duration(
         self, duration: Optional[int], note: ET.Element, measure: ET.Element,
@@ -293,21 +319,14 @@ class Linearizer:
             elif element.tag == "time":
                 self.process_time_signature(element)
             elif element.tag == "staves":
-                pass # TODO
+                self._staves = int(element.text)
+                assert self._staves == 2
             elif element.tag == "clef":
                 self.process_clef(element)
             elif element.tag in IGNORED_ATTRIBUTES_ELEMENTS:
                 pass # ignored
             else:
                 self._error("Unexpected <attributes> element:", element, element.attrib)
-
-        # self._error("TODO: parse attributes")
-        # self._divisions = int(element.find("divisions").text)
-        # self._beats_per_measure = int(element.find("time/beats").text)
-        # self._beat_type = int(element.find("time/beat-type").text)
-        # assert element.find("staves").text == "2", "So far, only piano supported"
-        # TODO: clefs
-        # self._error("TODO: clefs!")
 
     def process_divisions(self, divisions: ET.Element):
         assert divisions.tag == "divisions"
@@ -352,31 +371,67 @@ class Linearizer:
         assert sign_element is not None, "<sign> must be present in <clef> element"
 
         self._emit("clef:" + sign_element.text.upper() + line_element.text)
+
+        number = clef.attrib.get("number")
+        if number is not None:
+            self._emit("staff:" + number)
     
     def process_backup(self, backup: ET.Element, measure: ET.Element):
         assert backup.tag == "backup"
 
+        # get the duration
         backup_duration = int(backup.find("duration").text)
-        # print("\t", self._onset, backup_duration)
-        # assert self._onset == backup_duration, "Backups can only be to measure start"
-        if self._onset != backup_duration:
-            self._error("Backups can only be to measure start", self._onset, backup_duration)
-            self._error(self._page_index, self._system_index, measure.attrib.get("number"))
-        # print("\t", "backup")
-        self._emit("backup")
+        assert backup_duration > 0
+
+        # build up to match the duration
+        for note_type in self._duration_to_note_types(backup_duration):
+            self._emit("backup")
+            self._emit(note_type)
+        
         # backup resets these values
-        self._onset = 0
+        self._voice = None
+        self._onset -= backup_duration
         self._staff = None
         self._stem_orientation = None
 
     def process_forward(self, forward: ET.Element):
         assert forward.tag == "forward"
 
+        # get the duration
         forward_duration = int(forward.find("duration").text)
-        self._error("\t", self._onset, forward_duration)
+        assert forward_duration > 0
+
+        # build up to match the duration
+        for note_type in self._duration_to_note_types(forward_duration):
+            self._emit("forward")
+            self._emit(note_type)
+
+        # update within-measure onset
         self._onset += forward_duration
-        self._error("\t", "forward") # TODO: duration to type!!!
-        self._emit("forward")
+    
+    def _duration_to_note_types(self, duration: int) -> Iterator[str]:
+        assert self._divisions is not None, "<backup/forward> should follow <divisions>"
+        assert NOTE_TYPE_TOKENS[-1] == "maxima"
+        
+        remainder = duration
+        step = self._divisions * 32 # 32 quarters in one maxima
+        
+        for note_type in reversed(NOTE_TYPE_TOKENS):
+            if remainder <= 0:
+                break
+            if step <= remainder:
+                yield note_type
+                remainder -= step
+            step //= 2
+        
+        if remainder != 0:
+            self._error(
+                # possible solution: make the forward a tuplet note
+                "Duration could not be split up to note types for " + \
+                "forward/backup. This is most likely a tuplet forward.",
+                "Duration:", duration,
+                "Divisions:", self._divisions
+            )
 
 
 class _Clef:

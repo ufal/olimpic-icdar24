@@ -1,0 +1,15 @@
+version: 1.0
+flavor: core
+---
+measure # 1
+  time beats:4 beat-type:4
+  clef:G2 staff:1
+  clef:F4 staff:2
+    A4 voice:1 whole staff:1
+  backup whole
+    C3 voice:5 whole staff:2
+measure # 2
+    E5 voice:1 whole staff:1
+  backup whole
+    G3 voice:5 whole staff:2
+    

@@ -36,14 +36,15 @@ At the end of this document, there is a grammar pseudocode that specifies what t
 
 While MusicXML may allow more freedom in how music is represented (say, voices, backup/forward, staves), we based our decisions based on the data taken from the OpenScore Lieder corpus, when exported to MusicXML through MuseScore 3.6.2. This provides us with additional structure (such as voice order), which is not important in our case, but you should take into consideration if using other sources of MusicXML.
 
+This is important, as there are multiple way how to encode the same music (multiple MusicXML documents that render to the same printed score). The variability is in:
 
-## Pending questions
+- ordering of chord notes
+- ordering of voices
+- usage of `<forward>` elements vs. invisible rests
+- naming of voices (for example, MuseScore names second-staff voices 5-8, instead of 1-4)
+- naming of other values, where MusicXML lets you input `string`, without further specification
 
-- Half and whole notes in 3/4 and weird/16 time signatures? How does counting "up" works?
-- `print-object="no"` creates invisible objects, check how they are used and why
-    - invisible rests: they should be removed and replaced with `forward`, since if they are not printed, they are not present in the score
-    - insibile notes: check the tie-hack
-- double barlines, repeats
+It is not obvious, how to choose the canonical representation among all possible representations of the same music piece. Therefore we decided to use MuseScore 3.6.2 as the source of canonical MusicXML for this project. If you ever need to harmonize MusicXML from multiple sources, consider these variations.
 
 
 ## Reference documentation
@@ -484,19 +485,58 @@ The staff number is tracked in the same way to the stem orientation with tokens 
 During decoding, a measure can be checked to see if it contains these tokens and that can be used to disambiguate monophonic music from pianoforms.
 
 
-### Voices `<voice>`
+### Voices `<voice>`, `[staff]`
 
-TODO
+We encode the voice in the same way we encode the `<staff>`. MuseScore defines 8 voices, 4 for each staff, so we decided to define 8 voice tokens:
 
+```
+voice:1 voice:2 voice:3 voice:4
+voice:5 voice:6 voice:7 voice:8
+```
 
-#### Backup `<backup>`, `[backup]`
+This separation is a feature of MuseScore and other places don't use it. For example the MusicXML specification in their piano examples notate each staff voices from 1, never from 5.
 
-TODO
+Just remember that in order to combine MusicXML from multiple sources, you may need to rename voices so that they follow the same naming convention.
 
 
 #### Forward `<forward>`, `[forward]`
 
-important: contains staff and voice information, since it's almost a rest, needed if the voice does not start at the beginning of the measure; but should be encoded?? Can be left to the note... What does MuseScore do?
+Forward element is used in secondary voices to skip to a future time position. It acts as an invisible rest, letting you start or end the second voice mid-measure.
+
+In the linearized output sequence it behaves very much like the `rest` token, beacuse it's followed by the note type, specifying the duration:
+
+```
+forward quarter
+```
+
+If the MusicXML forward duration is not an exact value of a note type, we output multiple `forward` tokens with progressively smaller durations, until we define the duration precisely:
+
+```
+forward half forward quarter forward eighth C4 eighth
+```
+
+We considered the alignment of these time steps with the measure grid (stepping first up, to the whole quarter, whole half, etc.. and then down to hit the precise position), but we realized it's an unnecessary complication. Regular notes (and even rests) can be unaligned with the grid (say quarter note, half note, quarter note), so any ML model needs to handle these situations as well. So we chose to make the conversion simpler, and just go from the largest steps to the smallest until we hit the right duration.
+
+
+#### Backup `<backup>`, `[backup]`
+
+Backup works just like `<forward>`, just that we move backwards in time.
+
+Since a backup element is used whenever we define polyphony, it's an event that also resets the tracked voice number, staff number and stem orientation.
+
+> **Note:** Representing everything as something note-like with a duration, only going forward or backward in the music notation reminds me of two-way automata, interesting.
+
+
+#### Invisible notes `print-object="no"`
+
+Sometimes, the input MusicXML contains invisible notes. Usually, these occur in ceratin hacks, where there was not a straightforward way how to encode a given piece of music. While it might seem unintuitive, we do encode this information in our linearized MusicXML sequence, because an ML model reading the notation has actually a way, how to figure out the presence of invisible symbols.
+
+Here are a few examples:
+
+- Tie or slur between voices - one of the terminal noteheads have to be doubled, so that the slur is actually only in a single voice, and one of the doubled noteheads becomes invisible. While complex, this process is deterministically done by MuseScore, so there should be a way for the ML model to learn it.
+- `forward`-like skips in the first voice are not possible. In MuseScore, you cannot delete first-voice rests. The only workaround is to make the rest invisible. Therefore, if there's a `forward`-like skip in the first voice, instead of producing a `forward` token, you produce an invisible rest. This is fully deterministic.
+
+Invisible notes/rests are encoded by a `print-object:no` token, which is placed as a note prefix, similar to `chord` or `grace`.
 
 
 ### Other note notations
@@ -536,7 +576,8 @@ We decided to keep these hacks in, because they cannot in many cases be correcte
 Here are the examples we found:
 
 - Read the section about stems, how when you have two slurs from different voices converging on one chord, the chord must be made up of two voices (because slurs cannot cross voices), and therefore one part of the chord is a normal chord, and the other part is a stem-less chord for the other voice.
-- When a tie crosses between voices, the starting note is re-entered again in the other voice with `print-objects="no"` attribute, so that the tie appears ok.
+- When a tie crosses between voices, the starting note is re-entered again in the other voice with `print-object="no"` attribute, so that the tie appears ok.
+- Rests can be deleted in secondary voices in MuseScore, which creates `<forward>` elements, but not in the primary voice. There you have to create an invisible (`print-object="no"`) rest instead.
 
 
 ## Pseudo grammar
@@ -615,19 +656,20 @@ This is an attempt at modelling the linearized MusicXML by a simple grammar:
     | "beat-type:8"
     | "beat-type:16"
 
-[clef] =
+# clef is the clef type token, combined with the staff number for grandstaves
+[clef] = [clef-type] [staff]?
+
+[clef-type] =
     | "clef:G1" | "clef:G2" | "clef:G3" | "clef:G4" | "clef:G5"
     | "clef:C1" | "clef:C2" | "clef:C3" | "clef:C4" | "clef:C5"
     | "clef:F1" | "clef:F2" | "clef:F3" | "clef:F4" | "clef:F5"
 
-[backup] = ???? #TODO
-
-[forward] = ???? #TODO
-
 [note] = (
+    [print]?
     [grace]?
     [chord]?
-    ([rest] | [pitch])
+    ([rest] | [pitch] | [forward] | [backup])
+    [voice],
     ([type] | "rest:measure")  # this is the ROOT of a [note], must be present, is used for parsing
     [dot]*
     [accidental]?
@@ -642,6 +684,11 @@ This is an attempt at modelling the linearized MusicXML by a simple grammar:
     # TODO: EXTENDED encoding symbols
 )
 
+# some objects are not printed
+# (invisible cross-voice slur noteheads)
+# (invisible rests in the first voice)
+[print] = "print-object:no"
+
 # [grace] indicates that the note is a grace note, can be slashed
 [grace] = "grace" "grace:slash"?
 
@@ -650,6 +697,17 @@ This is an attempt at modelling the linearized MusicXML by a simple grammar:
 
 # [rest] indicates that the note is in fact a rest
 [rest] = "rest"
+
+# [forward] is like a rest, but not visible
+# (used in secondary vocies to skip regions of notation)
+# (note: muse score does not allow you to delete first voice resets,
+# so there invisible rests are used insted)
+[forward] = "forward"
+
+# [backup] is like [forward], but the step is taken backwards
+# it's like a note that has negative time duration
+# (note: this reminds me of two-way automata)
+[backup] = "backup"
 
 # pitch in the scientific pitch notation
 [pitch] =
@@ -663,6 +721,11 @@ This is an attempt at modelling the linearized MusicXML by a simple grammar:
     | "C7" | "D7" | "E7" | "F7" | "G7" | "A7" | "B7"
     | "C8" | "D8" | "E8" | "F8" | "G8" | "A8" | "B8"
     | "C9" | "D9" | "E9" | "F9" | "G9" | "A9" | "B9"
+
+# voice number that this note belongs to
+[voice] =
+    | "voice:1" | "voice:2" | "voice:3" | "voice:4"
+    | "voice:5" | "voice:6" | "voice:7" | "voice:8"
 
 # visual type of the note or rest
 [type] =
