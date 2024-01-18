@@ -1,0 +1,7 @@
+version: 1.0
+flavor: core
+---
+measure # 1
+  time beats:4 beat-type:4
+  clef:G2
+    rest rest:measure

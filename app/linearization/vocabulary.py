@@ -1,3 +1,35 @@
+KEY_TOKENS = [
+    "key:fifths:-7", "key:fifths:-6", "key:fifths:-5", "key:fifths:-4",
+    "key:fifths:-3", "key:fifths:-2", "key:fifths:-1",
+    "key:fifths:0",
+    "key:fifths:1", "key:fifths:2", "key:fifths:3", "key:fifths:4",
+    "key:fifths:5", "key:fifths:6", "key:fifths:7",
+]
+
+BEATS_TOKENS = [
+    "beats:1", "beats:2", "beats:3", "beats:4", "beats:5", "beats:6",
+    "beats:7", "beats:8", "beats:9", "beats:10", "beats:11", "beats:12",
+    "beats:13", "beats:14", "beats:15", "beats:16"
+]
+
+BEAT_TYPE_TOKENS = [
+    "beat-type:2",
+    "beat-type:4",
+    "beat-type:8",
+    "beat-type:16"
+]
+
+TIME_SIGNATURE_TOKENS = [
+    "time",
+    *BEATS_TOKENS,
+    *BEAT_TYPE_TOKENS
+]
+
+CLEF_TOKENS = [
+    "clef:G1", "clef:G2", "clef:G3", "clef:G4", "clef:G5",
+    "clef:C1", "clef:C2", "clef:C3", "clef:C4", "clef:C5",
+    "clef:F1", "clef:F2", "clef:F3", "clef:F4", "clef:F5"
+]
 
 NOTE_TYPE_TOKENS = [
     "1024th", "512th", "256th", "128th", "64th",
@@ -22,6 +54,11 @@ PITCH_TOKENS = [
 
 ALL_TOKENS = [
     "measure",
+    *KEY_TOKENS,
+    *TIME_SIGNATURE_TOKENS,
+    *CLEF_TOKENS,
+    # "backup",
+    # "forward",
     *NOTE_TYPE_TOKENS,
     *PITCH_TOKENS,
     "rest",

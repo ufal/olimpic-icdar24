@@ -27,8 +27,12 @@ class Linearizer:
         self._errout = errout or io.StringIO()
         """Print errors and warnings here"""
 
-        self.output_tokens: List[str] = []
-        """The output linearized sequence, split up into tokens"""
+        self.output_tokens: List[List[List[str]]] = [
+            [ # first page
+                [] # first system of the first page
+            ]
+        ]
+        """The output linearized sequence, split up into pages, systems, and tokens"""
         
         # configuration
         # ...
@@ -57,7 +61,17 @@ class Linearizer:
     def _emit(self, token: str):
         """Emits a token into the output sequence"""
         assert token in ALL_TOKENS, f"Token '{token}' not in the vocabulary"
-        self.output_tokens.append(token)
+        
+        pages = self.output_tokens
+        while len(pages) <= self._page_index:
+            pages.append([])
+        
+        systems = pages[self._page_index]
+        while len(systems) <= self._system_index:
+            systems.append([])
+        
+        tokens = systems[self._system_index]
+        tokens.append(token)
 
         # TODO: DEBUG PRINTING
         # print(token)
@@ -123,6 +137,7 @@ class Linearizer:
                     return
                 if element.attrib.get("new-page") == "yes":
                     self._page_index += 1
+                    self._system_index = 0
                     return
     
     def process_note(self, note: ET.Element, measure: ET.Element):
@@ -257,7 +272,7 @@ class Linearizer:
             elif element.tag == "staves":
                 pass # TODO
             elif element.tag == "clef":
-                pass # TODO
+                self.process_clef(element)
             elif element.tag in IGNORED_ATTRIBUTES_ELEMENTS:
                 pass # ignored
             else:
@@ -282,15 +297,20 @@ class Linearizer:
 
         assert self._divisions is not None, "Time signature should follow <divisions>"
         
-        beats = time.find("beats")
-        assert beats is not None, "<beats> must be present in <time> element"
-        beat_type = time.find("beat-type")
-        assert beat_type is not None, "<beat-type> must be present in <time> element"
+        beats_element = time.find("beats")
+        assert beats_element is not None, "<beats> must be present in <time> element"
+        beat_type_element = time.find("beat-type")
+        assert beat_type_element is not None, "<beat-type> must be present in <time> element"
         
-        self._beats_per_measure = int(beats.text)
+        self._beats_per_measure = int(beats_element.text)
         assert self._beats_per_measure > 0
-        self._beat_type = int(beat_type.text)
+        self._beat_type = int(beat_type_element.text)
         assert self._beat_type > 0
+
+        # emit tokens
+        self._emit("time")
+        self._emit("beats:" + str(self._beats_per_measure))
+        self._emit("beat-type:" + str(self._beat_type))
 
         # compute measure duration
         beat_type_fraction = Fraction(1, self._beat_type)
@@ -299,6 +319,16 @@ class Linearizer:
         time_units_per_measure = quarters_per_measure * self._divisions
         assert time_units_per_measure.denominator == 1, "Measure duration calculation failed"
         self._measure_duration = time_units_per_measure.numerator
+    
+    def process_clef(self, clef: ET.Element):
+        assert clef.tag == "clef"
+
+        line_element = clef.find("line")
+        assert line_element is not None, "<line> must be present in <clef> element"
+        sign_element = clef.find("sign")
+        assert sign_element is not None, "<sign> must be present in <clef> element"
+
+        self._emit("clef:" + sign_element.text.upper() + line_element.text)
     
     def process_backup(self, backup: ET.Element, measure: ET.Element):
         assert backup.tag == "backup"
