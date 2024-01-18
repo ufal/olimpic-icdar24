@@ -41,6 +41,8 @@ While MusicXML may allow more freedom in how music is represented (say, voices, 
 
 - Half and whole notes in 3/4 and weird/16 time signatures? How does counting "up" works?
 - `print-object="no"` creates invisible objects, check how they are used and why
+    - invisible rests: they should be removed and replaced with `forward`, since if they are not printed, they are not present in the score
+    - insibile notes: check the tie-hack
 - double barlines, repeats
 
 
@@ -150,10 +152,20 @@ down up double none
 
 In practise, notes without any stem lack the `<stem>` element completely. Similarly, notes with two stems are represented as two separate `<note>` elements in two different voices, each having its own stem. This means that in the OpenScore Lieder corpus, when exported by MuseScore, only `down` and `up` and missing `<stem>` element are possible values.
 
-Therefore we only define two new tokens and make them optional:
+But there are cases, where slurs from multiple voices converge on a chord. Since slurs cannot cross voices, the solution is to have two chords, one for each voice, placed on top of each other, and one of the voices is missing its stems. This is where the `none` value is used. You can see in the picture, the last eighth note chord has green stem and flag, which means the second voice is normal. But the blue voice (first voice) only has the two noteheads, but no stem:
+
+<img src="img/stem-none.png">
+
+> **Note:** sample taken from here, measures 8-9: https://musescore.com/user/27638568/scores/6211549
+
+The `none` staff is also used for overlapping voices, such as here:
+
+<img src="img/voice-overlap.png">
+
+Therefore we define three new tokens:
 
 ```
-stem:up stem:down
+stem:up stem:down stem:none
 ```
 
 To cut sequence length, we track stem orientation implicitly in this fashion:
@@ -513,6 +525,18 @@ Counter({'fingering': 511})
 # grace notes (not <notations>, but very similar)
 Counter({'grace': 7067})
 ```
+
+
+## Funny hacks that exist
+
+There are places where the MusicXML output from MuseScore is just strange, non-representative of the appearance of the score. This usually happens when the music notation breaks some assumptions about what music is (usually regarding multiple voices).
+
+We decided to keep these hacks in, because they cannot in many cases be corrected (the MusicXML standard does not have the measures, or MuseScore does not use them) and they are fully deterministic. So despite being weird, they are actually learnable by an ML model and once produced by an ML model, MuseScore would actually understand them. So we declare them features of the notation and stick with them.
+
+Here are the examples we found:
+
+- Read the section about stems, how when you have two slurs from different voices converging on one chord, the chord must be made up of two voices (because slurs cannot cross voices), and therefore one part of the chord is a normal chord, and the other part is a stem-less chord for the other voice.
+- When a tie crosses between voices, the starting note is re-entered again in the other voice with `print-objects="no"` attribute, so that the tie appears ok.
 
 
 ## Pseudo grammar

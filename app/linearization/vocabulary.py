@@ -52,6 +52,10 @@ PITCH_TOKENS = [
     "C9", "D9", "E9", "F9", "G9", "A9", "B9"
 ]
 
+STEM_TOKENS = [
+    "stem:up", "stem:down", "stem:none"
+]
+
 ALL_TOKENS = [
     "measure",
     *KEY_TOKENS,
@@ -66,4 +70,5 @@ ALL_TOKENS = [
     "grace",
     "grace:slash",
     "chord",
+    *STEM_TOKENS,
 ]

@@ -7,5 +7,5 @@ class BasicsTest(LinearizerTestCase):
     def test_one_empty_measure(self):
         self.process_sample("basics/one_empty_measure")
     
-    # def test_sum_wrong(self):
-    #     self.assertEqual(42, 43)
+    def test_note_types(self):
+        self.process_sample("basics/note_types")

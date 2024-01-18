@@ -1,0 +1,19 @@
+version: 1.0
+flavor: core
+---
+measure # 1
+  time beats:4 beat-type:4
+  clef:G2
+    rest half
+    rest quarter
+    rest eighth
+    rest 16th
+    rest 16th
+measure # 2
+    G4 whole
+measure # 3
+    A4 half stem:up
+    B4 quarter stem:down
+    C5 eighth
+    D5 16th
+    E5 16th

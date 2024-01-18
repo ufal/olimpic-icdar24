@@ -188,6 +188,29 @@ class Linearizer:
             self._emit("rest:measure")
         else:
             self._error("Note does not have <type>:", ET.tostring(note))
+
+        # TODO: [dot]
+
+        # TODO: [accidental]
+
+        # [stem]
+        # stem orientation is reset with each voice start
+        # and then only changes are recorded
+        # DOUBLE STEMS: are encoded as two notes in two voices,
+        # this is what MuseScore produces and is reasonable
+        # (even though MusicXML allows for "double" as a value here)
+        stem_element = note.find("stem")
+        if stem_element is not None:
+            if stem_element.text not in ["up", "down", "none"]:
+                self._error(
+                    f"Unknown stem type '{stem_element.text}'.",
+                    "Measure: " + str(measure.attrib),
+                    ET.tostring(note)
+                )
+            else:
+                if self._stem_orientation != stem_element.text:
+                    self._emit("stem:" + stem_element.text)
+                    self._stem_orientation = stem_element.text
         
         # extract duration
         duration_element = note.find("duration")
