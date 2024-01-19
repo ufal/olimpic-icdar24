@@ -898,28 +898,6 @@ Used, Linearization: EXTENDED
 <tenuto>
 <tremolo>
 <trill-mark>
-
-================
-
-<measure-style> TODO
-    <beat-repeat>
-    <except-voice>
-    <slash-dot>
-    <slash-type>
-    <measure-repeat>
-    <multiple-rest>
-    <slash>
-    <except-voice>
-    <slash-dot>
-    <slash-type>
-<barline> TODO
-    <bar-style>
-    <coda>
-    <ending>
-    <fermata>
-    <repeat>
-    <segno>
-    <wavy-line>
 ```
 
 
@@ -975,6 +953,8 @@ Ignored by omission - it is rare, strange, obscure, but may be added in theory
 {rest}<display-octave><display-step> positional information for rests is not important for reading, only printing
 <unpitched><display-octave><display-step> we are not currently interested in drums
 {note}<dynamics> MuseScore attaches dynamics to direction, not to notes, so there are none of these elements
+<measure-style> not present in the corpus, was not needed, should be handled if encountered
+<barline> not essential to notes themselves
 ```
 
 ```xml

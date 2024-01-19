@@ -9,7 +9,7 @@ from fractions import Fraction
 IGNORED_MEASURE_ELEMENTS = set([
     # https://www.w3.org/2021/06/musicxml40/musicxml-reference/elements/measure-partwise/
     "direction", "harmony", "figured-bass", "print", "sound", "listening",
-    "grouping", "link", "bookmark"
+    "grouping", "link", "bookmark", "barline"
 ])
 
 IGNORED_ATTRIBUTES_ELEMENTS = set([
@@ -131,9 +131,7 @@ class Linearizer:
             elif element.tag in IGNORED_MEASURE_ELEMENTS:
                 pass # ignored
             else:
-                # TODO: DEBUG disabled temporarily (barlines spam now)
-                pass
-                # self._error("Unexpected <measure> element:", element, element.attrib)
+                self._error("Unexpected <measure> element:", element, element.attrib)
     
     def _handle_new_system_or_page(self, measure: ET.Element) -> bool:
         assert measure.tag == "measure"
@@ -382,7 +380,6 @@ class Linearizer:
             tremolo_type = tremolo_element.attrib.get("type", "single")
             assert tremolo_type in ["single", "start", "stop", "unmeasured"]
             self._emit("tremolo:" + tremolo_type)
-            print("tremolo:" + tremolo_type)
 
         # [trill-mark]
         trill_mark_element = notations.find("ornaments/trill-mark")
