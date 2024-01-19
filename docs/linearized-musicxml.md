@@ -517,6 +517,28 @@ forward half forward quarter forward eighth C4 eighth
 
 We considered the alignment of these time steps with the measure grid (stepping first up, to the whole quarter, whole half, etc.. and then down to hit the precise position), but we realized it's an unnecessary complication. Regular notes (and even rests) can be unaligned with the grid (say quarter note, half note, quarter note), so any ML model needs to handle these situations as well. So we chose to make the conversion simpler, and just go from the largest steps to the smallest until we hit the right duration.
 
+> **NOTE:** The following section describes, how tuplets could be added to forward/backup, but in the end it was so rare that we decided not to implement them. Take this as a guide, should it be added.
+
+Also note, there are tuplet forwards required, for example here:
+
+<img src="img/triplet-forward.png">
+
+The time signature is `3/2` and three half notes are sliced up into three quarter-note triplets. The brackets are no longer displayed because of the rule of continuation. So each quarter note here is actually a quarter note triplet. So instead of `quarter` token, it should be a `quarter 3in2` token pair.
+
+In the top piano staff, the first stem-up quarter note triplet is in a separate voice and it requires the following forward to reach it from the start of the measure:
+
+```
+forward half forward half 3in2
+```
+
+> The example is taken from: https://musescore.com/user/27638568/scores/5846184
+
+For this reason, we allow the `[type]` token in forwards and backups to have the tuplet time modifiers found in regular tuplets:
+
+```
+3in2 5in4 6in4 7in8
+```
+
 
 #### Backup `<backup>`, `[backup]`
 
@@ -727,11 +749,18 @@ This is an attempt at modelling the linearized MusicXML by a simple grammar:
     | "voice:1" | "voice:2" | "voice:3" | "voice:4"
     | "voice:5" | "voice:6" | "voice:7" | "voice:8"
 
-# visual type of the note or rest
-[type] =
+# represents the duration of a note or rest
+[type] = [type-normal] [time-modification]?
+
+# normal note types (without any time modifications)
+[type-normal] =
     | "1024th" | "512th" | "256th" | "128th" | "64th"
     | "32nd" | "16th" | "eighth" | "quarter" | "half" | "whole"
     | "breve" | "long" | "maxima"
+
+# tuplets have this time modification right after the type name
+[time-modification] =
+    | "3in2" | "5in4" | "6in4" | "7in8"
 
 # [dot] is a duration dot, one occurence for each notated dot
 [dot] = "dot"

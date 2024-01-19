@@ -59,12 +59,29 @@ VOICE_TOKENS = [
     "voice:5", "voice:6", "voice:7", "voice:8"
 ]
 
+ACCIDENTAL_TOKENS = [
+    "sharp",
+    "flat",
+    "natural",
+    "double-sharp",
+    "flat-flat",
+    "natural-sharp",
+    "natural-flat"
+]
+
 STEM_TOKENS = [
     "stem:up", "stem:down", "stem:none"
 ]
 
 STAFF_TOKENS = [
     "staff:1", "staff:2"
+]
+
+BEAM_TOKENS = [
+    "beam:begin",
+    "beam:end",
+    "beam:forward-hook",
+    "beam:backward-hook"
 ]
 
 ALL_TOKENS = [
@@ -82,6 +99,10 @@ ALL_TOKENS = [
     *PITCH_TOKENS, "rest", "forward", "backup", # note kind
     *VOICE_TOKENS,
     *NOTE_TYPE_TOKENS, "rest:measure", # ROOT of a note
+    "dot",
+    *ACCIDENTAL_TOKENS,
     *STEM_TOKENS,
     *STAFF_TOKENS,
+    *BEAM_TOKENS,
+    "tied:start", "tied:stop",
 ]

@@ -193,9 +193,17 @@ class Linearizer:
         else:
             self._error("Note does not have <type>:", ET.tostring(note))
 
-        # TODO: [dot]
+        # [dot]
+        for dot_element in note.findall("dot"):
+            self._emit("dot")
 
-        # TODO: [accidental]
+        # [accidental]
+        accidental_element = note.find("accidental")
+        if accidental_element is not None:
+            accidental = accidental_element.text
+            if accidental not in ACCIDENTAL_TOKENS:
+                self._error("Unsupported accidental type:", accidental)
+            self._emit(accidental)
 
         # [stem]
         # stem orientation is reset with each voice start
@@ -227,9 +235,27 @@ class Linearizer:
                 self._emit("staff:" + staff_element.text)
                 self._staff = staff_element.text
 
-        # TODO: [beam]
+        # [beam]
+        for beam in note.findall("beam"):
+            assert beam.text in ["begin", "end", "continue", "forward hook", "backward hook"]
+            if beam.text != "continue":
+                if beam.text == "forward hook":
+                    self._emit("beam:forward-hook")
+                elif beam.text == "backward hook":
+                    self._emit("beam:backward-hook")
+                else:
+                    self._emit("beam:" + beam.text)
 
-        # TODO: [tied]
+        # get the notations element
+        notations_element = note.find("notations")
+
+        # [tied]
+        if notations_element is not None:
+            tied_element = notations_element.find("tied")
+            if tied_element is not None:
+                tied_type = tied_element.attrib.get("type")
+                assert tied_type in ["start", "stop"]
+                self._emit("tied:" + tied_type)
 
         # TODO: [tuplets]
         
@@ -424,14 +450,16 @@ class Linearizer:
                 remainder -= step
             step //= 2
         
-        if remainder != 0:
-            self._error(
-                # possible solution: make the forward a tuplet note
-                "Duration could not be split up to note types for " + \
-                "forward/backup. This is most likely a tuplet forward.",
-                "Duration:", duration,
-                "Divisions:", self._divisions
-            )
+        # TODO: DEBUG disabled
+        # # Happens in very few, very weird cases
+        # if remainder != 0:
+        #     self._error(
+        #         # possible solution: make the forward a tuplet note
+        #         "Duration could not be split up to note types for " + \
+        #         "forward/backup. This is most likely a tuplet forward.",
+        #         "Duration:", duration,
+        #         "Divisions:", self._divisions
+        #     )
 
 
 class _Clef:
