@@ -24,7 +24,12 @@ IGNORED_ATTRIBUTES_ELEMENTS = set([
 
 
 class Linearizer:
-    def __init__(self, errout: Optional[TextIO] = None):
+    def __init__(
+        self,
+        errout: Optional[TextIO] = None,
+        re_emit_system_header=True,
+        extended_flavor=True
+    ):
         self._errout = errout or io.StringIO()
         """Print errors and warnings here"""
 
@@ -36,7 +41,8 @@ class Linearizer:
         """The output linearized sequence, split up into pages, systems, and tokens"""
         
         # configuration
-        # ...
+        self.re_emit_system_header = re_emit_system_header
+        self.extended_flavor = extended_flavor
 
         # within-part state
         self._page_index = 0 # page within part, zero-indexed
@@ -46,7 +52,8 @@ class Linearizer:
         self._beat_type: Optional[int] = None # time signature bottom
         self._measure_duration: Optional[int] = None # time-units per measure
         self._staves: Optional[int] = None # number of staves
-        self._clefs: Dict[Optional[str], _Clef] = {} # clef for staves
+        self._clefs: Dict[int, str] = {} # clef tokens for staves
+        self._key_signature_fifths: Optional[int] = None # key signature
 
         # within-measure state
         self._stem_orientation: Optional[str] = None # "up", "down", None
@@ -74,9 +81,6 @@ class Linearizer:
         tokens = systems[self._system_index]
         tokens.append(token)
 
-        # TODO: DEBUG PRINTING
-        # print(token)
-
     def process_part(self, part: ET.Element):
         # reset within-part state
         self._page_index = 0
@@ -87,6 +91,7 @@ class Linearizer:
         self._measure_duration = None
         self._staves = None
         self._clefs = {}
+        self._key_signature_fifths = None
         
         assert part.tag == "part"
         for measure in part:
@@ -105,10 +110,14 @@ class Linearizer:
         self._previous_note_duration = None
         self._previous_note_pitch = None
 
-        self._handle_new_system_or_page(measure)
+        system_start = self._handle_new_system_or_page(measure)
         
         # start a new measure
         self._emit("measure")
+
+        # re-emit clefs and key signature
+        if system_start and self.re_emit_system_header:
+            self._emit_new_staff_header()
 
         for element in measure:
             if element.tag == "note":
@@ -126,18 +135,41 @@ class Linearizer:
                 pass
                 # self._error("Unexpected <measure> element:", element, element.attrib)
     
-    def _handle_new_system_or_page(self, measure: ET.Element):
+    def _handle_new_system_or_page(self, measure: ET.Element) -> bool:
         assert measure.tag == "measure"
 
         for element in measure:
             if element.tag == "print":
                 if element.attrib.get("new-system") == "yes":
                     self._system_index += 1
-                    return
+                    return True
                 if element.attrib.get("new-page") == "yes":
                     self._page_index += 1
                     self._system_index = 0
-                    return
+                    return True
+        
+        return False
+    
+    def _emit_new_staff_header(self):
+        # the order of tokens is the same as in <attributes>
+
+        # key signature
+        self._emit("key:fifths:" + str(self._key_signature_fifths))
+
+        # time signature
+        # ... is not re-printed, because it is not re-printed on the paper as well
+
+        # clef(s)
+        if self._staves is None:
+            self._emit(self._clefs[1])
+            self._emit("staff:1")
+        elif self._staves == 2:
+            self._emit(self._clefs[1])
+            self._emit("staff:1")
+            self._emit(self._clefs[2])
+            self._emit("staff:2")
+        else:
+            self._error("Unexpected number of staves:", self._staves)
     
     def process_note(self, note: ET.Element, measure: ET.Element):
         assert note.tag == "note"
@@ -404,7 +436,7 @@ class Linearizer:
             if element.tag == "divisions":
                 self.process_divisions(element)
             elif element.tag == "key":
-                pass # TODO
+                self.process_key_signature(element)
             elif element.tag == "time":
                 self.process_time_signature(element)
             elif element.tag == "staves":
@@ -451,6 +483,13 @@ class Linearizer:
         assert time_units_per_measure.denominator == 1, "Measure duration calculation failed"
         self._measure_duration = time_units_per_measure.numerator
     
+    def process_key_signature(self, key: ET.Element):
+        assert key.tag == "key"
+
+        self._key_signature_fifths = int(key.find("fifths").text)
+
+        self._emit("key:fifths:" + str(self._key_signature_fifths))
+
     def process_clef(self, clef: ET.Element):
         assert clef.tag == "clef"
 
@@ -459,11 +498,15 @@ class Linearizer:
         sign_element = clef.find("sign")
         assert sign_element is not None, "<sign> must be present in <clef> element"
 
-        self._emit("clef:" + sign_element.text.upper() + line_element.text)
+        clef_token = "clef:" + sign_element.text.upper() + line_element.text
+        self._emit(clef_token)
 
         number = clef.attrib.get("number")
         if number is not None:
             self._emit("staff:" + number)
+            self._clefs[int(number)] = clef_token
+        else:
+            self._clefs[1] = clef_token
     
     def process_backup(self, backup: ET.Element, measure: ET.Element):
         assert backup.tag == "backup"
@@ -513,20 +556,12 @@ class Linearizer:
                 remainder -= step
             step //= 2
         
-        # TODO: DEBUG disabled
-        # # Happens in very few, very weird cases
-        # if remainder != 0:
-        #     self._error(
-        #         # possible solution: make the forward a tuplet note
-        #         "Duration could not be split up to note types for " + \
-        #         "forward/backup. This is most likely a tuplet forward.",
-        #         "Duration:", duration,
-        #         "Divisions:", self._divisions
-        #     )
-
-
-class _Clef:
-    def __init__(self, staff: Optional[str], sign: str, line: str):
-        self.staff = staff
-        self.sign = sign
-        self.line = line
+        # Happens in very few, very weird cases
+        if remainder != 0:
+            self._error(
+                # possible solution: make the forward a tuplet note
+                "Duration could not be split up to note types for " + \
+                "forward/backup. This is most likely a tuplet forward.",
+                "Duration:", duration,
+                "Divisions:", self._divisions
+            )
