@@ -114,6 +114,22 @@ BEAM_TOKENS = [
     "beam:backward-hook"
 ]
 
+EXTENDED_FLAVOR_TOKENS = [
+    "slur:start",
+    "slur:stop",
+    "fermata",
+    "arpeggiate",
+    "staccato",
+    "accent",
+    "strong-accent",
+    "tenuto",
+    "trill-mark",
+    "tremolo:single",
+    "tremolo:start",
+    "tremolo:stop",
+    "tremolo:unmeasured",
+]
+
 ALL_TOKENS = [
     "measure",
 
@@ -137,4 +153,6 @@ ALL_TOKENS = [
     *BEAM_TOKENS,
     "tied:start", "tied:stop",
     "tuplet:start", "tuplet:stop",
+
+    *EXTENDED_FLAVOR_TOKENS
 ]

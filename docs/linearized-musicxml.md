@@ -22,10 +22,10 @@ Additional decisions:
 
 The encoding comes in two flavors:
 
-- **Core:** Contains only symbols essential for replayability. If it ain't affect MIDI, it's not present.
+- **Core:** Contains only essential symbols.
     - e.g. notes, rests, measures, beams, duration dots, ties, triplets, staves, voices, clefs, accidentals
 - **Extended:** Contains additional ornaments and markings.
-    - e.g. slurs, staccato, accents, fermata
+    - e.g. slurs, staccato, accents, fermata, tremolo
 
 Some symbols are omitted even from the extended encoding:
     - e.g. dynamic markings, hairpins, pedal signs, glisando
@@ -434,6 +434,17 @@ tuplet:start tuplet:stop
 
 There are no nested tuplets in the corpus, so we ignore these.
 
+Double-note tremolos come with `<time-modification>`, but that is a hack for their notation, because the modification is always `2in1`. For this reason we omit the `[time-modification]` token for them. Tremolos are marked like other ornaments with tokens:
+
+```
+tremolo:single
+tremolo:start
+tremolo:stop
+tremolo:unmeasured
+```
+
+Note that there are no `tremolo:unmeasured` tremolos in the corpus.
+
 Interesting scores to test on:
 - https://musescore.com/user/27638568/scores/5974308 (sixteenth triplets)
 - https://musescore.com/user/27638568/scores/6581327 (tremolos)
@@ -690,7 +701,15 @@ This is an attempt at modelling the linearized MusicXML by a simple grammar:
     [tuplet]*
 
     # EXTENDED encoding
-    # TODO: EXTENDED encoding symbols
+    [slur]*
+    [fermata]?
+    [arpeggiate]?
+    [staccato]?
+    [accent]?
+    [strong-accent]?
+    [tenuto]?
+    [tremolo]?
+    [trill-mark]?
 )
 
 # some objects are not printed
@@ -793,6 +812,26 @@ This is an attempt at modelling the linearized MusicXML by a simple grammar:
 [tuplet] =
     | "tuplet:start"
     | "tuplet:stop"
+
+
+# EXTENDED notation symbols
+[slur] =
+    | "slur:start"
+    | "slur:stop"
+
+[fermata] = "fermata"
+[arpeggiate] = "arpeggiate"
+[staccato] = "staccato"
+[accent] = "accent"
+[strong-accent] = "strong-accent"
+[tenuto] = "tenuto"
+[trill-mark] = "trill-mark"
+
+[tremolo] =
+    | "tremolo:single"
+    | "tremolo:start"
+    | "tremolo:stop"
+    | "tremolo:unmeasured"
 
 ```
 

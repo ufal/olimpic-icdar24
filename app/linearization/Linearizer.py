@@ -309,7 +309,8 @@ class Linearizer:
             self._emit("tuplet:" + tuplet_type)
         
         # extended notations and ornaments
-        self._process_extended_notations(note)
+        if self.extended_flavor:
+            self._process_extended_notations(note)
         
         # extract duration
         duration_element = note.find("duration")
@@ -331,15 +332,62 @@ class Linearizer:
             self._onset += duration
     
     def _process_extended_notations(self, note: ET.Element):
-        # TODO: extended notations
+        # save some compute time
+        notations = note.find("notations")
+        if notations is None:
+            return
 
-        # tremolo_element = note.find("notations/ornaments/tremolo")
-        # if tremolo_element is not None:
-        #     tremolo_type = tremolo_element.attrib.get("type", "single")
-        #     assert tremolo_type in ["single", "start", "stop"]
-        #     # self._emit("tied:" + tremolo_type)
-        #     print(tremolo_type)
-        pass
+        # [slur]
+        for slur_element in notations.findall("slur"):
+            slur_type = slur_element.attrib.get("type")
+            if slur_type == "continue":
+                pass # ignore
+            else:
+                assert slur_type in ["start", "stop"]
+                self._emit("slur:" + slur_type)
+
+        # [fermata]
+        fermata_element = notations.find("fermata")
+        if fermata_element is not None:
+            self._emit("fermata")
+
+        # [arpeggiate]
+        arpeggiate_element = notations.find("arpeggiate")
+        if arpeggiate_element is not None:
+            self._emit("arpeggiate")
+        
+        # [staccato]
+        staccato_element = notations.find("articulations/staccato")
+        if staccato_element is not None:
+            self._emit("staccato")
+
+        # [accent]
+        accent_element = notations.find("articulations/accent")
+        if accent_element is not None:
+            self._emit("accent")
+
+        # [strong-accent]
+        strong_accent_element = notations.find("articulations/strong-accent")
+        if strong_accent_element is not None:
+            self._emit("strong-accent")
+
+        # [tenuto]
+        tenuto_element = notations.find("articulations/tenuto")
+        if tenuto_element is not None:
+            self._emit("tenuto")
+        
+        # [tremolo]
+        tremolo_element = notations.find("ornaments/tremolo")
+        if tremolo_element is not None:
+            tremolo_type = tremolo_element.attrib.get("type", "single")
+            assert tremolo_type in ["single", "start", "stop", "unmeasured"]
+            self._emit("tremolo:" + tremolo_type)
+            print("tremolo:" + tremolo_type)
+
+        # [trill-mark]
+        trill_mark_element = notations.find("ornaments/trill-mark")
+        if trill_mark_element is not None:
+            self._emit("trill-mark")
     
     def _verify_note_duration(
         self, duration: Optional[int], note: ET.Element, measure: ET.Element,
