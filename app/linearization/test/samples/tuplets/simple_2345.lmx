@@ -1,0 +1,27 @@
+version: 1.0
+flavor: core
+---
+measure # 2 dublets (just 8th notes)
+  time beats:4 beat-type:4
+  clef:G2
+    rest voice:1 eighth tuplet:start
+    rest eighth tuplet:stop
+    rest half dot
+measure # 3 triplets
+    rest voice:1 eighth 3in2 tuplet:start
+    rest eighth 3in2
+    rest eighth 3in2 tuplet:stop
+    rest half dot
+measure # 4 quadruplets (just 16th notes)
+  rest voice:1 16th tuplet:start
+    rest 16th
+    rest 16th
+    rest 16th tuplet:stop
+    rest half dot
+measure # 5 quintuplets
+  rest voice:1 16th 5in4 tuplet:start
+    rest 16th 5in4
+    rest 16th 5in4
+    rest 16th 5in4
+    rest 16th 5in4 tuplet:stop
+    rest half dot

@@ -1,0 +1,26 @@
+version: 1.0
+flavor: core
+---
+measure # 8 octuplets (just 32nd notes)
+  time beats:4 beat-type:4
+  clef:G2
+    rest voice:1 32nd tuplet:start
+    rest 32nd
+    rest 32nd
+    rest 32nd
+    rest 32nd
+    rest 32nd
+    rest 32nd
+    rest 32nd tuplet:stop
+    rest half dot
+measure # 9 nontuplets
+    rest voice:1 32nd 9in8 tuplet:start
+    rest 32nd 9in8
+    rest 32nd 9in8
+    rest 32nd 9in8
+    rest 32nd 9in8
+    rest 32nd 9in8
+    rest 32nd 9in8
+    rest 32nd 9in8
+    rest 32nd 9in8 tuplet:stop
+    rest half dot

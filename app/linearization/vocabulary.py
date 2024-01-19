@@ -1,3 +1,7 @@
+from fractions import Fraction
+from typing import Dict
+
+
 KEY_TOKENS = [
     "key:fifths:-7", "key:fifths:-6", "key:fifths:-5", "key:fifths:-4",
     "key:fifths:-3", "key:fifths:-2", "key:fifths:-1",
@@ -39,6 +43,25 @@ NOTE_TYPE_TOKENS = [
     "breve", "long", "maxima"
 ]
 
+NOTE_TYPE_TO_QUARTER_MULTIPLE: Dict[str, Fraction] = {
+    "1024th":  Fraction(1, 256),
+    "512th":   Fraction(1, 128),
+    "256th":   Fraction(1, 64),
+    "128th":   Fraction(1, 32),
+    "64th":    Fraction(1, 16),
+    "32nd":    Fraction(1, 8),
+    "16th":    Fraction(1, 4),
+    "eighth":  Fraction(1, 2),
+    "quarter": Fraction(1, 1), # one
+    "half":    Fraction(2, 1),
+    "whole":   Fraction(4, 1),
+    "breve":   Fraction(8, 1),
+    "long":    Fraction(16, 1),
+    "maxima":  Fraction(32, 1),
+}
+
+assert set(NOTE_TYPE_TOKENS) == set(NOTE_TYPE_TO_QUARTER_MULTIPLE.keys())
+
 PITCH_TOKENS = [
     # ORDER MATTERS! (is used)
     # (from lowest to highest pitch)
@@ -57,6 +80,13 @@ PITCH_TOKENS = [
 VOICE_TOKENS = [
     "voice:1", "voice:2", "voice:3", "voice:4",
     "voice:5", "voice:6", "voice:7", "voice:8"
+]
+
+TIME_MODIFICATION_TOKENS = [
+    '3in2', '2in1', '2in3', '5in4', '7in8', '7in6',
+    '9in8', '7in4', '4in3', '11in8', '13in8', '5in2',
+    '9in4', '9in2', '15in8', '11in12', '5in3', '7in1',
+    '35in16'
 ]
 
 ACCIDENTAL_TOKENS = [
@@ -99,10 +129,12 @@ ALL_TOKENS = [
     *PITCH_TOKENS, "rest", "forward", "backup", # note kind
     *VOICE_TOKENS,
     *NOTE_TYPE_TOKENS, "rest:measure", # ROOT of a note
+    *TIME_MODIFICATION_TOKENS,
     "dot",
     *ACCIDENTAL_TOKENS,
     *STEM_TOKENS,
     *STAFF_TOKENS,
     *BEAM_TOKENS,
     "tied:start", "tied:stop",
+    "tuplet:start", "tuplet:stop",
 ]

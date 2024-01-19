@@ -1,0 +1,22 @@
+version: 1.0
+flavor: core
+---
+measure # 6 sixtuplets
+  time beats:4 beat-type:4
+  clef:G2
+    rest voice:1 16th 3in2 tuplet:start
+    rest 16th 3in2
+    rest 16th 3in2
+    rest 16th 3in2
+    rest 16th 3in2
+    rest 16th 3in2 tuplet:stop
+    rest half dot
+measure # 7 septuplets
+    rest voice:1 16th 7in4 tuplet:start
+    rest 16th 7in4
+    rest 16th 7in4
+    rest 16th 7in4
+    rest 16th 7in4
+    rest 16th 7in4
+    rest 16th 7in4 tuplet:stop
+    rest half dot

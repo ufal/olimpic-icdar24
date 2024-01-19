@@ -142,6 +142,14 @@ class Linearizer:
     def process_note(self, note: ET.Element, measure: ET.Element):
         assert note.tag == "note"
 
+        # detect if double tremolo
+        tremolo_element = note.find("notations/ornaments/tremolo")
+        is_double_tremolo = False
+        if tremolo_element is not None:
+            tremolo_type = tremolo_element.attrib.get("type", "single")
+            if tremolo_type in ["start", "stop"]:
+                is_double_tremolo = True
+
         # [print-object:no]
         if note.attrib.get("print-object") == "no":
             self._emit("print-object:no")
@@ -192,6 +200,15 @@ class Linearizer:
             self._emit("rest:measure")
         else:
             self._error("Note does not have <type>:", ET.tostring(note))
+        
+        # [time-modification] (tuplets rhythm-wise)
+        if note.find("time-modification") is not None:
+            actual = int(note.find("time-modification/actual-notes").text)
+            normal = int(note.find("time-modification/normal-notes").text)
+            ratio = Fraction(normal, actual)
+            token = str(ratio.denominator) + "in" + str(ratio.numerator)
+            if not is_double_tremolo:
+                self._emit(token)
 
         # [dot]
         for dot_element in note.findall("dot"):
@@ -246,20 +263,21 @@ class Linearizer:
                 else:
                     self._emit("beam:" + beam.text)
 
-        # get the notations element
-        notations_element = note.find("notations")
-
         # [tied]
-        if notations_element is not None:
-            tied_element = notations_element.find("tied")
-            if tied_element is not None:
-                tied_type = tied_element.attrib.get("type")
-                assert tied_type in ["start", "stop"]
-                self._emit("tied:" + tied_type)
+        tied_element = note.find("notations/tied")
+        if tied_element is not None:
+            tied_type = tied_element.attrib.get("type")
+            assert tied_type in ["start", "stop"]
+            self._emit("tied:" + tied_type)
 
-        # TODO: [tuplets]
+        # [tuplet]
+        for tuplet_element in note.findall("notations/tuplet"):
+            tuplet_type = tuplet_element.attrib.get("type")
+            assert tuplet_type in ["start", "stop"]
+            self._emit("tuplet:" + tuplet_type)
         
-        # TODO: extended notations
+        # extended notations and ornaments
+        self._process_extended_notations(note)
         
         # extract duration
         duration_element = note.find("duration")
@@ -280,6 +298,17 @@ class Linearizer:
         if duration is not None and not is_chord:
             self._onset += duration
     
+    def _process_extended_notations(self, note: ET.Element):
+        # TODO: extended notations
+
+        # tremolo_element = note.find("notations/ornaments/tremolo")
+        # if tremolo_element is not None:
+        #     tremolo_type = tremolo_element.attrib.get("type", "single")
+        #     assert tremolo_type in ["single", "start", "stop"]
+        #     # self._emit("tied:" + tremolo_type)
+        #     print(tremolo_type)
+        pass
+    
     def _verify_note_duration(
         self, duration: Optional[int], note: ET.Element, measure: ET.Element,
         is_measure_rest: bool, is_grace_note: bool
@@ -289,23 +318,57 @@ class Linearizer:
 
         # verify for measure rests
         if is_measure_rest:
-            # TODO: DEBUG disabled
-            # if duration != self._measure_duration:
-            #     self._error(
-            #         "Measure rest does not have expected duration.",
-            #         "Divisions: " + str(self._divisions),
-            #         "Time signature: " + str(self._beats_per_measure) + "/" + str(self._beat_type),
-            #         "Measure duration: " + str(self._measure_duration),
-            #         "Measure: " + repr(measure.attrib),
-            #         "Note: " + repr(note.attrib),
-            #         ET.tostring(note)
-            #     )
+            if duration != self._measure_duration:
+                self._error(
+                    "Measure rest does not have expected duration.",
+                    "Divisions:", + self._divisions,
+                    "Measure duration:", self._measure_duration,
+                    "Measure: " + repr(measure.attrib.get("number")),
+                    ET.tostring(note)
+                )
             return
         
-        # TODO: triplets
-
         # verify for regular notes
-        # TODO
+        expected_duration, expected_duration_float = self._expected_note_duration(note)
+        if expected_duration != duration:
+            self._error(
+                "Note does not have expected duration.",
+                "Expected:", expected_duration_float,
+                "Actual:", duration,
+                "Measure: " + repr(measure.attrib.get("number")),
+                ET.tostring(note)
+            )
+    
+    def _expected_note_duration(self, note: ET.Element) -> int:
+        type_element = note.find("type")
+        note_type = type_element.text
+
+        # simple conversion
+        expected_duration: Fraction = NOTE_TYPE_TO_QUARTER_MULTIPLE[note_type] * self._divisions
+
+        # handle duration dots
+        dot_duration = expected_duration / 2
+        for _ in note.findall("dot"):
+            expected_duration += dot_duration
+            dot_duration /= 2
+        
+        # handle time modification
+        if note.find("time-modification") is not None:
+            actual = int(note.find("time-modification/actual-notes").text)
+            normal = int(note.find("time-modification/normal-notes").text)
+            expected_duration *= Fraction(normal, actual)
+        
+        # The denominaotor now SHOULD be 1, if the file is valid MusicXML.
+        # BUT! The reality strucks and you find out that MuseScore caps
+        # divisions at 480 and won't go higher. Which causes non-integer
+        # results here. And they don't even covnert to int, they round instead!
+        # So there must have been some obscure reason for their decision.
+        # Either they play 4D Chess, or some random contributor on the internet
+        # put round() there because he felt like so. Either way, we have to
+        # round as well to get the same results.
+        return round(expected_duration), float(expected_duration) # keep the floats for error handling
+        # assert expected_duration.denominator == 1
+        # return expected_duration.numerator
     
     def _verify_chords(
         self, duration: Optional[int], pitch_token: Optional[str],

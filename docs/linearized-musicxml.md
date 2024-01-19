@@ -412,11 +412,27 @@ Here are some interesting scores, time signature-wise, for testing:
 
 ### Tuplets and tremolos `<tuplet>`, `<tremolo>`, `[tuplet]`, `[tremolo]`
 
-TODO: (do it like beams, ignore nested tuplets)
+Tuplets and tremolos are the notation elements, that utilize MusicXML's `<time-modification>` element. This element lets us define notes, that are non-2 division of time.
 
-There are tuplets and tremolos, they both use the `<tuplet>` element, but tremolo also has the `<tremolo>` element.
+Normally, we have quarter notes and eighth notes. A quarter note triplet has duration in between - it takes 2/3 of a quarter note in duration. Similarly we can define fifths, sevenths, etc. A standalone tuplet note is identified by its type and the time-shrinking ratio from `<time-modification>`. For reason we decided to extend the note `[type]` with a `[time-modification]` token, which is computed directly from the `<time-modification>` MusicXML element.
 
-There are (almost?) no nested tuplets in the corpus, so we ignore these.
+So a quarter note triplet would be encoded like this:
+
+```
+C4 quarter 3in2
+```
+
+There are two regular quarters in two quarters (in a half note), so a regular quarter note is `2in2`, or rather `1in1` so the time modification is omitted. But there are three triplet quarter notes in two regular quarter notes, so `3in2`.
+
+We do not take just take the values from the `<time-modification>` element, but we also simplifying them. So a `6in4` is simplified to `3in2`. We encode only irreducible time modifications.
+
+Apart from the duration information, tuplets are usually grouped by brackets or beams to form tuplet groups, so that they are easier to read. This information in MusicXML is stored in `<notations>/<tuplet>` element. We encode this information separately in two tokens:
+
+```
+tuplet:start tuplet:stop
+```
+
+There are no nested tuplets in the corpus, so we ignore these.
 
 Interesting scores to test on:
 - https://musescore.com/user/27638568/scores/5974308 (sixteenth triplets)
@@ -425,44 +441,16 @@ Interesting scores to test on:
 - https://musescore.com/user/27638568/scores/4985999 (triplets with invisible numbers - rule of continuation)
 - https://musescore.com/openscore-lieder-corpus/scores/5052823 (more tremolos)
 
-Some tuplet statistics:
+Time modification statistics (after simplifying fractions):
 
-```xml
-<tuplet type="stop" />: 24967
-<tuplet type="start" bracket="no" />: 14057
-<tuplet type="start" bracket="no" show-number="none" />: 6628
-<tuplet type="start" bracket="yes" />: 4471
-<tuplet type="start" bracket="yes" show-number="none" />: 96
-<tuplet type="stop" number="1" />: 3
-<tuplet type="start" number="1" bracket="no" show-number="none" />: 2
-<tuplet type="start" number="1" bracket="yes" />: 1
-
-# nested tuplets?
-<tuplet type="start" bracket="no" show-number="none">
-    <tuplet-actual><tuplet-number>8</tuplet-number><tuplet-type>16th</tuplet-type></tuplet-actual>
-    <tuplet-normal><tuplet-number>8</tuplet-number><tuplet-type>16th</tuplet-type></tuplet-normal>
-</tuplet>: 16
-<tuplet type="start" number="2" bracket="yes">
-    <tuplet-actual><tuplet-number>3</tuplet-number><tuplet-type>eighth</tuplet-type></tuplet-actual>
-    <tuplet-normal><tuplet-number>2</tuplet-number><tuplet-type>eighth</tuplet-type></tuplet-normal>
-</tuplet>: 2
-<tuplet type="start" bracket="no" show-number="none">
-    <tuplet-actual><tuplet-number>2</tuplet-number><tuplet-type>16th</tuplet-type></tuplet-actual>
-    <tuplet-normal><tuplet-number>2</tuplet-number><tuplet-type>16th</tuplet-type></tuplet-normal>
-</tuplet>: 2
-<tuplet type="start" bracket="no" show-number="none">
-    <tuplet-actual><tuplet-number>2</tuplet-number><tuplet-type>16th</tuplet-type></tuplet-actual>
-    <tuplet-normal><tuplet-number>4</tuplet-number><tuplet-type>16th</tuplet-type></tuplet-normal>
-</tuplet>: 2
-<tuplet type="start" bracket="no" show-number="none">
-    <tuplet-actual><tuplet-number>2</tuplet-number><tuplet-type>quarter</tuplet-type></tuplet-actual>
-    <tuplet-normal><tuplet-number>2</tuplet-number><tuplet-type>quarter</tuplet-type></tuplet-normal>
-</tuplet>: 2
-<tuplet type="start" number="2" bracket="no">
-    <tuplet-actual><tuplet-number>5</tuplet-number><tuplet-type>32nd</tuplet-type></tuplet-actual>
-    <tuplet-normal><tuplet-number>4</tuplet-number><tuplet-type>32nd</tuplet-type></tuplet-normal>
-</tuplet>: 1
+```py
+Counter({'3in2': 103821, '2in1': 865, '2in3': 739, '5in4': 372, '7in8': 203,
+    '7in6': 196, '9in8': 174, '7in4': 70, '4in3': 67, '11in8': 53, '13in8': 52,
+    '5in2': 45, '9in4': 19, '9in2': 18, '15in8': 15, '11in12': 11, '5in3': 10,
+    '7in1': 7, '35in16': 5})
 ```
+
+We encode all the time modification tokens that appear in the corpus.
 
 
 ### Measure `<measure>`, `[measure]`
@@ -699,10 +687,9 @@ This is an attempt at modelling the linearized MusicXML by a simple grammar:
     [staff]?
     [beam]*
     [tied]?
+    [tuplet]*
 
     # EXTENDED encoding
-
-    # TODO: tuplets
     # TODO: EXTENDED encoding symbols
 )
 
@@ -760,7 +747,10 @@ This is an attempt at modelling the linearized MusicXML by a simple grammar:
 
 # tuplets have this time modification right after the type name
 [time-modification] =
-    | "3in2" | "5in4" | "6in4" | "7in8"
+    | '3in2' | '2in1' | '2in3' | '5in4' | '7in8' | '7in6'
+    | '9in8' | '7in4' | '4in3' | '11in8' | '13in8' | '5in2'
+    | '9in4' | '9in2' | '15in8' | '11in12' | '5in3' | '7in1'
+    | '35in16'
 
 # [dot] is a duration dot, one occurence for each notated dot
 [dot] = "dot"
@@ -799,6 +789,10 @@ This is an attempt at modelling the linearized MusicXML by a simple grammar:
 [tied] =
     | "tied:start"
     | "tied:stop"
+
+[tuplet] =
+    | "tuplet:start"
+    | "tuplet:stop"
 
 ```
 
@@ -843,7 +837,7 @@ Used, Linearization: CORE
 <rest> converted to [rest]
 <staff> converted to [staff]
 <stem> converted to [stem]
-<time-modification> used for tuplets
+<time-modification> used for tuplets, converted to [time-modification]
 <type> converted to [type], encodes duration
 <voice> used but not explicitly linearized
 <notations> not explicitly linearized, only its contents
@@ -851,18 +845,7 @@ Used, Linearization: CORE
 <ornaments> not explicitly linearized, only its contents
 <technical> not explicitly linearized, only its contents
 <tied> converted to [tied]
-
-================
-
-<tuplet> TODO
-    <tuplet-actual>
-    <tuplet-dot>
-    <tuplet-number>
-    <tuplet-type>
-    <tuplet-normal>
-    <tuplet-dot>
-    <tuplet-number>
-    <tuplet-type>
+<tuplet> converted to [tuplet]
 ```
 
 ```xml

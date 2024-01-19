@@ -7,6 +7,16 @@ import xml.etree.ElementTree as ET
 from collections import Counter
 
 
+IGNORE_SCORES = [
+    5840072,
+    5060972,
+
+    # have weird time signatures which create weird tuplets
+    # 6416048,
+    # 5639135,
+]
+
+
 with open(os.path.join(LIEDER_CORPUS_PATH, "data/scores.yaml")) as f:
     corpus_scores = yaml.load(f, Loader=yaml.FullLoader)
 
@@ -15,6 +25,9 @@ keys = Counter()
 for score_id in corpus_scores.keys():
     mxl_path = os.path.join(DATASET_PATH, "mxl", f"{score_id}.mxl")
     print(mxl_path)
+    if score_id in IGNORE_SCORES:
+        print("SKIPPING DUE TO IGNORE")
+        continue
     try:
         mxl = MxlFile.load_mxl(mxl_path)
     except Exception as e:
