@@ -2,7 +2,7 @@ import os
 import yaml
 from .config import *
 from .musescore_conversion import musescore_conversion
-from .produce_msq import produce_msq
+from .produce_lmx import produce_lmx
 from .slice_system_pngs import slice_system_pngs
 from typing import Optional
 
@@ -11,7 +11,7 @@ def build(
     slice_index: int,
     slice_count: int,
     inspect: Optional[int],
-    msq_only: bool
+    linearize_only: bool
 ):
     # load and filter corpus scores
     with open(os.path.join(LIEDER_CORPUS_PATH, "data/scores.yaml")) as f:
@@ -50,17 +50,20 @@ def build(
         scores=slice_scores,
         slice_index=slice_index,
         slice_count=slice_count,
-        formats=["mxl"] if msq_only else ["mxl", "svg", "png"]
+        formats=["mxl"] if linearize_only else ["mxl", "svg", "png"]
     )
 
     # split xml files into systems and convert to sequences
-    produce_msq(
+    produce_lmx(
         score_ids=slice_score_ids,
-        slice_index=slice_index,
-        slice_count=slice_count
+        extended_flavor=True
+    )
+    produce_lmx(
+        score_ids=slice_score_ids,
+        extended_flavor=False
     )
 
     # slice up full-page PNGs to system-level PNGs
-    if not msq_only:
+    if not linearize_only:
         slice_system_pngs(score_ids=slice_score_ids)
     

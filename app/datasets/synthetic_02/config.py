@@ -2,7 +2,7 @@ import yaml
 
 
 LIEDER_CORPUS_PATH = "datasets/OpenScore-Lieder"
-DATASET_PATH = "datasets/synthetic_01"
+DATASET_PATH = "datasets/synthetic_02"
 MSCORE = "musescore/musescore.AppImage"
 TESTSET_SCORES_YAML = "testset/test_scores.yaml"
 

@@ -18,32 +18,23 @@ def finalize():
     score_ids = list(corpus_scores.keys())
     testset_ids = list(testset_scores.keys())
     
-    # check that MSQ and PNG files are paired correctly
-    check_system_correspondence(score_ids=score_ids)
+    # check that LMX and PNG files are paired correctly
+    check_system_correspondence(score_ids=score_ids, flavor="extended")
+    check_system_correspondence(score_ids=score_ids, flavor="core")
 
-    # build sample indexes
+    # build indexes
     build_test_train_indexes(
         score_ids=score_ids,
         testset_ids=testset_ids
     )
 
-    # merge vocabularies
-    assert os.system(
-        f"sort -u {DATASET_PATH}/vocabulary_*.txt > {DATASET_PATH}/vocabulary.txt"
-    ) == 0
-
-    # merge errors
-    assert os.system(
-        f"cat {DATASET_PATH}/msq_errors_*.txt > {DATASET_PATH}/msq_errors.txt"
-    ) == 0
+    # create vocabulary file
+    vocabulary_file_path = os.path.join(DATASET_PATH, "vocabulary.txt")
+    with open(vocabulary_file_path, "w") as file:
+        from ...linearization.vocabulary import ALL_TOKENS
+        print("\n".join(ALL_TOKENS), file=file)
 
     # remove unnecessary files
-    assert os.system(
-        f"rm {DATASET_PATH}/vocabulary_*.txt"
-    ) == 0
-    assert os.system(
-        f"rm {DATASET_PATH}/msq_errors_*.txt"
-    ) == 0
     assert os.system(
         f"rm {DATASET_PATH}/conversion_*.json"
     ) == 0

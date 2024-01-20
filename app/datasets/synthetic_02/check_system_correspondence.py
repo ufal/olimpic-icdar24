@@ -4,8 +4,11 @@ from typing import Iterable
 from .config import *
 
 
-def check_system_correspondence(score_ids: Iterable[int]):
-    print("Ckecking for non-paired PNG-MSQ files...")
+def check_system_correspondence(
+    score_ids: Iterable[int],
+    flavor: str
+):
+    print("Ckecking for non-paired PNG-LMX files...")
     for score_id in score_ids:
         dir_path = os.path.join(
             DATASET_PATH, "samples", str(score_id)
@@ -15,12 +18,12 @@ def check_system_correspondence(score_ids: Iterable[int]):
             continue
 
         png_pattern = os.path.join(dir_path, f"*.png")
-        msq_pattern = os.path.join(dir_path, f"*.msq")
+        lmx_pattern = os.path.join(dir_path, f"*.{flavor}.lmx")
 
         png_files = set(f.replace(".png", "") for f in glob.glob(png_pattern))
-        msq_files = set(f.replace(".msq", "") for f in glob.glob(msq_pattern))
+        lmx_files = set(f.replace(f".{flavor}.lmx", "") for f in glob.glob(lmx_pattern))
 
-        diff = png_files.symmetric_difference(msq_files)
+        diff = png_files.symmetric_difference(lmx_files)
         for file in diff:
             print("LONELY:", file)
     print("Checking done.")

@@ -7,6 +7,13 @@
 #
 
 ignored_score_ids:
+  # Contain many errors when being linearized
+  - 6017382 # https://musescore.com/openscore-lieder-corpus/scores/6017382
+  - 6480349 # https://musescore.com/openscore-lieder-corpus/scores/6480349
+  - 6217375 # https://musescore.com/openscore-lieder-corpus/scores/6217375
+  - 5840072 # https://musescore.com/openscore-lieder-corpus/scores/5840072
+  - 6903010 # https://musescore.com/openscore-lieder-corpus/scores/6903010
+
   # Do not contain piano part:
   - 8708253 # https://musescore.com/openscore-lieder-corpus/scores/8708253
   - 8708688 # https://musescore.com/openscore-lieder-corpus/scores/8708688
