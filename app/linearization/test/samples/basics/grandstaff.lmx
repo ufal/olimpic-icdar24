@@ -2,6 +2,7 @@ version: 1.0
 flavor: core
 ---
 measure # 1
+  key:fifths:0
   time beats:4 beat-type:4
   clef:G2 staff:1
   clef:F4 staff:2

@@ -1,4 +1,3 @@
-from __future__ import division
 import xml.etree.ElementTree as ET
 from typing import Iterator, Optional, List, TextIO, Dict
 import io
@@ -118,28 +117,36 @@ class Linearizer:
 
         self._measure_number = measure.attrib.get("number")
 
-        system_start = self._handle_new_system_or_page(measure)
+        is_new_system = self._handle_new_system_or_page(measure)
+        force_emit = is_new_system and self.re_emit_system_header
         
         # start a new measure
         self._emit("measure")
 
-        # re-emit clefs and key signature
-        if system_start and self.re_emit_system_header:
-            self._emit_new_staff_header()
-
+        is_first_processed_child = True
         for element in measure:
+            # skip non-interesting elements
+            if element.tag in IGNORED_MEASURE_ELEMENTS:
+                continue
+
+            # if we're forcing header emit and the first element is not attributes,
+            # we have process a dummy empty attributes element to do the emit
+            if is_first_processed_child and force_emit and element.tag != "attributes":
+                self.process_attributes(ET.Element("attributes"), force_emit)
+            
+            # process children ordinarily
             if element.tag == "note":
                 self.process_note(element, measure)
             elif element.tag == "attributes":
-                self.process_attributes(element)
+                self.process_attributes(element, force_emit and is_first_processed_child)
             elif element.tag == "backup":
                 self.process_backup(element, measure)
             elif element.tag == "forward":
                 self.process_forward(element)
-            elif element.tag in IGNORED_MEASURE_ELEMENTS:
-                pass # ignored
             else:
                 self._error("Unexpected <measure> element:", element, element.attrib)
+            
+            is_first_processed_child = False
     
     def _handle_new_system_or_page(self, measure: ET.Element) -> bool:
         assert measure.tag == "measure"
@@ -155,23 +162,6 @@ class Linearizer:
                     return True
         
         return False
-    
-    def _emit_new_staff_header(self):
-        # the order of tokens is the same as in <attributes>
-
-        # key signature
-        self._emit("key:fifths:" + str(self._key_signature_fifths))
-
-        # time signature
-        # ... is not re-printed, because it is not re-printed on the paper as well
-
-        # clef(s)
-        if self._staves is None:
-            self._emit(self._clefs[1])
-        else:
-            for i in range(1, self._staves + 1):
-                self._emit(self._clefs[i])
-                self._emit("staff:" + str(i))
     
     def process_note(self, note: ET.Element, measure: ET.Element):
         assert note.tag == "note"
@@ -473,22 +463,38 @@ class Linearizer:
                 ET.tostring(note)
             )
 
-    def process_attributes(self, attributes: ET.Element):
+    def process_attributes(self, attributes: ET.Element, force_emit: bool):
         # the order of elements is well defined
         # https://www.w3.org/2021/06/musicxml40/musicxml-reference/elements/attributes/
         assert attributes.tag == "attributes"
 
+        # divisions
+        divisions_element = attributes.find("divisions")
+        if divisions_element is not None:
+            self.process_divisions(divisions_element)
+        
+        # key signature (process even if missing due to re-prints)
+        key_element = attributes.find("key")
+        self.process_key_signature(key_element, force_emit)
+
+        # time signature
+        time_element = attributes.find("time")
+        if time_element is not None:
+            self.process_time_signature(time_element)
+        
+        # staves
+        staves_element = attributes.find("staves")
+        if staves_element is not None:
+            self._staves = int(staves_element.text)
+
+        # clef (process even if missing due to re-prints)
+        clef_elements = attributes.findall("clef")
+        self.process_clefs(clef_elements, force_emit)
+
+        # check that all elements have been processed
         for element in attributes:
-            if element.tag == "divisions":
-                self.process_divisions(element)
-            elif element.tag == "key":
-                self.process_key_signature(element)
-            elif element.tag == "time":
-                self.process_time_signature(element)
-            elif element.tag == "staves":
-                self._staves = int(element.text)
-            elif element.tag == "clef":
-                self.process_clef(element)
+            if element.tag in ["divisions", "key", "time", "staves", "clef"]:
+                pass # has been processed already
             elif element.tag in IGNORED_ATTRIBUTES_ELEMENTS:
                 pass # ignored
             else:
@@ -527,31 +533,43 @@ class Linearizer:
         time_units_per_measure = quarters_per_measure * self._divisions
         assert time_units_per_measure.denominator == 1, "Measure duration calculation failed"
         self._measure_duration = time_units_per_measure.numerator
+
+    def process_key_signature(self, key: Optional[ET.Element], force_emit: bool):
+        # if a key signature is defined, we just print and remember it
+        if key is not None:
+            self._key_signature_fifths = int(key.find("fifths").text)
+            self._emit("key:fifths:" + str(self._key_signature_fifths))
+            return
+        
+        # if it is not defined, we may print the carried one if forced
+        if force_emit and self._key_signature_fifths is not None:
+            self._emit("key:fifths:" + str(self._key_signature_fifths))
+            return
     
-    def process_key_signature(self, key: ET.Element):
-        assert key.tag == "key"
+    def process_clefs(self, clefs: List[ET.Element], force_emit: bool):
+        # get all the currently defined clefs (staff -> clef token)
+        # (those are always printed)
+        clefs_to_print = {}
+        for clef in clefs:
+            staff_number = int(clef.attrib.get("number", "1"))
+            clef_token = (
+                "clef:" + clef.find("sign").text.upper()
+                    + clef.find("line").text
+            )
+            clefs_to_print[staff_number] = clef_token
 
-        self._key_signature_fifths = int(key.find("fifths").text)
+            # remember the clef for future printing
+            self._clefs[staff_number] = clef_token
 
-        self._emit("key:fifths:" + str(self._key_signature_fifths))
+        # if we are on a new system
+        if force_emit:
+            clefs_to_print = self._clefs
 
-    def process_clef(self, clef: ET.Element):
-        assert clef.tag == "clef"
-
-        line_element = clef.find("line")
-        assert line_element is not None, "<line> must be present in <clef> element"
-        sign_element = clef.find("sign")
-        assert sign_element is not None, "<sign> must be present in <clef> element"
-
-        clef_token = "clef:" + sign_element.text.upper() + line_element.text
-        self._emit(clef_token)
-
-        number = clef.attrib.get("number")
-        if number is not None:
-            self._emit("staff:" + number)
-            self._clefs[int(number)] = clef_token
-        else:
-            self._clefs[1] = clef_token
+        # now we can print all the clefs to be printed, IN THE PROPER ORDER
+        for staff_number in sorted(clefs_to_print.keys()):
+            self._emit(clefs_to_print[staff_number])
+            if self._staves is not None: # emit staff number only if we're multistaff
+                self._emit("staff:" + str(staff_number))
     
     def process_backup(self, backup: ET.Element, measure: ET.Element):
         assert backup.tag == "backup"
