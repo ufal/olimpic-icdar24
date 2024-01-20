@@ -79,14 +79,15 @@ PITCH_TOKENS = [
 
 VOICE_TOKENS = [
     "voice:1", "voice:2", "voice:3", "voice:4",
-    "voice:5", "voice:6", "voice:7", "voice:8"
+    "voice:5", "voice:6", "voice:7", "voice:8",
+    "voice:9", "voice:10", "voice:11", "voice:12", # organ 3-staff music
 ]
 
 TIME_MODIFICATION_TOKENS = [
     '3in2', '2in1', '2in3', '5in4', '7in8', '7in6',
     '9in8', '7in4', '4in3', '11in8', '13in8', '5in2',
     '9in4', '9in2', '15in8', '11in12', '5in3', '7in1',
-    '35in16'
+    '35in16', '4in1'
 ]
 
 ACCIDENTAL_TOKENS = [
@@ -104,7 +105,8 @@ STEM_TOKENS = [
 ]
 
 STAFF_TOKENS = [
-    "staff:1", "staff:2"
+    "staff:1", "staff:2",
+    "staff:3" # organ 3-staff music
 ]
 
 BEAM_TOKENS = [

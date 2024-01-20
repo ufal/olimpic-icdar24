@@ -45,8 +45,10 @@ class Linearizer:
         self.extended_flavor = extended_flavor
 
         # within-part state
+        self._part_id: Optional[str] = None # current part ID
         self._page_index = 0 # page within part, zero-indexed
         self._system_index = 0 # system within page, zero-indexed
+        self._measure_number: Optional[str] = None # current measure number
         self._divisions: Optional[int] = None # time units per one quarter note
         self._beats_per_measure: Optional[int] = None # time signature top
         self._beat_type: Optional[int] = None # time signature bottom
@@ -64,7 +66,8 @@ class Linearizer:
         self._previous_note_pitch: Optional[str] = None # for chord checks
 
     def _error(self, *values):
-        print(*values, file=self._errout)
+        header = f"[ERROR][P:{self._part_id} M:{self._measure_number}]:"
+        print(header, *values, file=self._errout)
 
     def _emit(self, token: str):
         """Emits a token into the output sequence"""
@@ -83,8 +86,10 @@ class Linearizer:
 
     def process_part(self, part: ET.Element):
         # reset within-part state
+        self._part_id = None
         self._page_index = 0
         self._system_index = 0
+        self._measure_number = None
         self._divisions = None
         self._beats_per_measure = None
         self._beat_type = None
@@ -94,6 +99,7 @@ class Linearizer:
         self._key_signature_fifths = None
         
         assert part.tag == "part"
+        self._part_id = part.attrib.get("id")
         for measure in part:
             assert measure.tag == "measure"
             
@@ -109,6 +115,8 @@ class Linearizer:
         self._voice = None
         self._previous_note_duration = None
         self._previous_note_pitch = None
+
+        self._measure_number = measure.attrib.get("number")
 
         system_start = self._handle_new_system_or_page(measure)
         
@@ -160,14 +168,10 @@ class Linearizer:
         # clef(s)
         if self._staves is None:
             self._emit(self._clefs[1])
-            self._emit("staff:1")
-        elif self._staves == 2:
-            self._emit(self._clefs[1])
-            self._emit("staff:1")
-            self._emit(self._clefs[2])
-            self._emit("staff:2")
         else:
-            self._error("Unexpected number of staves:", self._staves)
+            for i in range(1, self._staves + 1):
+                self._emit(self._clefs[i])
+                self._emit("staff:" + str(i))
     
     def process_note(self, note: ET.Element, measure: ET.Element):
         assert note.tag == "note"
@@ -263,7 +267,6 @@ class Linearizer:
             if stem_element.text not in ["up", "down", "none"]:
                 self._error(
                     f"Unknown stem type '{stem_element.text}'.",
-                    "Measure: " + str(measure.attrib),
                     ET.tostring(note)
                 )
             else:
@@ -276,11 +279,13 @@ class Linearizer:
         # of a measure, voice, and during a change of staff
         staff_element = note.find("staff")
         if staff_element is not None:
-            assert staff_element.text in ["1", "2"]
-            assert self._staves == 2
-            if self._staff != staff_element.text:
-                self._emit("staff:" + staff_element.text)
-                self._staff = staff_element.text
+            if staff_element.text not in ["1", "2", "3"]:
+                self._error("Only staves 1,2,3 are supported.")
+            else:
+                assert self._staves >= 2
+                if self._staff != staff_element.text:
+                    self._emit("staff:" + staff_element.text)
+                    self._staff = staff_element.text
 
         # [beam]
         for beam in note.findall("beam"):
@@ -400,7 +405,6 @@ class Linearizer:
                     "Measure rest does not have expected duration.",
                     "Divisions:", + self._divisions,
                     "Measure duration:", self._measure_duration,
-                    "Measure: " + repr(measure.attrib.get("number")),
                     ET.tostring(note)
                 )
             return
@@ -412,7 +416,6 @@ class Linearizer:
                 "Note does not have expected duration.",
                 "Expected:", expected_duration_float,
                 "Actual:", duration,
-                "Measure: " + repr(measure.attrib.get("number")),
                 ET.tostring(note)
             )
     
@@ -458,7 +461,6 @@ class Linearizer:
         if duration != self._previous_note_duration:
             self._error(
                 "Chord notes have varying duration.",
-                "Measure: " + repr(measure.attrib),
                 ET.tostring(note)
             )
         
@@ -468,7 +470,6 @@ class Linearizer:
         if previous_order > current_order:
             self._error(
                 "Chord notes must have ascending pitches.",
-                "Measure: " + repr(measure.attrib),
                 ET.tostring(note)
             )
 
@@ -486,7 +487,6 @@ class Linearizer:
                 self.process_time_signature(element)
             elif element.tag == "staves":
                 self._staves = int(element.text)
-                assert self._staves == 2
             elif element.tag == "clef":
                 self.process_clef(element)
             elif element.tag in IGNORED_ATTRIBUTES_ELEMENTS:

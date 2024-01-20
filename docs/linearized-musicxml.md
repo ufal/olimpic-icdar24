@@ -797,6 +797,7 @@ This is an attempt at modelling the linearized MusicXML by a simple grammar:
 [staff] =
     | "staff:1"
     | "staff:2"
+    | "staff:3"
 
 # beam start or end or a hook
 [beam] =
