@@ -62,4 +62,4 @@ def build_index(score_ids: Iterable[int], index_name: str) -> int:
         for base in actual_sample_bases:
             file.write(base + "\n")
 
-    return (len(actual_score_ids), len(actual_sample_bases))
+    return (len(actual_sample_bases), len(actual_score_ids))

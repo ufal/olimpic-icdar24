@@ -132,21 +132,15 @@ EXTENDED_FLAVOR_TOKENS = [
     "tremolo:unmeasured",
 ]
 
-ALL_TOKENS = [
-    "measure",
-
-    # attributes tokens
-    *KEY_TOKENS,
-    *TIME_SIGNATURE_TOKENS,
-    *CLEF_TOKENS,
-    
-    # note tokens
+NOTE_PREFIX_TOKENS = [
     "print-object:no",
     "grace", "grace:slash",
     "chord",
     *PITCH_TOKENS, "rest", "forward", "backup", # note kind
-    *VOICE_TOKENS,
-    *NOTE_TYPE_TOKENS, "rest:measure", # ROOT of a note
+    *VOICE_TOKENS
+]
+
+NOTE_SUFFIX_TOKENS = [
     *TIME_MODIFICATION_TOKENS,
     "dot",
     *ACCIDENTAL_TOKENS,
@@ -157,4 +151,23 @@ ALL_TOKENS = [
     "tuplet:start", "tuplet:stop",
 
     *EXTENDED_FLAVOR_TOKENS
+]
+
+NOTE_ROOT_TOKENS = [
+    *NOTE_TYPE_TOKENS,
+    "rest:measure",
+]
+
+ALL_TOKENS = [
+    "measure",
+
+    # attributes tokens
+    *KEY_TOKENS,
+    *TIME_SIGNATURE_TOKENS,
+    *CLEF_TOKENS,
+    
+    # note tokens
+    *NOTE_PREFIX_TOKENS,
+    *NOTE_ROOT_TOKENS, # ROOT of a note
+    *NOTE_SUFFIX_TOKENS
 ]

@@ -2,6 +2,7 @@ import argparse
 from .clear import clear
 from .build import build
 from .finalize import finalize
+from .build_preview import build_preview
 
 
 ##########
@@ -54,6 +55,12 @@ subparsers.add_parser(
         "Removes the dataset folder so that the next build starts from scratch"
 )
 
+subparsers.add_parser(
+    "build-preview",
+    aliases=[],
+    help="Builds a preview folder with an HTML file index"
+)
+
 
 ########
 # Main #
@@ -72,6 +79,8 @@ elif args.command_name == "build":
     )
 elif args.command_name == "finalize":
     finalize()
+elif args.command_name == "build-preview":
+    build_preview()
 else:
     parser.print_help()
     exit(2)
