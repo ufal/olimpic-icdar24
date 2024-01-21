@@ -3,6 +3,7 @@ from .load_workbench import load_workbench
 from .save_workbench import save_workbench
 from .prepare_imslp import prepare_imslp
 from .build import build
+from .build_preview import build_preview
 
 
 ##########
@@ -39,10 +40,16 @@ load_wb_parser.add_argument(
     help="ID of a corpus score"
 )
 
-load_wb_parser = subparsers.add_parser(
+subparsers.add_parser(
     "save-workbench",
     aliases=[],
     help="Creates the workbench inkscape file for a given corpus score ID"
+)
+
+subparsers.add_parser(
+    "build-preview",
+    aliases=[],
+    help="Builds a preview folder with an HTML file index"
 )
 
 
@@ -60,6 +67,8 @@ elif args.command_name == "load-workbench":
     load_workbench(args.score_id)
 elif args.command_name == "save-workbench":
     save_workbench()
+elif args.command_name == "build-preview":
+    build_preview()
 else:
     parser.print_help()
     exit(2)

@@ -6,7 +6,7 @@ from .config import *
 
 def musescore_conversion(
     scores: Dict[int, Dict[str, Any]],
-    formats=["mxl", "svg", "png"]
+    formats=["mxl", "svg"]
 ):
     """Executes MuseScore batch conversion"""
 

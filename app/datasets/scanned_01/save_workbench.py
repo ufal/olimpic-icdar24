@@ -105,10 +105,13 @@ def save_workbench():
     # write the results
     systems_file_path = os.path.join(DATASET_PATH, "imslp_systems", "IMSLP" + imslp_id + ".yaml")
     print("Writing:", systems_file_path)
-    with open(systems_file_path) as file:
-        contents = yaml.safe_load(file)
-        for page_number, page in imslp_pages.items():
-            contents["pages"][page_number] = page
+    if os.path.exists(systems_file_path):
+        with open(systems_file_path) as file:
+            contents = yaml.safe_load(file)
+    else:
+        contents = {"pages": {}}
+    for page_number, page in imslp_pages.items():
+        contents["pages"][page_number] = page
     with open(systems_file_path, "w") as file:
         yaml.safe_dump(contents, file, sort_keys=True)
 
@@ -120,7 +123,7 @@ def save_workbench():
 
     # remove the workbench file
     print("Removing the workbench file.")
-    # assert os.system(f"rm {workbench_file}") == 0
+    assert os.system(f"rm {workbench_file}") == 0
     print("Done.")
     
 

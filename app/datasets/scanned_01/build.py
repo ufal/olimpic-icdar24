@@ -4,19 +4,20 @@ import cv2
 from .produce_lmx import produce_lmx
 from .config import *
 from .musescore_conversion import musescore_conversion
+import glob
 
 
 def build():
 
-    # get all the scores to build
+    # get all the scores to buildn
     with open(TESTSET_SCORES_YAML) as file:
         scores = yaml.safe_load(file)
 
-    # TODO: DEBUG: take only first two
-    scores = dict(list(scores.items())[0:2])
+    # # DEBUG: take only first two
+    # scores = dict(list(scores.items())[0:2])
 
     # prepare MXL and PNG files
-    # (png files for comparison during manual annotation)
+    # (png files for comparison during manual annotatio)
     musescore_conversion(scores)
 
     # produce LMX files
@@ -46,6 +47,16 @@ def build():
         # go through all the defined system mappings
         for sample, mapping in mappings.items():
             process_sample(sample, mapping)
+    
+    # create the all index
+    samples = glob.glob(
+        os.path.join(DATASET_PATH, "samples", "**", "*.png"),
+        recursive=True
+    )
+    samples.sort()
+    samples = [os.path.relpath(path, DATASET_PATH)[:-4] for path in samples]
+    with open(os.path.join(DATASET_PATH, "samples.all.txt"), "w") as file:
+        print("\n".join(samples), file=file)
 
 
 def process_sample(sample: str, mapping):
