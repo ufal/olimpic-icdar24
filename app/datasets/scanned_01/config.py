@@ -1,0 +1,6 @@
+CORPUS_SCORES_YAML = "datasets/OpenScore-Lieder/data/scores.yaml"
+LIEDER_CORPUS_PATH = "datasets/OpenScore-Lieder"
+DATASET_PATH = "datasets/scanned_01"
+MSCORE = "musescore/musescore.AppImage"
+TESTSET_SCORES_YAML = "testset/test_scores.yaml"
+WORKBENCH_RECT_COLOR = "#eb5454"

@@ -3,7 +3,7 @@
 # for automatic processing and so I decided to ignore them.
 # That is the easier solution, then to implement a dozen of edgecases for a few scores.
 #
-# Currently there are 92 ignored scores out of 1356 total.
+# Currently there are 51 ignored scores out of 1356 total.
 #
 
 ignored_score_ids:

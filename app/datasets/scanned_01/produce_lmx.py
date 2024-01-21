@@ -28,7 +28,7 @@ def produce_lmx(
                 system_number = str(si + 1)
             
                 lmx_path = os.path.join(
-                    DATASET_PATH, "samples", str(score_id),
+                    DATASET_PATH, "lmx", str(score_id),
                     f"p{page_number}-s{system_number}.{flavor}.lmx"
                 )
                 os.makedirs(os.path.dirname(lmx_path), exist_ok=True)
