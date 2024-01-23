@@ -1,0 +1,98 @@
+#
+# Our experiments focus on pianoform music. Here are scores that we decided
+# to ignore either because they don't contain standard pianoform music,
+# cause trouble with automatic staff detection in the synthetic music,
+# or maybe even do not contain a piano part.
+#
+# Scores listed here are not used in training, nor testing. They are not
+# present in the synthetic, nor the scanned dataset.
+#
+# Currently there are 51 ignored scores out of 1356 total.
+#
+# To see the score, simply go to:
+#   https://musescore.com/score/{score_id}
+#
+
+# Contain many errors when being linearized
+- 6017382
+- 6480349
+- 6217375
+- 5840072
+- 6903010
+
+# Do not contain a piano part
+- 8708253
+- 8708688
+- 8712405
+- 8712648
+- 8702982
+- 8718660
+- 6022950
+- 6023075
+- 6024601
+- 6034442
+- 6034473
+- 6034767
+- 5092551
+
+# Has three staves per system for piano (organ notation)
+- 6005658
+
+# Has four voices (on piano) written as four part lines, no pianoform here
+- 5908953
+
+# The piano is two monophonic staves, not one grandstaff
+- 4982535
+
+# Guitar part, one or two staves, complicated -> ignore
+# May lack the grand-staff brace
+- 6598368
+- 6666995
+- 6158642
+- 6159296
+- 6159273
+- 6163298
+- 6158825
+
+# contains piano brace for non-piano parts
+# --> it's hard to automatically crop out the piano part
+- 6681689
+- 6690090
+- 6683493
+- 6684909
+- 6550942
+- 6688667
+
+# has lots of weird layout, but it also contains piano brace
+# for non-piano score
+- 6764425
+
+# lacks piano bracket for the piano system
+- 6214840
+
+# contains a music-less page in the middle of the piece
+# (can't be found in the MusicXML to be skipped)
+- 6010628
+
+# contains broken system on one line (page 2), breaks PNG cropping
+- 6177442
+
+# contains a piano brace on a text page
+# (MuseScore rendering error?)
+- 5907870
+
+# contains invisible piano sections that cannot be found in the MusicXML
+# (can be found, it's just that there's no information about them being invisible)
+# (they just contain measure-rests, but those might as well be visible)
+- 6593095
+- 6625925
+- 6624112
+- 6613355
+- 6613436
+- 6613481
+- 6614717
+- 6614760
+- 6667483
+- 6669339
+- 6670960
+- 6162644

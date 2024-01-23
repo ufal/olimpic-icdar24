@@ -1,0 +1,46 @@
+#
+# These are score IDs from the scanned dataset, that were problematic
+# to annotate. These problems are usually related to the PDF encoding
+# (inverted image colors, rotated images) or to the system alignment
+# is not one-to-one with the MuseScore documents.
+#
+# These problems could be fixed, but we wanted to save time during
+# annotation, so we decided to skip them instead, and annotate others.
+# We believe there should NOT be a content-wise or an appearance-wise
+# bias introduced here. These are really just minor technical issues.
+#
+# Scores here ARE PRESENT in the synthetic dataset, but were skipped
+# during the creation of the scanned dataset.
+#
+# To see the score, simply go to:
+#   https://musescore.com/score/{score_id}
+#
+
+- 5115550
+- 5067672 # workbench crash
+- 5071686
+- 6451405 # rotated
+- 6518141
+- 4999332 # workbench crash
+- 5001820 # workbench crash
+- 5062136 # inverted b/w
+- 5043569 # inverted b/w
+- 5043618 # inverted b/w
+- 6510449
+- 6510502
+- 6595529 # weird sliced images
+- 5118339
+- 4928153
+- 6609884 # workbench crash
+- 6620845 # workbench crash
+- 5101361 # workbench crash
+- 5946761 # weird images
+- 6206972 # workbench crash
+- 6207073 # workbench crash
+- 5052787 # inverted b/w
+- 5842142 # organ scores
+- 5900749 # organ scores
+- 5991353 # organ scores
+- 5991473 # organ scores
+- 5101789 # split measure on last system
+- 5046249 # cant find the score in PDF
