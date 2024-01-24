@@ -10,13 +10,16 @@ import glob
 def build():
 
     # get all the scores to buildn
-    with open(TESTSET_SCORES_YAML) as file:
-        scores = yaml.safe_load(file)
+    with open("app/datasets/splits/data/test_scores.yaml") as file:
+        test_scores = yaml.safe_load(file)
+    with open("app/datasets/splits/data/dev_scores.yaml") as file:
+        dev_scores = yaml.safe_load(file)
+    scores = dict([*test_scores.items(), *dev_scores.items()])
 
     # # DEBUG: take only first two
     # scores = dict(list(scores.items())[0:2])
 
-    # prepare MXL and PNG files
+    # prepare MXL and SVG files
     # (png files for comparison during manual annotatio)
     musescore_conversion(scores)
 

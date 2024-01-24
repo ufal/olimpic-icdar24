@@ -5,6 +5,13 @@
   imslp: '#530500'
   set_id: 5106766
   lyricist_url: null
+6245974:
+  path: Beach,_Amy/4_Songs,_Op.51/4_Je_demande_à_l’oiseau
+  name: Je demande à l’oiseau
+  link: https://musescore.com/openscore-lieder-corpus/scores/6245974
+  imslp: '#634836'
+  set_id: 5103538
+  lyricist_url: https://imslp.org/wiki/Category:Silvestre,_Armand
 6488630:
   path: Beethoven,_Ludwig_van/8_Lieder,_Op.52/1_Urians_Reise_um_die_Welt
   name: Urians Reise um die Welt
@@ -152,6 +159,13 @@
   imslp: '#16897'
   set_id: 5077648
   lyricist_url: https://imslp.org/wiki/Category:Gautier,_Th%C3%A9ophile
+6189628:
+  path: Coleridge-Taylor,_Samuel/6_Sorrow_Songs,_Op.57/4_She_sat_and_sang_alway
+  name: She sat and sang alway
+  link: https://musescore.com/openscore-lieder-corpus/scores/6189628
+  imslp: '#23607'
+  set_id: 5103497
+  lyricist_url: https://imslp.org/wiki/Category:Rossetti,_Christina
 6218728:
   path: Davies,_Walford/8_New_Nursery_Rhymes,_Op.23/3_A_Tragedy
   name: A Tragedy
@@ -187,6 +201,13 @@
   imslp: '#556602'
   set_id: 5103577
   lyricist_url: https://imslp.org/wiki/Category:Tennyson,_Alfred
+6259566:
+  path: Faisst,_Clara_Mathilda/5_Lieder,_Op.6/1_Ich_glaub’,_lieber_Schatz
+  name: Ich glaub’, lieber Schatz...
+  link: https://musescore.com/openscore-lieder-corpus/scores/6259566
+  imslp: '#621830'
+  set_id: 5104226
+  lyricist_url: https://imslp.org/wiki/Category:Ritter,_Anna
 6259568:
   path: Faisst,_Clara_Mathilda/5_Lieder,_Op.6/2_Hast_nicht_ein_einzig_Mal_zurückgeschaut
   name: Hast nicht ein einzig Mal zurückgeschaut
@@ -201,6 +222,13 @@
   imslp: '#97638'
   set_id: 5032875
   lyricist_url: https://imslp.org/wiki/Category:Osterwald,_Wilhelm
+6805149:
+  path: Franz,_Robert/6_Gesänge,_Op.26/4_Des_Müden_Abendlied
+  name: Des Müden Abendlied
+  link: https://musescore.com/openscore-lieder-corpus/scores/6805149
+  imslp: '#97775'
+  set_id: 5032887
+  lyricist_url: https://imslp.org/wiki/Category:Geibel,_Emanuel
 4976604:
   path: Franz,_Robert/6_Gesänge,_Op.6/4_Die_Liebe_hat_gelogen!
   name: Die Liebe hat gelogen!
@@ -397,6 +425,20 @@
   imslp: '#618863'
   set_id: 5104084
   lyricist_url: null
+6249298:
+  path: Kinkel,_Johanna/6_Lieder,_Op.15/5_Rette_Vater,_dein_geliebtes_Kind!
+  name: Rette Vater, dein geliebtes Kind!
+  link: https://musescore.com/openscore-lieder-corpus/scores/6249298
+  imslp: '#618863'
+  set_id: 5104084
+  lyricist_url: https://imslp.org/wiki/Category:Kinkel,_Gottfried
+6572043:
+  path: Kinkel,_Johanna/6_Lieder,_Op.16/3_Abschied_von_Italien
+  name: Abschied von Italien
+  link: https://musescore.com/openscore-lieder-corpus/scores/6572043
+  imslp: '#618494'
+  set_id: 5106651
+  lyricist_url: https://imslp.org/wiki/Category:Kinkel,_Gottfried
 6248301:
   path: Kinkel,_Johanna/6_Lieder,_Op.6/1_Sehnsucht_nach_Griechenland
   name: Sehnsucht nach Griechenland
@@ -523,18 +565,11 @@
   imslp: '#511856'
   set_id: 5002090
   lyricist_url: https://imslp.org/wiki/Category:Tieck,_Johann_Ludwig
-6019300:
-  path: Schröter,_Corona/25_Lieder/05_Der_Brautschmuck
-  name: Der Brautschmuck
-  link: https://musescore.com/openscore-lieder-corpus/scores/6019300
-  imslp: '#109659'
-  set_id: 5102093
-  lyricist_url: https://imslp.org/wiki/Category:Herder,_Johann_Gottfried
-6389071:
-  path: Schubert,_Franz/Op.52/7_Lied_des_gefangenen_Jägers,_D.843
-  name: Lied des gefangenen Jägers, D.843
-  link: https://musescore.com/openscore-lieder-corpus/scores/6389071
-  imslp: '#16401'
+6389103:
+  path: Schubert,_Franz/Op.52/6_Ellens_Gesang_III,_D.839_(Ave_Maria)
+  name: Ellens Gesang III, D.839 (Ave Maria)
+  link: https://musescore.com/openscore-lieder-corpus/scores/6389103
+  imslp: '#16400'
   set_id: 5103429
   lyricist_url: https://imslp.org/wiki/Category:Storck,_Adam
 4985990:
@@ -579,20 +614,6 @@
   imslp: '#270918'
   set_id: 5016675
   lyricist_url: https://imslp.org/wiki/Category:R%C3%BCckert,_Friedrich
-5000388:
-  path: Schumann,_Clara/_/Die_gute_Nacht
-  name: Die gute Nacht
-  link: https://musescore.com/openscore-lieder-corpus/scores/5000388
-  imslp: '#403933'
-  set_id: 5101059
-  lyricist_url: https://imslp.org/wiki/Category:R%C3%BCckert,_Friedrich
-6828018:
-  path: Schumann,_Robert/5_Lieder_und_Gesänge,_Op.127/5_Schlusslied_des_Narren
-  name: Schlusslied des Narren
-  link: https://musescore.com/openscore-lieder-corpus/scores/6828018
-  imslp: '#271937'
-  set_id: 5109333
-  lyricist_url: https://imslp.org/wiki/Category:Schlegel,_August_Wilhelm
 4978393:
   path: Schumann,_Robert/Dichterliebe,_Op.48/11_Ein_Jüngling_liebt_ein_Mädchen
   name: Ein Jüngling liebt ein Mädchen
@@ -614,13 +635,6 @@
   imslp: '#270905'
   set_id: 5109331
   lyricist_url: https://imslp.org/wiki/Category:Goethe,_Johann_Wolfgang_von
-6974646:
-  path: Schumann,_Robert/Myrthen,_Op.25/19_Hauptmanns_Weib
-  name: Hauptmanns Weib
-  link: https://musescore.com/openscore-lieder-corpus/scores/6974646
-  imslp: '#270905'
-  set_id: 5109331
-  lyricist_url: https://imslp.org/wiki/Category:Gerhard,_Wilhelm
 6982743:
   path: Schumann,_Robert/Myrthen,_Op.25/25_Aus_den_östlichen_Rosen
   name: Aus den östlichen Rosen
@@ -635,13 +649,6 @@
   imslp: '#529227'
   set_id: 5103592
   lyricist_url: https://imslp.org/wiki/Category:Housman,_Alfred_Edward
-6211877:
-  path: Somervell,_Arthur/A_Shropshire_Lad/04_In_Summer-time_on_Bredon
-  name: In Summer-time on Bredon
-  link: https://musescore.com/openscore-lieder-corpus/scores/6211877
-  imslp: '#529227'
-  set_id: 5103592
-  lyricist_url: https://imslp.org/wiki/Category:Housman,_Alfred_Edward
 6641170:
   path: Viardot,_Pauline/6_Mélodies_et_une_havanaise/6b_Chanson_mélancolique
   name: Chanson mélancolique
@@ -649,13 +656,6 @@
   imslp: '#580584'
   set_id: 5107407
   lyricist_url: https://imslp.org/wiki/Category:Silvestre,_Armand
-6574373:
-  path: Viardot,_Pauline/_/Bonjour_mon_cœur!,_VWV_1072
-  name: Bonjour mon cœur!, VWV 1072
-  link: https://musescore.com/openscore-lieder-corpus/scores/6574373
-  imslp: '#424353'
-  set_id: 5106660
-  lyricist_url: https://imslp.org/wiki/Category:Ronsard,_Pierre_de
 6581327:
   path: Viardot,_Pauline/_/Le_rêve_de_Jésus,_VWV_1074
   name: Le rêve de Jésus, VWV 1074
@@ -670,12 +670,12 @@
   imslp: '#44645'
   set_id: 5026081
   lyricist_url: https://imslp.org/wiki/Category:Wesendonck,_Mathilde
-6232420:
-  path: Warlock,_Peter/Saudades/1_Along_the_Stream
-  name: Along the Stream
-  link: https://musescore.com/openscore-lieder-corpus/scores/6232420
-  imslp: '#476180'
-  set_id: 5103528
+6196782:
+  path: Warlock,_Peter/Songs/03_The_Countryman
+  name: The Countryman
+  link: https://musescore.com/openscore-lieder-corpus/scores/6196782
+  imslp: '#250921'
+  set_id: 5103527
   lyricist_url: null
 6197282:
   path: Warlock,_Peter/Songs/07_Two_Short_Songs
