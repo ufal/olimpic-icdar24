@@ -19,6 +19,62 @@
   imslp: '#39262'
   set_id: 5104578
   lyricist_url: https://imslp.org/wiki/Category:Geibel,_Emanuel
+6686592:
+  path: Brahms,_Johannes/4_Serious_Songs,_Op.121/1_Denn_es_gehet_dem_Menschen_wie_dem_Vieh
+  name: Denn es gehet dem Menschen wie dem Vieh
+  link: https://musescore.com/openscore-lieder-corpus/scores/6686592
+  imslp: '#85424'
+  set_id: 5107949
+  lyricist_url: https://imslp.org/wiki/Category:Luther,_Martin
+6686901:
+  path: Brahms,_Johannes/4_Serious_Songs,_Op.121/2_Ich_wandte_mich_und_sahe
+  name: Ich wandte mich und sahe
+  link: https://musescore.com/openscore-lieder-corpus/scores/6686901
+  imslp: '#85424'
+  set_id: 5107949
+  lyricist_url: https://imslp.org/wiki/Category:Luther,_Martin
+6686980:
+  path: Brahms,_Johannes/4_Serious_Songs,_Op.121/3_O_Tod,_wie_bitter_bist_du!
+  name: O Tod, wie bitter bist du!
+  link: https://musescore.com/openscore-lieder-corpus/scores/6686980
+  imslp: '#85424'
+  set_id: 5107949
+  lyricist_url: https://imslp.org/wiki/Category:Luther,_Martin
+6687153:
+  path: Brahms,_Johannes/4_Serious_Songs,_Op.121/4_Wenn_ich_mit_Menschen-_und_mit_Engelzungen_redete
+  name: Wenn ich mit Menschen- und mit Engelzungen redete
+  link: https://musescore.com/openscore-lieder-corpus/scores/6687153
+  imslp: '#85424'
+  set_id: 5107949
+  lyricist_url: https://imslp.org/wiki/Category:Luther,_Martin
+5656522:
+  path: Brahms,_Johannes/5_Lieder,_Op.47/1_Botschaft
+  name: Botschaft
+  link: https://musescore.com/openscore-lieder-corpus/scores/5656522
+  imslp: '#81904'
+  set_id: 5032882
+  lyricist_url: https://imslp.org/wiki/Category:Daumer,_Georg_Friedrich
+5654342:
+  path: Brahms,_Johannes/5_Lieder,_Op.47/3_Sonntag
+  name: Sonntag
+  link: https://musescore.com/openscore-lieder-corpus/scores/5654342
+  imslp: '#81904'
+  set_id: 5032882
+  lyricist_url: https://imslp.org/wiki/Category:Uhland,_Ludwig
+5659823:
+  path: Brahms,_Johannes/5_Lieder,_Op.47/4_O_liebliche_Wangen
+  name: O liebliche Wangen
+  link: https://musescore.com/openscore-lieder-corpus/scores/5659823
+  imslp: '#81904'
+  set_id: 5032882
+  lyricist_url: https://imslp.org/wiki/Category:Fleming,_Paul
+5071644:
+  path: Brahms,_Johannes/5_Lieder,_Op.47/5_Die_Liebende_schreibt
+  name: Die Liebende schreibt
+  link: https://musescore.com/openscore-lieder-corpus/scores/5071644
+  imslp: '#81904'
+  set_id: 5032882
+  lyricist_url: https://imslp.org/wiki/Category:Goethe,_Johann_Wolfgang_von
 5700433:
   path: Brahms,_Johannes/5_Lieder,_Op.49/1_Am_Sonntag_Morgen
   name: Am Sonntag Morgen
@@ -54,6 +110,13 @@
   imslp: '#81909'
   set_id: 5096872
   lyricist_url: https://imslp.org/wiki/Category:Schack,_Adolf_Friedrich_von
+5069022:
+  path: Brahms,_Johannes/5_Poems,_Op.19/1_Der_Kuss
+  name: Der Kuss
+  link: https://musescore.com/openscore-lieder-corpus/scores/5069022
+  imslp: '#97696'
+  set_id: 5069034
+  lyricist_url: https://imslp.org/wiki/Category:H%C3%B6lty,_Ludwig_Christoph_Heinrich
 6565727:
   path: Burleigh,_Harry_Thacker/_/Ethiopia_Saluting_the_Colors
   name: Ethiopia Saluting the Colors
@@ -110,13 +173,6 @@
   imslp: '#650688'
   set_id: 5103551
   lyricist_url: https://imslp.org/wiki/Category:Housman,_Alfred_Edward
-6480111:
-  path: Cellier,_Alfred/_/Oh!_Woman,_Sweet_Woman
-  name: Oh! Woman, Sweet Woman
-  link: https://musescore.com/openscore-lieder-corpus/scores/6480111
-  imslp: '#180626'
-  set_id: 5105983
-  lyricist_url: https://imslp.org/wiki/Category:Planch%C3%A9,_James_Robinson
 6232117:
   path: Coleridge-Taylor,_Samuel/_/Oh,_the_Summer
   name: Oh, the Summer
@@ -173,20 +229,6 @@
   imslp: '#14816'
   set_id: 5110892
   lyricist_url: https://imslp.org/wiki/Category:Bourget,_Paul
-6601006:
-  path: Dickson,_Ellen/_/Destiny
-  name: Destiny
-  link: https://musescore.com/openscore-lieder-corpus/scores/6601006
-  imslp: '#286583'
-  set_id: 5107056
-  lyricist_url: null
-6601058:
-  path: Dickson,_Ellen/_/Drifting
-  name: Drifting
-  link: https://musescore.com/openscore-lieder-corpus/scores/6601058
-  imslp: '#286682'
-  set_id: 5107056
-  lyricist_url: https://imslp.org/wiki/Category:Longfellow,_Henry_Wadsworth
 6600532:
   path: Dickson,_Ellen/_/The_Brook
   name: The Brook
@@ -194,13 +236,6 @@
   imslp: '#483603'
   set_id: 5107056
   lyricist_url: https://imslp.org/wiki/Category:Tennyson,_Alfred
-6600932:
-  path: Dickson,_Ellen/_/The_Land_of_Long_Ago
-  name: The Land of Long Ago
-  link: https://musescore.com/openscore-lieder-corpus/scores/6600932
-  imslp: '#286582'
-  set_id: 5107056
-  lyricist_url: https://imslp.org/wiki/Category:Westwood,_Thomas
 6592539:
   path: Duchambge,_Pauline/_/Guitare
   name: Guitare
@@ -215,13 +250,20 @@
   imslp: '#510573'
   set_id: 5106919
   lyricist_url: null
-6594151:
-  path: Duchambge,_Pauline/_/Ronde_des_pauvres
-  name: Ronde des pauvres
-  link: https://musescore.com/openscore-lieder-corpus/scores/6594151
-  imslp: '#258227'
-  set_id: 5106919
-  lyricist_url: null
+6569865:
+  path: Faisst,_Clara_Mathilda/2_Kriegslieder/1_Unsern_Getreuen
+  name: Unsern Getreuen
+  link: https://musescore.com/openscore-lieder-corpus/scores/6569865
+  imslp: '#623002'
+  set_id: 5106729
+  lyricist_url: https://imslp.org/wiki/Category:Michaeli,_Otto
+6569855:
+  path: Faisst,_Clara_Mathilda/2_Kriegslieder/2_Reiterlied
+  name: Reiterlied
+  link: https://musescore.com/openscore-lieder-corpus/scores/6569855
+  imslp: '#623002'
+  set_id: 5106729
+  lyricist_url: https://imslp.org/wiki/Category:Hauptmann,_Gerhart
 6570092:
   path: Faisst,_Clara_Mathilda/4_Lieder,_Op.18/1_Du_liebe_Erde
   name: Du liebe Erde
@@ -285,13 +327,6 @@
   imslp: '#167819'
   set_id: 5103585
   lyricist_url: https://imslp.org/wiki/Category:Boulton,_Harold
-6622431:
-  path: Guest,_Jane_Mary/_/Marion,_or_Will_ye_gang_to_the_burn_side
-  name: Marion, or Will ye gang to the burn side?
-  link: https://musescore.com/openscore-lieder-corpus/scores/6622431
-  imslp: '#436436'
-  set_id: 5107150
-  lyricist_url: null
 6621051:
   path: Guest,_Jane_Mary/_/The_Bonnie_Wee_Wife
   name: The Bonnie Wee Wife
@@ -299,41 +334,6 @@
   imslp: '#661154'
   set_id: 5107150
   lyricist_url: https://imslp.org/wiki/Category:Burns,_Robert
-6170065:
-  path: Gurney,_Ivor/5_Elizabethan_Songs/1_Orpheus
-  name: Orpheus
-  link: https://musescore.com/openscore-lieder-corpus/scores/6170065
-  imslp: '#281985'
-  set_id: 5102696
-  lyricist_url: https://imslp.org/wiki/Category:Shakespeare,_William
-6154108:
-  path: Gurney,_Ivor/5_Elizabethan_Songs/2_Tears
-  name: Tears
-  link: https://musescore.com/openscore-lieder-corpus/scores/6154108
-  imslp: '#281985'
-  set_id: 5102696
-  lyricist_url: null
-6157283:
-  path: Gurney,_Ivor/5_Elizabethan_Songs/3_Under_the_Greenwood_Tree
-  name: Under the Greenwood Tree
-  link: https://musescore.com/openscore-lieder-corpus/scores/6157283
-  imslp: '#281985'
-  set_id: 5102696
-  lyricist_url: https://imslp.org/wiki/Category:Shakespeare,_William
-6160387:
-  path: Gurney,_Ivor/5_Elizabethan_Songs/4_Sleep
-  name: Sleep
-  link: https://musescore.com/openscore-lieder-corpus/scores/6160387
-  imslp: '#89021'
-  set_id: 5102696
-  lyricist_url: https://imslp.org/wiki/Category:Fletcher,_John
-6164234:
-  path: Gurney,_Ivor/5_Elizabethan_Songs/5_Spring
-  name: Spring
-  link: https://musescore.com/openscore-lieder-corpus/scores/6164234
-  imslp: '#281985'
-  set_id: 5102696
-  lyricist_url: https://imslp.org/wiki/Category:Nash,_Thomas
 5000467:
   path: Hensel,_Fanny_(Mendelssohn)/5_Lieder,_Op.10/1_Nach_Süden
   name: Nach Süden
@@ -362,13 +362,6 @@
   imslp: '#100337'
   set_id: 5016673
   lyricist_url: https://imslp.org/wiki/Category:Geibel,_Emanuel
-5000446:
-  path: Hensel,_Fanny_(Mendelssohn)/5_Lieder,_Op.10/5_Bergeslust
-  name: Bergeslust
-  link: https://musescore.com/openscore-lieder-corpus/scores/5000446
-  imslp: '#100337'
-  set_id: 5016673
-  lyricist_url: https://imslp.org/wiki/Category:Eichendorff,_Joseph_von
 6631610:
   path: Hodges,_Faustina_Hasse/_/Dreams
   name: Dreams
@@ -418,6 +411,20 @@
   imslp: '#617782'
   set_id: 5102907
   lyricist_url: https://imslp.org/wiki/Category:Orleans,_Helene_Herzogin_von
+6573515:
+  path: Lehmann,_Liza/2_Seal_Songs/1_The_Mother_Seal’s_Lullaby
+  name: The Mother Seal’s Lullaby
+  link: https://musescore.com/openscore-lieder-corpus/scores/6573515
+  imslp: '#626778'
+  set_id: 5106657
+  lyricist_url: https://imslp.org/wiki/Category:Kipling,_Rudyard
+6573701:
+  path: Lehmann,_Liza/2_Seal_Songs/2_You_mustn’t_swim_till_you’re_six_weeks_old
+  name: You mustn’t swim till you’re six weeks old
+  link: https://musescore.com/openscore-lieder-corpus/scores/6573701
+  imslp: '#626778'
+  set_id: 5106657
+  lyricist_url: https://imslp.org/wiki/Category:Kipling,_Rudyard
 6209594:
   path: Lehmann,_Liza/5_Little_Love_Songs/1_There’s_a_bird_beneath_your_window
   name: There’s a bird beneath your window
@@ -453,41 +460,6 @@
   imslp: '#172611'
   set_id: 5103710
   lyricist_url: https://imslp.org/wiki/Category:Fabbri,_Cora_Randall
-5054519:
-  path: Mahler,_Gustav/Kindertotenlieder/1_Nun_will_die_Sonn’_so_hell_aufgeh’n
-  name: Nun will die Sonn’ so hell aufgeh’n
-  link: https://musescore.com/openscore-lieder-corpus/scores/5054519
-  imslp: '#37187'
-  set_id: 5051725
-  lyricist_url: https://imslp.org/wiki/Category:R%C3%BCckert,_Friedrich
-5051724:
-  path: Mahler,_Gustav/Kindertotenlieder/2_Nun_seh’_ich_wohl,_warum_so_dunkle_Flammen
-  name: Nun seh’ ich wohl, warum so dunkle Flammen
-  link: https://musescore.com/openscore-lieder-corpus/scores/5051724
-  imslp: '#37187'
-  set_id: 5051725
-  lyricist_url: https://imslp.org/wiki/Category:R%C3%BCckert,_Friedrich
-5062118:
-  path: Mahler,_Gustav/Kindertotenlieder/4_Oft_denk’_ich,_sie_sind_nur_ausgegangen
-  name: Oft denk’ ich, sie sind nur ausgegangen
-  link: https://musescore.com/openscore-lieder-corpus/scores/5062118
-  imslp: '#37187'
-  set_id: 5051725
-  lyricist_url: https://imslp.org/wiki/Category:R%C3%BCckert,_Friedrich
-5052823:
-  path: Mahler,_Gustav/Kindertotenlieder/5_In_diesem_Wetter
-  name: In diesem Wetter
-  link: https://musescore.com/openscore-lieder-corpus/scores/5052823
-  imslp: '#37187'
-  set_id: 5051725
-  lyricist_url: https://imslp.org/wiki/Category:R%C3%BCckert,_Friedrich
-5026266:
-  path: Mahler,_Gustav/Lieder_eines_fahrenden_Gesellen/1_Wenn_mein_Schatz_Hochzeit_macht
-  name: Wenn mein Schatz Hochzeit macht
-  link: https://musescore.com/openscore-lieder-corpus/scores/5026266
-  imslp: '#20510'
-  set_id: 5026280
-  lyricist_url: https://imslp.org/wiki/Category%3AMahler%2C_Gustav
 5026309:
   path: Mahler,_Gustav/Lieder_eines_fahrenden_Gesellen/2_Gieng_heut_morgen_übers_Feld
   name: Gieng heut morgen übers Feld
@@ -572,13 +544,6 @@
   imslp: '#16887'
   set_id: 5110233
   lyricist_url: null
-6987889:
-  path: Satie,_Erik/_/L’omnibus_automobile
-  name: L’omnibus automobile
-  link: https://musescore.com/openscore-lieder-corpus/scores/6987889
-  imslp: '#92050'
-  set_id: 5110233
-  lyricist_url: https://imslp.org/wiki/Category:Hyspa,_Vincent
 6993176:
   path: Satie,_Erik/_/Tendrement
   name: Tendrement
@@ -600,6 +565,41 @@
   imslp: '#61537'
   set_id: 5032891
   lyricist_url: https://imslp.org/wiki/Category:Schiller,_Friedrich
+6984262:
+  path: Schumann,_Robert/Lieder_und_Gesänge,_Vol.IV,_Op.96/1_Nachtlied
+  name: Nachtlied
+  link: https://musescore.com/openscore-lieder-corpus/scores/6984262
+  imslp: '#271883'
+  set_id: 5109332
+  lyricist_url: https://imslp.org/wiki/Category:Goethe,_Johann_Wolfgang_von
+6984553:
+  path: Schumann,_Robert/Lieder_und_Gesänge,_Vol.IV,_Op.96/2_Schneeglöckchen
+  name: Schneeglöckchen
+  link: https://musescore.com/openscore-lieder-corpus/scores/6984553
+  imslp: '#271883'
+  set_id: 5109332
+  lyricist_url: null
+6834630:
+  path: Schumann,_Robert/Lieder_und_Gesänge,_Vol.IV,_Op.96/3_Ihre_Stimme
+  name: Ihre Stimme
+  link: https://musescore.com/openscore-lieder-corpus/scores/6834630
+  imslp: '#271883'
+  set_id: 5109332
+  lyricist_url: https://imslp.org/wiki/Category:Platen,_August_von
+6984631:
+  path: Schumann,_Robert/Lieder_und_Gesänge,_Vol.IV,_Op.96/4_Gesungen
+  name: Gesungen
+  link: https://musescore.com/openscore-lieder-corpus/scores/6984631
+  imslp: '#271883'
+  set_id: 5109332
+  lyricist_url: https://imslp.org/wiki/Category:Schöpff,_Wilhelm
+6985082:
+  path: Schumann,_Robert/Lieder_und_Gesänge,_Vol.IV,_Op.96/5_Himmel_und_Erde
+  name: Himmel und Erde
+  link: https://musescore.com/openscore-lieder-corpus/scores/6985082
+  imslp: '#271883'
+  set_id: 5109332
+  lyricist_url: https://imslp.org/wiki/Category:Schöpff,_Wilhelm
 6447286:
   path: Warlock,_Peter/Peterisms,_Set_1/1_Chopcherry
   name: Chopcherry

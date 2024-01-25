@@ -14,6 +14,22 @@
   link: https://musescore.com/openscore-lieder-corpus/sets/5104578
   imslp: '#39262'
   composer_id: 7294
+5107949:
+  path: Brahms,_Johannes/4_Serious_Songs,_Op.121
+  name: 4 Serious Songs, Op.121
+  scores: 4
+  target: 4
+  link: https://musescore.com/openscore-lieder-corpus/sets/5107949
+  imslp: '#85424'
+  composer_id: 7294
+5032882:
+  path: Brahms,_Johannes/5_Lieder,_Op.47
+  name: 5 Lieder, Op.47
+  scores: 5
+  target: 5
+  link: https://musescore.com/openscore-lieder-corpus/sets/5032882
+  imslp: '#81904'
+  composer_id: 7294
 5096872:
   path: Brahms,_Johannes/5_Lieder,_Op.49
   name: 5 Lieder, Op.49
@@ -21,6 +37,14 @@
   target: 5
   link: https://musescore.com/openscore-lieder-corpus/sets/5096872
   imslp: '#81909'
+  composer_id: 7294
+5069034:
+  path: Brahms,_Johannes/5_Poems,_Op.19
+  name: 5 Poems, Op.19
+  scores: 5
+  target: 5
+  link: https://musescore.com/openscore-lieder-corpus/sets/5069034
+  imslp: '#97696'
   composer_id: 7294
 5104072:
   path: Burleigh,_Harry_Thacker/_
@@ -38,14 +62,6 @@
   link: https://musescore.com/openscore-lieder-corpus/sets/5103551
   imslp: null
   composer_id: 774863
-5105983:
-  path: Cellier,_Alfred/_
-  name: Other songs by Alfred Cellier
-  scores: 1
-  target: null
-  link: https://musescore.com/openscore-lieder-corpus/sets/5105983
-  imslp: null
-  composer_id: 2603318
 5103493:
   path: Coleridge-Taylor,_Samuel/_
   name: Other songs by Samuel Coleridge-Taylor
@@ -86,6 +102,14 @@
   link: https://musescore.com/openscore-lieder-corpus/sets/5106919
   imslp: null
   composer_id: 3372712
+5106729:
+  path: Faisst,_Clara_Mathilda/2_Kriegslieder
+  name: 2 Kriegslieder
+  scores: 2
+  target: 2
+  link: https://musescore.com/openscore-lieder-corpus/sets/5106729
+  imslp: '#623002'
+  composer_id: 17626542
 5106730:
   path: Faisst,_Clara_Mathilda/4_Lieder,_Op.18
   name: 4 Lieder, Op.18
@@ -118,14 +142,6 @@
   link: https://musescore.com/openscore-lieder-corpus/sets/5107150
   imslp: null
   composer_id: 6152538
-5102696:
-  path: Gurney,_Ivor/5_Elizabethan_Songs
-  name: 5 Elizabethan Songs
-  scores: 5
-  target: 5
-  link: https://musescore.com/openscore-lieder-corpus/sets/5102696
-  imslp: '#281985'
-  composer_id: 323048
 5016673:
   path: Hensel,_Fanny_(Mendelssohn)/5_Lieder,_Op.10
   name: 5 Lieder, Op.10
@@ -158,6 +174,14 @@
   link: https://musescore.com/openscore-lieder-corpus/sets/5102907
   imslp: '#617782'
   composer_id: 276246
+5106657:
+  path: Lehmann,_Liza/2_Seal_Songs
+  name: 2 Seal Songs
+  scores: 2
+  target: 2
+  link: https://musescore.com/openscore-lieder-corpus/sets/5106657
+  imslp: '#626778'
+  composer_id: 4887488
 5103710:
   path: Lehmann,_Liza/5_Little_Love_Songs
   name: 5 Little Love Songs
@@ -166,14 +190,6 @@
   link: https://musescore.com/openscore-lieder-corpus/sets/5103710
   imslp: '#172611'
   composer_id: 4887488
-5051725:
-  path: Mahler,_Gustav/Kindertotenlieder
-  name: Kindertotenlieder
-  scores: 5
-  target: 5
-  link: https://musescore.com/openscore-lieder-corpus/sets/5051725
-  imslp: '#37187'
-  composer_id: 7304
 5026280:
   path: Mahler,_Gustav/Lieder_eines_fahrenden_Gesellen
   name: Lieder eines fahrenden Gesellen
@@ -214,6 +230,14 @@
   link: https://musescore.com/openscore-lieder-corpus/sets/5032891
   imslp: null
   composer_id: 7312
+5109332:
+  path: Schumann,_Robert/Lieder_und_Gesänge,_Vol.IV,_Op.96
+  name: Lieder und Gesänge, Vol.IV, Op.96
+  scores: 5
+  target: 5
+  link: https://musescore.com/openscore-lieder-corpus/sets/5109332
+  imslp: '#271883'
+  composer_id: 7351
 5103529:
   path: Warlock,_Peter/Peterisms,_Set_1
   name: Peterisms, Set 1

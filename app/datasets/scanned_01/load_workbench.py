@@ -42,7 +42,7 @@ def open_imslp_pdf(imslp_id: str):
     path = paths[0]
 
     # open the PDF using the "evince" ubuntu PDF viewer
-    os.system(f"evince '{path}'")
+    os.system(f"evince \"{path}\"")
 
 
 def get_imslp_pages(imslp_id: str, start_page: int, page_count: int):

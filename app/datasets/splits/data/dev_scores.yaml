@@ -47,20 +47,6 @@
   imslp: '#285334'
   set_id: 5104057
   lyricist_url: https://imslp.org/wiki/Category:Boulton,_Harold
-5071644:
-  path: Brahms,_Johannes/5_Lieder,_Op.47/5_Die_Liebende_schreibt
-  name: Die Liebende schreibt
-  link: https://musescore.com/openscore-lieder-corpus/scores/5071644
-  imslp: '#81904'
-  set_id: 5032882
-  lyricist_url: https://imslp.org/wiki/Category:Goethe,_Johann_Wolfgang_von
-5654485:
-  path: Brahms,_Johannes/5_Poems,_Op.19/4_Der_Schmied
-  name: Der Schmied
-  link: https://musescore.com/openscore-lieder-corpus/scores/5654485
-  imslp: '#97696'
-  set_id: 5069034
-  lyricist_url: https://imslp.org/wiki/Category:Uhland,_Ludwig
 5098678:
   path: Brahms,_Johannes/6_Songs,_Op.3/6_Lied
   name: Lied
@@ -152,6 +138,13 @@
   imslp: '#154086'
   set_id: 5097140
   lyricist_url: https://imslp.org/wiki/Category:Musset,_Alfred_de
+6415075:
+  path: Chaminade,_Cécile/_/Chanson_de_neige
+  name: Chanson de neige
+  link: https://musescore.com/openscore-lieder-corpus/scores/6415075
+  imslp: '#154245'
+  set_id: 5097140
+  lyricist_url: https://imslp.org/wiki/Category:Fortolis,_Ludovic
 5077675:
   path: Chausson,_Ernest/7_Mélodies,_Op.2/4_La_dernière_feuille
   name: La dernière feuille
@@ -285,6 +278,13 @@
   imslp: '#558609'
   set_id: 5107151
   lyricist_url: null
+6456450:
+  path: Haydn,_Joseph/10_Canzonets/04_Sailor’s_Song,_Hob.XXVIa31
+  name: Sailor’s Song, Hob.XXVIa:31
+  link: https://musescore.com/openscore-lieder-corpus/scores/6456450
+  imslp: '#292750'
+  set_id: 5105779
+  lyricist_url: https://imslp.org/wiki/Category:Hunter,_Anne
 6472842:
   path: Haydn,_Joseph/10_Canzonets/07_The_Mermaid’s_Song,_Hob.XXVIa25
   name: The Mermaid’s Song, Hob.XXVIa:25
