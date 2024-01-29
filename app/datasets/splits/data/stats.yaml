@@ -1,0 +1,12 @@
+train:
+  scores: 1092
+dev:
+  scores: 100
+test:
+  scores: 100
+  sets: 34
+corpus:
+  scores: 1356
+  sets: 249
+globally_ignored_scores: 51
+annotation_problematic_scores: 60

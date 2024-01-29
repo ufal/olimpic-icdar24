@@ -1,6 +1,5 @@
 import random
-import yaml
-from typing import List
+from typing import Set
 from .constants import *
 
 
@@ -18,7 +17,7 @@ TARGET_SCORE_COUNT = 100
 MAXIMUM_SET_SIZE = 5
 
 
-def generate_test_partition(all_scores, all_sets):
+def generate_test_partition(all_scores, all_sets) -> Set[int]:
     """Shuffle sets that are not unreasonably large and go through them sequentially."""
     all_sets_ids = list(all_sets.keys())
     rng = random.Random(SEED)
@@ -32,10 +31,10 @@ def generate_test_partition(all_scores, all_sets):
 
     # go through the sets and through their scores, until we get
     # the target test score count, whilst skipping ignored scores
-    test_score_ids: List[str] = []
+    test_scores_ids: Set[int] = set()
 
     for score_id in _generate_score_ids(sets_ids, all_scores):
-        if len(test_score_ids) >= TARGET_SCORE_COUNT:
+        if len(test_scores_ids) >= TARGET_SCORE_COUNT:
             break
 
         # skip globally ignored scores
@@ -46,9 +45,9 @@ def generate_test_partition(all_scores, all_sets):
         if score_id in ANNOTATION_PROBLEMATIC_SCORES:
             continue
 
-        test_score_ids.append(score_id)
+        test_scores_ids.add(score_id)
     
-    return test_score_ids
+    return test_scores_ids
 
 
 def _generate_score_ids(sets_ids, all_scores):

@@ -1,6 +1,5 @@
 import random
-import yaml
-from typing import List
+from typing import Set
 from .constants import *
 
 
@@ -10,19 +9,19 @@ from .constants import *
 TARGET_SCORE_COUNT = 100
 
 
-def generate_dev_partition(all_scores, test_sets_ids):
-    """Shuffle scores go through them sequentially."""
+def generate_dev_partition(all_scores, test_sets_ids: Set[int]) -> Set[int]:
+    """Shuffle scores, go through them sequentially."""
     all_scores_ids = list(all_scores.keys())
     rng = random.Random(SEED)
     rng.shuffle(all_scores_ids)
 
     # go through the sets and through their scores, until we get
     # the target test score count, whilst skipping ignored scores
-    dev_score_ids: List[str] = []
+    dev_scores_ids: Set[str] = set()
 
     for score_id in all_scores_ids:
         score = all_scores[score_id]
-        if len(dev_score_ids) >= TARGET_SCORE_COUNT:
+        if len(dev_scores_ids) >= TARGET_SCORE_COUNT:
             break
 
         # skip globally ignored scores
@@ -37,6 +36,6 @@ def generate_dev_partition(all_scores, test_sets_ids):
         if score["set_id"] in test_sets_ids:
             continue
 
-        dev_score_ids.append(score_id)
+        dev_scores_ids.add(score_id)
     
-    return dev_score_ids
+    return dev_scores_ids

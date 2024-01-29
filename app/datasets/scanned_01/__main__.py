@@ -4,6 +4,7 @@ from .save_workbench import save_workbench
 from .prepare_imslp import prepare_imslp
 from .build import build
 from .build_preview import build_preview
+from .progress import progress
 
 
 ##########
@@ -52,6 +53,12 @@ subparsers.add_parser(
     help="Builds a preview folder with an HTML file index"
 )
 
+subparsers.add_parser(
+    "progress",
+    aliases=[],
+    help="Prints the annotation progress for the scanned test and dev partitions"
+)
+
 
 ########
 # Main #
@@ -69,6 +76,8 @@ elif args.command_name == "save-workbench":
     save_workbench()
 elif args.command_name == "build-preview":
     build_preview()
+elif args.command_name == "progress":
+    progress()
 else:
     parser.print_help()
     exit(2)

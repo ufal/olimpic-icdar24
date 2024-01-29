@@ -2,7 +2,7 @@
 # These are score IDs from the scanned dataset, that were problematic
 # to annotate. These problems are usually related to the PDF encoding
 # (inverted image colors, rotated images) or to the system alignment
-# is not one-to-one with the MuseScore documents.
+# not being one-to-one with the MuseScore documents.
 #
 # These problems could be fixed, but we wanted to save time during
 # annotation, so we decided to skip them instead, and annotate others.
@@ -16,6 +16,8 @@
 #   https://musescore.com/score/{score_id}
 #
 
+# scores without any comment usually mean the systems are not aligned
+# with the MuseScore pages properly
 - 5115550
 - 5067672 # workbench crash
 - 5071686
