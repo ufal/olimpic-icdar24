@@ -6,18 +6,19 @@ from ..TEDn import TEDn, TEDnResult
 from ...symbolic.MxlFile import MxlFile
 
 
-def scan_corpus(extended_flavor=True):
+def scan_corpus():
     mxl_files = glob.glob(
         "datasets/OpenScore-Lieder/scores/**/*.mxl",
         recursive=True
     )
+    mxl_files.sort()
 
     for path in mxl_files:
         print(path, "...")
-        scan_mxl_file(path, extended_flavor)
+        scan_mxl_file(path)
 
 
-def scan_mxl_file(path: str, extended_flavor: bool):
+def scan_mxl_file(path: str):
     mxl = MxlFile.load_mxl(path)
 
     for part in mxl.tree.findall("part"):
