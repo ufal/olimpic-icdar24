@@ -1,4 +1,5 @@
 import argparse
+import os
 from ..config import SCANNED_DATASET_PATH
 from .load_workbench import load_workbench
 from .save_workbench import save_workbench
@@ -87,6 +88,18 @@ subparsers.add_parser(
     help="Prints the annotation progress for the scanned test and dev partitions"
 )
 
+subparsers.add_parser(
+    "tar-dataset",
+    aliases=[],
+    help="Packages the resulting dataset in a tar file"
+)
+
+subparsers.add_parser(
+    "tar-sources",
+    aliases=[],
+    help="Packages the dataset sources (IMSLP files and annotations) in a tar file"
+)
+
 
 ########
 # Main #
@@ -120,6 +133,24 @@ elif args.command_name == "build-preview":
         dataset_path=SCANNED_DATASET_PATH,
         slice_name="test"
     )
+elif args.command_name == "tar-dataset":
+    tar_path = os.path.realpath(SCANNED_DATASET_PATH + ".tgz")
+    assert os.system(
+        f"cd {SCANNED_DATASET_PATH} && tar -czvf {tar_path} " +
+            f"samples/ " +
+            f"samples.*.txt " +
+            f"statistics.*.yaml " +
+            f"vocabulary.txt"
+    ) == 0
+elif args.command_name == "tar-sources":
+    tar_path = os.path.realpath(SCANNED_DATASET_PATH + "-sources.tgz")
+    assert os.system(
+        f"cd {SCANNED_DATASET_PATH} && tar -czvf {tar_path} " +
+            f"corpus_to_imslp/ " +
+            f"imslp_pdfs/ " +
+            f"imslp_pngs/ " +
+            f"imslp_systems/"
+    ) == 0
 
 else:
     parser.print_help()

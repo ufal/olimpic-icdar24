@@ -66,6 +66,12 @@ subparsers.add_parser(
     help="Builds a preview folder with an HTML file index"
 )
 
+subparsers.add_parser(
+    "tar-dataset",
+    aliases=[],
+    help="Packages the resulting dataset in a tar file"
+)
+
 
 ########
 # Main #
@@ -90,6 +96,15 @@ elif args.command_name == "build-preview":
         dataset_path=SYNTHETIC_DATASET_PATH,
         slice_name="train"
     )
+elif args.command_name == "tar-dataset":
+    tar_path = os.path.realpath(SYNTHETIC_DATASET_PATH + ".tgz")
+    assert os.system(
+        f"cd {SYNTHETIC_DATASET_PATH} && tar -czvf {tar_path} " +
+            f"samples/ " +
+            f"samples.*.txt " +
+            f"statistics.*.yaml " +
+            f"vocabulary.txt"
+    ) == 0
 else:
     parser.print_help()
     exit(2)
