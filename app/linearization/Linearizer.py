@@ -26,27 +26,19 @@ class Linearizer:
     def __init__(
         self,
         errout: Optional[TextIO] = None,
-        re_emit_system_header=True,
         extended_flavor=True
     ):
         self._errout = errout or io.StringIO()
         """Print errors and warnings here"""
 
-        self.output_tokens: List[List[List[str]]] = [
-            [ # first page
-                [] # first system of the first page
-            ]
-        ]
-        """The output linearized sequence, split up into pages, systems, and tokens"""
+        self.output_tokens: List[str] = []
+        """The output linearized sequence, split up into tokens"""
         
         # configuration
-        self.re_emit_system_header = re_emit_system_header
         self.extended_flavor = extended_flavor
 
         # within-part state
         self._part_id: Optional[str] = None # current part ID
-        self._page_index = 0 # page within part, zero-indexed
-        self._system_index = 0 # system within page, zero-indexed
         self._measure_number: Optional[str] = None # current measure number
         self._divisions: Optional[int] = None # time units per one quarter note
         self._beats_per_measure: Optional[int] = None # time signature top
@@ -71,23 +63,11 @@ class Linearizer:
     def _emit(self, token: str):
         """Emits a token into the output sequence"""
         assert token in ALL_TOKENS, f"Token '{token}' not in the vocabulary"
-        
-        pages = self.output_tokens
-        while len(pages) <= self._page_index:
-            pages.append([])
-        
-        systems = pages[self._page_index]
-        while len(systems) <= self._system_index:
-            systems.append([])
-        
-        tokens = systems[self._system_index]
-        tokens.append(token)
+        self.output_tokens.append(token)
 
     def process_part(self, part: ET.Element):
         # reset within-part state
         self._part_id = None
-        self._page_index = 0
-        self._system_index = 0
         self._measure_number = None
         self._divisions = None
         self._beats_per_measure = None
@@ -116,52 +96,23 @@ class Linearizer:
         self._previous_note_pitch = None
 
         self._measure_number = measure.attrib.get("number")
-
-        is_new_system = self._handle_new_system_or_page(measure)
-        force_emit = is_new_system and self.re_emit_system_header
         
         # start a new measure
         self._emit("measure")
 
-        is_first_processed_child = True
         for element in measure:
-            # skip non-interesting elements
             if element.tag in IGNORED_MEASURE_ELEMENTS:
                 continue
-
-            # if we're forcing header emit and the first element is not attributes,
-            # we have process a dummy empty attributes element to do the emit
-            if is_first_processed_child and force_emit and element.tag != "attributes":
-                self.process_attributes(ET.Element("attributes"), force_emit)
-            
-            # process children ordinarily
-            if element.tag == "note":
+            elif element.tag == "note":
                 self.process_note(element, measure)
             elif element.tag == "attributes":
-                self.process_attributes(element, force_emit and is_first_processed_child)
+                self.process_attributes(element)
             elif element.tag == "backup":
                 self.process_backup(element, measure)
             elif element.tag == "forward":
                 self.process_forward(element)
             else:
                 self._error("Unexpected <measure> element:", element, element.attrib)
-            
-            is_first_processed_child = False
-    
-    def _handle_new_system_or_page(self, measure: ET.Element) -> bool:
-        assert measure.tag == "measure"
-
-        for element in measure:
-            if element.tag == "print":
-                if element.attrib.get("new-system") == "yes":
-                    self._system_index += 1
-                    return True
-                if element.attrib.get("new-page") == "yes":
-                    self._page_index += 1
-                    self._system_index = 0
-                    return True
-        
-        return False
     
     def process_note(self, note: ET.Element, measure: ET.Element):
         assert note.tag == "note"
@@ -463,7 +414,7 @@ class Linearizer:
                 ET.tostring(note)
             )
 
-    def process_attributes(self, attributes: ET.Element, force_emit: bool):
+    def process_attributes(self, attributes: ET.Element):
         # the order of elements is well defined
         # https://www.w3.org/2021/06/musicxml40/musicxml-reference/elements/attributes/
         assert attributes.tag == "attributes"
@@ -475,7 +426,7 @@ class Linearizer:
         
         # key signature (process even if missing due to re-prints)
         key_element = attributes.find("key")
-        self.process_key_signature(key_element, force_emit)
+        self.process_key_signature(key_element)
 
         # time signature
         time_element = attributes.find("time")
@@ -489,7 +440,7 @@ class Linearizer:
 
         # clef (process even if missing due to re-prints)
         clef_elements = attributes.findall("clef")
-        self.process_clefs(clef_elements, force_emit)
+        self.process_clefs(clef_elements)
 
         # check that all elements have been processed
         for element in attributes:
@@ -534,19 +485,12 @@ class Linearizer:
         assert time_units_per_measure.denominator == 1, "Measure duration calculation failed"
         self._measure_duration = time_units_per_measure.numerator
 
-    def process_key_signature(self, key: Optional[ET.Element], force_emit: bool):
-        # if a key signature is defined, we just print and remember it
+    def process_key_signature(self, key: Optional[ET.Element]):
         if key is not None:
             self._key_signature_fifths = int(key.find("fifths").text)
             self._emit("key:fifths:" + str(self._key_signature_fifths))
-            return
-        
-        # if it is not defined, we may print the carried one if forced
-        if force_emit and self._key_signature_fifths is not None:
-            self._emit("key:fifths:" + str(self._key_signature_fifths))
-            return
     
-    def process_clefs(self, clefs: List[ET.Element], force_emit: bool):
+    def process_clefs(self, clefs: List[ET.Element]):
         # get all the currently defined clefs (staff -> clef token)
         # (those are always printed)
         clefs_to_print = {}
@@ -560,10 +504,6 @@ class Linearizer:
 
             # remember the clef for future printing
             self._clefs[staff_number] = clef_token
-
-        # if we are on a new system
-        if force_emit:
-            clefs_to_print = self._clefs
 
         # now we can print all the clefs to be printed, IN THE PROPER ORDER
         for staff_number in sorted(clefs_to_print.keys()):

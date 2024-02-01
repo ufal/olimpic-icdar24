@@ -91,7 +91,6 @@ class SplitSystemsTest(unittest.TestCase):
         self.assert_xml_equals("""
         <part>
             <measure number="3">
-                <print new-system="yes"></print>
                 <note>C</note>
             </measure>
             <measure number="4">
@@ -105,7 +104,6 @@ class SplitSystemsTest(unittest.TestCase):
         self.assert_xml_equals("""
         <part>
             <measure number="5">
-                <print new-page="yes"></print>
                 <note>E</note>
             </measure>
             <measure number="6">
@@ -168,9 +166,10 @@ class SplitSystemsTest(unittest.TestCase):
         self.assert_xml_equals("""
         <part>
             <measure number="3">
-                <print new-system="yes"></print>
                 <attributes>
+                    <divisions>6</divisions>
                     <key><fifths>0</fifths></key>
+                    <staves>2</staves>
                     <clef number="1"><sign>G</sign><line>2</line></clef>
                     <clef number="2"><sign>F</sign><line>4</line></clef>
                 </attributes>
@@ -239,9 +238,10 @@ class SplitSystemsTest(unittest.TestCase):
         self.assert_xml_equals("""
         <part>
             <measure number="3">
-                <print new-system="yes"></print>
                 <attributes>
+                    <divisions>6</divisions>
                     <key><fifths>0</fifths></key>
+                    <staves>2</staves>
                     <clef number="1"><sign>G</sign><line>2</line></clef>
                     <clef number="2"><sign>G</sign><line>2</line></clef>
                 </attributes>
@@ -315,9 +315,10 @@ class SplitSystemsTest(unittest.TestCase):
         self.assert_xml_equals("""
         <part>
             <measure number="3">
-                <print new-system="yes"></print>
                 <attributes>
+                    <divisions>6</divisions>
                     <key><fifths>-2</fifths></key>
+                    <staves>2</staves>
                     <clef number="1"><sign>G</sign><line>2</line></clef>
                     <clef number="2"><sign>G</sign><line>2</line></clef>
                 </attributes>
@@ -328,3 +329,60 @@ class SplitSystemsTest(unittest.TestCase):
             </measure>
         </part>
         """, page.systems[1].part)
+    
+    def test_it_handles_song_transition(self):
+        part = ET.fromstring("""
+        <part>
+            <measure number="59">
+                <attributes>
+                    <divisions>6</divisions>
+                    <key><fifths>0</fifths></key>
+                    <time><beats>3</beats><beat-type>4</beat-type></time>
+                    <staves>2</staves>
+                    <clef number="1"><sign>G</sign><line>2</line></clef>
+                    <clef number="2"><sign>F</sign><line>4</line></clef>
+                </attributes>
+                <note>A</note>
+            </measure>
+            <measure number="60">
+                <note>B</note>
+            </measure>
+
+            <measure number="0" implicit="yes">
+                <print new-page="yes"></print>
+                <attributes>
+                    <divisions>6</divisions>
+                    <time><beats>6</beats><beat-type>8</beat-type></time>
+                    <staves>2</staves>
+                </attributes>
+                <note>C</note>
+            </measure>
+            <measure number="1">
+                <note>D</note>
+            </measure>
+        </part>
+        """)
+
+        pages = split_part_to_systems(part)
+
+        assert len(pages) == 2
+        page = pages[1]
+        assert len(page.systems) == 1
+        self.assert_xml_equals("""
+        <part>
+            <measure number="0" implicit="yes">
+                <attributes>
+                    <divisions>6</divisions>
+                    <key><fifths>0</fifths></key>
+                    <time><beats>6</beats><beat-type>8</beat-type></time>
+                    <staves>2</staves>
+                    <clef number="1"><sign>G</sign><line>2</line></clef>
+                    <clef number="2"><sign>F</sign><line>4</line></clef>
+                </attributes>
+                <note>C</note>
+            </measure>
+            <measure number="1">
+                <note>D</note>
+            </measure>
+        </part>
+        """, page.systems[0].part)
