@@ -23,20 +23,13 @@ IGNORED_ATTRIBUTES_ELEMENTS = set([
 
 
 class Linearizer:
-    def __init__(
-        self,
-        errout: Optional[TextIO] = None,
-        extended_flavor=True
-    ):
+    def __init__(self, errout: Optional[TextIO] = None):
         self._errout = errout or io.StringIO()
         """Print errors and warnings here"""
 
         self.output_tokens: List[str] = []
         """The output linearized sequence, split up into tokens"""
         
-        # configuration
-        self.extended_flavor = extended_flavor
-
         # within-part state
         self._part_id: Optional[str] = None # current part ID
         self._measure_number: Optional[str] = None # current measure number
@@ -253,8 +246,7 @@ class Linearizer:
             self._emit("tuplet:" + tuplet_type)
         
         # extended notations and ornaments
-        if self.extended_flavor:
-            self._process_extended_notations(note)
+        self._process_extended_notations(note)
         
         # extract duration
         duration_element = note.find("duration")
