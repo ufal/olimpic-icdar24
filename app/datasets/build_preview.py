@@ -41,11 +41,8 @@ def build_preview(
             ) == 0
 
             # load annotations
-            core_annotation = prepare_annotaion_html(
-                os.path.join(dataset_path, sample + ".core.lmx")
-            )
-            extended_annotation = prepare_annotaion_html(
-                os.path.join(dataset_path, sample + ".extended.lmx")
+            annotation = prepare_annotaion_html(
+                os.path.join(dataset_path, sample + ".lmx")
             )
 
             html.write(f"""
@@ -54,11 +51,8 @@ def build_preview(
                     <b>Image:</b> {sample}.png<br>
                     <img src="{preview_png_path}" style="height: 256px"/><br>
                     <br>
-                    <b>Core LMX:</b> {sample}.core.lmx<br>
-                    {core_annotation}<br>
-                    <br>
-                    <b>Extended LMX:</b> {sample}.extended.lmx<br>
-                    {extended_annotation}<br>
+                    <b>LMX:</b> {sample}.lmx<br>
+                    {annotation}<br>
                 </p>
                 <hr/>
             """)
