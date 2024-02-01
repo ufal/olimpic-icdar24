@@ -21,7 +21,7 @@ def transfer_samples(
         os.makedirs(sample_folder, exist_ok=True)
 
         samples = list(sorted(glob.glob(
-            os.path.join(score_folder, corpus_glob),
+            os.path.join(glob.escape(score_folder), corpus_glob),
             recursive=True
         )))
 
