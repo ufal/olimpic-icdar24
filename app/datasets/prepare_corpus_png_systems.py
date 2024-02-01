@@ -21,7 +21,7 @@ def prepare_corpus_png_systems(
         
         os.makedirs(png_systems_folder, exist_ok=True)
         
-        png_page_glob = os.path.join(score_folder, f"lc{score_id}-*.png")
+        png_page_glob = os.path.join(glob.escape(score_folder), f"lc{score_id}-*.png")
         for png_page_path in sorted(glob.glob(png_page_glob)):
             basename = os.path.basename(png_page_path)
             page_number_str = basename[len(f"lc{score_id}-"):-len(".png")]

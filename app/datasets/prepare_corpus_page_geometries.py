@@ -11,7 +11,7 @@ def prepare_corpus_page_geometries(scores: Dict[int, Dict[str, Any]]):
     for score_id, score in scores.items():
         score_folder = os.path.join(LIEDER_CORPUS_PATH, "scores", score["path"])
         
-        svg_glob = os.path.join(score_folder, f"lc{score_id}-*.svg")
+        svg_glob = os.path.join(glob.escape(score_folder), f"lc{score_id}-*.svg")
         for svg_path in sorted(glob.glob(svg_glob)):
             basename = os.path.basename(svg_path)
             page_number_str = basename[len(f"lc{score_id}-"):-len(".svg")]
