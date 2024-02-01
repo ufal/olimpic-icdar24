@@ -18,7 +18,7 @@ def check_sample_pairing(
         # build up the set of all base names
         bases = set()
         for format in formats:
-            for path in glob.glob(os.path.join(dir_path, "*." + format)):
+            for path in glob.glob(os.path.join(glob.escape(dir_path), "*." + format)):
                 bases.add(path[:-len("."+format)])
 
         if len(bases) == 0:
