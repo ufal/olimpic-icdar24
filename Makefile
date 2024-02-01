@@ -1,4 +1,4 @@
-.PHONY: install-musescore install-open-score-lieder-dataset
+.PHONY: install-musescore install-open-score-lieder-dataset install-scanned-dataset install-synthetic-dataset
 
 install-musescore:
 	rm -rf musescore
@@ -14,3 +14,19 @@ install-open-score-lieder-dataset:
 	unzip OpenScore-Lieder-Snapshot-2023-10-30.zip
 	mv Lieder-main datasets/OpenScore-Lieder
 	rm OpenScore-Lieder-Snapshot-2023-10-30.zip
+
+install-scanned-dataset:
+	rm -rf datasets/scanned
+	rm -rf datasets/scanned.tgz
+	mkdir -p datasets/scanned
+	wget https://github.com/Jirka-Mayer/ICDAR2024/releases/download/2024-02-01/2024-02-01_scanned.tgz
+	mv 2024-02-01_scanned.tgz datasets/scanned.tgz
+	tar -xf datasets/scanned.tgz -C datasets/scanned
+
+install-synthetic-dataset:
+	rm -rf datasets/synthetic
+	rm -rf datasets/synthetic.tgz
+	mkdir -p datasets/synthetic
+	wget https://github.com/Jirka-Mayer/ICDAR2024/releases/download/2024-02-01/2024-02-01_synthetic.tgz
+	mv 2024-02-01_synthetic.tgz datasets/synthetic.tgz
+	tar -xf datasets/synthetic.tgz -C datasets/synthetic

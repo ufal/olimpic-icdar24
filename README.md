@@ -5,6 +5,8 @@ Install dependencies:
 ```
 make install-musescore
 make install-open-score-lieder-dataset
+make install-scanned-dataset
+make install-synthetic-dataset
 ```
 
 Setup Python venv (tested with python 3.10.12):
