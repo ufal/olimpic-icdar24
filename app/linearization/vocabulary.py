@@ -171,3 +171,9 @@ ALL_TOKENS = [
     *NOTE_ROOT_TOKENS, # ROOT of a note
     *NOTE_SUFFIX_TOKENS
 ]
+
+def print_vocabulary(file=None):
+    print(
+        "\n".join(ALL_TOKENS),
+        file=file
+    )

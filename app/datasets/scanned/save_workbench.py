@@ -1,12 +1,15 @@
 import os
 import yaml
 from svgelements import *
-from .config import *
 from .detect_systems_in_svg import detect_systems_in_svg
+from ..config import SCANNED_DATASET_PATH
+
+
+WORKBENCH_RECT_COLOR = "#eb5454"
 
 
 def save_workbench():
-    workbench_file = os.path.join(DATASET_PATH, "workbench.svg")
+    workbench_file = os.path.join(SCANNED_DATASET_PATH, "workbench.svg")
     
     with open(workbench_file) as file:
         svg_file: SVG = SVG.parse(file, reify=True)
@@ -76,7 +79,7 @@ def save_workbench():
         ]
         page["image"] = os.path.relpath(
             page["image"],
-            os.path.join(DATASET_PATH, "imslp_pngs")
+            os.path.join(SCANNED_DATASET_PATH, "imslp_pngs")
         )
 
         # remove unnecessary values
@@ -103,7 +106,7 @@ def save_workbench():
             }
 
     # write the results
-    systems_file_path = os.path.join(DATASET_PATH, "imslp_systems", "IMSLP" + imslp_id + ".yaml")
+    systems_file_path = os.path.join(SCANNED_DATASET_PATH, "imslp_systems", "IMSLP" + imslp_id + ".yaml")
     print("Writing:", systems_file_path)
     if os.path.exists(systems_file_path):
         with open(systems_file_path) as file:
@@ -115,7 +118,7 @@ def save_workbench():
     with open(systems_file_path, "w") as file:
         yaml.safe_dump(contents, file, sort_keys=True)
 
-    map_file_path = os.path.join(DATASET_PATH, "corpus_to_imslp", str(score_id) + ".yaml")
+    map_file_path = os.path.join(SCANNED_DATASET_PATH, "corpus_to_imslp", str(score_id) + ".yaml")
     print("Writing:", map_file_path)
     with open(map_file_path, "w") as file:
         contents = corpus_to_imslp

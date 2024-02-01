@@ -6,6 +6,15 @@ from app.symbolic.part_to_score import part_to_score
 import xml.etree.ElementTree as ET
 
 
+# from app.datasets.splits.data import TEST_SCORES, DEV_SCORES
+# systems_count = 0
+# for score_id, score in TEST_SCORES.items():
+#     systems_count += len(glob.glob(
+#         f"datasets/scanned_01/samples/{score_id}/*.png"
+#     ))
+# print("Test systems:", systems_count)
+
+
 mxl_files = list(sorted(
     glob.glob("datasets/OpenScore-Lieder/scores/**/*.mxl", recursive=True)
 ))

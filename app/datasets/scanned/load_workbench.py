@@ -4,16 +4,19 @@ import io
 import glob
 import cv2
 from .detect_systems_in_svg import detect_systems_in_svg
-from .config import *
+from ..config import SCANNED_DATASET_PATH, LIEDER_CORPUS_PATH
+
+
+WORKBENCH_RECT_COLOR = "#eb5454"
 
 
 def load_workbench(score_id: int):
     # get all the scores metadata
-    with open(CORPUS_SCORES_YAML) as file:
+    with open(os.path.join(LIEDER_CORPUS_PATH, "data", "scores.yaml")) as file:
         all_scores = yaml.safe_load(file)
     
     # check the workbench file does not exist
-    workbench_file = os.path.join(DATASET_PATH, "workbench.svg")
+    workbench_file = os.path.join(SCANNED_DATASET_PATH, "workbench.svg")
     if os.path.isfile(workbench_file):
         print("[ERROR] Workbench file already exists.")
         return
@@ -37,7 +40,7 @@ def load_workbench(score_id: int):
 
 
 def open_imslp_pdf(imslp_id: str):
-    pattern = os.path.join(DATASET_PATH, "imslp_pdfs", "IMSLP" + imslp_id + "*.pdf")
+    pattern = os.path.join(SCANNED_DATASET_PATH, "imslp_pdfs", "IMSLP" + imslp_id + "*.pdf")
     paths = glob.glob(pattern)
     path = paths[0]
 
@@ -52,7 +55,7 @@ def get_imslp_pages(imslp_id: str, start_page: int, page_count: int):
         page_number = i + start_page
         
         path_pattern = os.path.join(
-            DATASET_PATH, "imslp_pngs", "IMSLP" + imslp_id,
+            SCANNED_DATASET_PATH, "imslp_pngs", "IMSLP" + imslp_id,
             "IMSLP" + imslp_id + "-" + str(page_number).zfill(3) + "-*.png"
         )
         paths = list(sorted(glob.glob(path_pattern)))

@@ -1,30 +1,8 @@
-import os
-import glob
 import re
 from svgelements import *
-from .config import *
 
 
-def detect_systems_in_svg(score_id: int):
-    svg_pages = []
-    
-    pattern = os.path.join(DATASET_PATH, "svg", f"{score_id}-*.svg")
-    for svg_path in sorted(glob.glob(pattern)):
-        basename = os.path.basename(svg_path)
-        page_number = int(basename[len(str(score_id))+1:-len(".svg")])
-        
-        geometry = analyze_page_geometry(
-            score_id,
-            page_number,
-            svg_path
-        )
-        svg_pages.append(geometry)
-    
-    return svg_pages
-
-
-
-def svg_path_to_signature(d: str):
+def _svg_path_to_signature(d: str):
     """Replaces numbers with underscores, 
     useful for notation object type matching"""
     return re.sub(r"-?\d+(\.\d+)?", "_", d)
@@ -48,9 +26,7 @@ NON_PIANO_BRACKET_SIGNATURES = [
 ]
 
 
-def analyze_page_geometry(
-    score_id: int,
-    page_number: int,
+def find_systems_in_svg_page(
     svg_path: str,
     bracket_grow=1.1, # multiplier
 ):
@@ -61,7 +37,7 @@ def analyze_page_geometry(
     system_ranges = []
     for element in svg_file.elements():
         if element.values.get("class") == "Bracket":
-            signature = svg_path_to_signature(
+            signature = _svg_path_to_signature(
                 element.values["attributes"].get("d", "")
             )
             if signature in NON_PIANO_BRACKET_SIGNATURES:
@@ -97,18 +73,15 @@ def analyze_page_geometry(
     ]
     
     return {
-        "path": os.path.realpath(svg_path),
-        "score_id": score_id,
-        "page_number": page_number,
-        "width": svg_file.width,
-        "height": svg_file.height,
+        "page_width": int(svg_file.width),
+        "page_height": int(svg_file.height),
         "systems": [
             {
-                "x": x1,
-                "y": y1,
-                "width": x2 - x1,
-                "height": y2 - y1,
+                "left": int(x1),
+                "top": int(y1),
+                "right": int(x2),
+                "bottom": int(y2)
             }
             for x1, y1, x2, y2 in system_bboxes
-        ]
+        ],
     }

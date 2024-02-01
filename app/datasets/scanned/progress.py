@@ -1,5 +1,5 @@
 from ..splits.data import *
-from .config import *
+from ..config import SCANNED_DATASET_PATH
 import glob
 import re
 
@@ -39,8 +39,8 @@ def progress():
 
 
 def print_scores(scores):
-    assert os.path.isdir(DATASET_PATH), "Set up the scanned dataset"
-    annotated_scores = glob.glob(f"{DATASET_PATH}/corpus_to_imslp/*.yaml")
+    assert os.path.isdir(SCANNED_DATASET_PATH), "Set up the scanned dataset"
+    annotated_scores = glob.glob(f"{SCANNED_DATASET_PATH}/corpus_to_imslp/*.yaml")
     annotated_scores = set(
         int(os.path.basename(path)[:-5])
         for path in annotated_scores
@@ -57,8 +57,8 @@ def print_scores(scores):
 
 
 def print_pdfs(scores):
-    assert os.path.isdir(DATASET_PATH), "Set up the scanned dataset"
-    downloaded_pdfs = glob.glob(f"{DATASET_PATH}/imslp_pdfs/*.pdf")
+    assert os.path.isdir(SCANNED_DATASET_PATH), "Set up the scanned dataset"
+    downloaded_pdfs = glob.glob(f"{SCANNED_DATASET_PATH}/imslp_pdfs/*.pdf")
     downloaded_pdfs = {
         "#" + re.match("^IMSLP(\d+)", os.path.basename(path))[1]: os.path.basename(path)
         for path in downloaded_pdfs

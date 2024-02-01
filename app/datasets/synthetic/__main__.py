@@ -1,8 +1,9 @@
 import argparse
-from .clear import clear
+import os
 from .build import build
 from .finalize import finalize
-from .build_preview import build_preview
+from ..build_preview import build_preview
+from ..config import SYNTHETIC_DATASET_PATH
 
 
 ##########
@@ -38,6 +39,10 @@ build_parser.add_argument(
     "--linearize_only", action="store_true", default=False,
     help="Only process the semantic data, not images (MXL, LMX)"
 )
+build_parser.add_argument(
+    "--soft", action="store_true", default=False,
+    help="Skips processing for already processed files"
+)
 
 subparsers.add_parser(
     "finalize",
@@ -69,18 +74,22 @@ subparsers.add_parser(
 args = parser.parse_args()
 
 if args.command_name == "clear":
-    clear()
+    assert os.system(f"rm -rf \"{SYNTHETIC_DATASET_PATH}\"") == 0
 elif args.command_name == "build":
     build(
         slice_index=args.slice_index,
         slice_count=args.slice_count,
         inspect=args.inspect,
-        linearize_only=args.linearize_only
+        linearize_only=args.linearize_only,
+        soft=args.soft
     )
 elif args.command_name == "finalize":
     finalize()
 elif args.command_name == "build-preview":
-    build_preview()
+    build_preview(
+        dataset_path=SYNTHETIC_DATASET_PATH,
+        slice_name="train"
+    )
 else:
     parser.print_help()
     exit(2)
