@@ -1,7 +1,5 @@
 import zipfile
 import xml.etree.ElementTree as ET
-import os
-from typing import Iterable
 
 
 class MxlFile:
