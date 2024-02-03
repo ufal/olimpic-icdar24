@@ -156,7 +156,10 @@ def _finalize_lmx_and_musicxml_annotations(base_paths: List[str]):
         part = tree.getroot().find("part")
 
         # produce the LMX annotation
-        linearizer = Linearizer(errout=sys.stdout)
+        linearizer = Linearizer(
+            errout=sys.stdout,
+            fail_on_unknown_tokens=False # ignore OOV tokens
+        )
         linearizer.process_part(part)
         lmx_string = " ".join(linearizer.output_tokens)
         with open(base_path + ".lmx", "w") as file:

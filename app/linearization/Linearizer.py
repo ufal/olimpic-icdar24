@@ -23,12 +23,14 @@ IGNORED_ATTRIBUTES_ELEMENTS = set([
 
 
 class Linearizer:
-    def __init__(self, errout: Optional[TextIO] = None):
+    def __init__(self, errout: Optional[TextIO] = None, fail_on_unknown_tokens=True):
         self._errout = errout or io.StringIO()
         """Print errors and warnings here"""
 
         self.output_tokens: List[str] = []
         """The output linearized sequence, split up into tokens"""
+
+        self.fail_on_unknown_tokens = fail_on_unknown_tokens
         
         # within-part state
         self._part_id: Optional[str] = None # current part ID
@@ -55,7 +57,13 @@ class Linearizer:
 
     def _emit(self, token: str):
         """Emits a token into the output sequence"""
-        assert token in ALL_TOKENS, f"Token '{token}' not in the vocabulary"
+        if self.fail_on_unknown_tokens:
+            assert token in ALL_TOKENS, f"Token '{token}' not in the vocabulary"
+        else:
+            if token not in ALL_TOKENS:
+                self._error(f"Token '{token}' not in the vocabulary")
+                return
+        
         self.output_tokens.append(token)
 
     def process_part(self, part: ET.Element):

@@ -2,6 +2,7 @@ import argparse
 import os
 from .remove_problematic import remove_problematic
 from .build import build
+from ..config import GRANDSTAFF_DATASET_PATH
 
 
 ##########
@@ -37,6 +38,12 @@ build_parser.add_argument(
     help="Skips processing for already processed files"
 )
 
+subparsers.add_parser(
+    "tar-dataset",
+    aliases=[],
+    help="Packages the resulting dataset in a tar file"
+)
+
 
 ########
 # Main #
@@ -53,6 +60,17 @@ elif args.command_name == "build":
         slice_count=args.slice_count,
         soft=args.soft
     )
+elif args.command_name == "tar-dataset":
+    tar_path = os.path.realpath(GRANDSTAFF_DATASET_PATH + "-extended.tgz")
+    assert os.system(
+        f"cd {GRANDSTAFF_DATASET_PATH} && tar -czvf {tar_path} " +
+            f"beethoven/ " +
+            f"chopin/ " +
+            f"hummel/ " +
+            f"joplin/ " +
+            f"mozart/ " +
+            f"scarlatti-d/"
+    ) == 0
 else:
     parser.print_help()
     exit(2)
