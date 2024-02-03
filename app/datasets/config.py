@@ -1,4 +1,5 @@
 LIEDER_CORPUS_PATH = "datasets/OpenScore-Lieder"
 SYNTHETIC_DATASET_PATH = "datasets/synthetic"
 SCANNED_DATASET_PATH = "datasets/scanned"
+GRANDSTAFF_DATASET_PATH = "datasets/grandstaff"
 MSCORE = "musescore/musescore.AppImage"

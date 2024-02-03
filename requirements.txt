@@ -5,3 +5,4 @@ opencv-python>=4.8.0.74
 scikit-image>=0.17.2
 zss>=1.2.0
 Levenshtein>=0.24.0
+music21

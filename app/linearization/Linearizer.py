@@ -73,6 +73,9 @@ class Linearizer:
         assert part.tag == "part"
         self._part_id = part.attrib.get("id")
         for measure in part:
+            if measure.tag is ET.Comment:
+                continue # ignore comments
+
             assert measure.tag == "measure"
             
             self.process_measure(measure)
