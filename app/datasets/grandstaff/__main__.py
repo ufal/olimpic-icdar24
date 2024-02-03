@@ -3,6 +3,7 @@ import os
 from .remove_problematic import remove_problematic
 from .build import build
 from ..config import GRANDSTAFF_DATASET_PATH
+from .check_correspondence import check_correspondence
 
 
 ##########
@@ -44,6 +45,12 @@ subparsers.add_parser(
     help="Packages the resulting dataset in a tar file"
 )
 
+subparsers.add_parser(
+    "check-correspondence",
+    aliases=[],
+    help="Checks that for each .krn file there is a .musicxml and .lmx file"
+)
+
 
 ########
 # Main #
@@ -71,6 +78,8 @@ elif args.command_name == "tar-dataset":
             f"mozart/ " +
             f"scarlatti-d/"
     ) == 0
+elif args.command_name == "check-correspondence":
+    check_correspondence()
 else:
     parser.print_help()
     exit(2)
