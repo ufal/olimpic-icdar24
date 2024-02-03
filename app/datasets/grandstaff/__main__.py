@@ -4,6 +4,7 @@ from .remove_problematic import remove_problematic
 from .build import build
 from ..config import GRANDSTAFF_DATASET_PATH
 from .check_correspondence import check_correspondence
+from .build_preview import build_preview
 
 
 ##########
@@ -51,6 +52,12 @@ subparsers.add_parser(
     help="Checks that for each .krn file there is a .musicxml and .lmx file"
 )
 
+subparsers.add_parser(
+    "build-preview",
+    aliases=[],
+    help="Builds the preview html folder"
+)
+
 
 ########
 # Main #
@@ -80,6 +87,8 @@ elif args.command_name == "tar-dataset":
     ) == 0
 elif args.command_name == "check-correspondence":
     check_correspondence()
+elif args.command_name == "build-preview":
+    build_preview()
 else:
     parser.print_help()
     exit(2)
