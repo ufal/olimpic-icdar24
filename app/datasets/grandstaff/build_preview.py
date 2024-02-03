@@ -49,7 +49,7 @@ def build_preview():
             html.write(f"""
                 <p>
                     <b>Sample:</b> {sample}<br>
-                    <b>Image:</b> {sample}.png<br>
+                    <b>Image:</b> {sample}.jpg<br>
                     <img src="{preview_jpg_path}" style="height: 256px"/><br>
                     <br>
                     <b>LMX:</b> {sample}.lmx<br>
