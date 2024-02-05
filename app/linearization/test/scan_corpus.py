@@ -4,6 +4,8 @@ from ..Linearizer import Linearizer
 from ..Delinearizer import Delinearizer
 from ...symbolic.MxlFile import MxlFile
 from ...symbolic.Pruner import Pruner
+from ...symbolic.actual_durations_to_fractional import actual_durations_to_fractional
+from ...symbolic.debug_compare import compare_parts
 import xml.etree.ElementTree as ET
 
 
@@ -21,7 +23,7 @@ def scan_corpus():
 
 def scan_mxl_file(path: str):
     pruner = Pruner(
-        prune_durations=True, # durations depend on divisions
+        prune_durations=False, # durations depend on divisions
         prune_tremolo_marks=True, # patches a bug in the linearizer
     )
 
@@ -31,57 +33,20 @@ def scan_mxl_file(path: str):
         linearizer.process_part(part)
 
         text = " ".join(linearizer.output_tokens)
-        delinearizer = Delinearizer(errout=sys.stdout)
+        delinearizer = Delinearizer(
+            errout=sys.stdout,
+            keep_fractional_durations=True
+        )
         delinearizer.process_text(text)
 
-        pruner.process_part(part) # simplify gold before comparison
+        # prune to the LXM element subset
+        pruner.process_part(part)
         pruner.process_part(delinearizer.part_element)
+        
+        # turn gold to fractional durations
+        actual_durations_to_fractional(part)
+        
         compare_parts(
             expected=part,
             given=delinearizer.part_element
         )
-
-
-def compare_parts(expected: ET.Element, given: ET.Element):
-    measures_e = expected.findall("measure")
-    measures_g = given.findall("measure")
-    assert len(measures_e) == len(measures_g)
-    for i in range(len(measures_e)):
-        compare_measures(measures_e[i], measures_g[i])
-
-
-def compare_measures(expected: ET.Element, given: ET.Element):
-    measure_number = expected.get("number")
-
-    if len(expected) != len(given):
-        print("Non-matching measure contents!")
-        compare_elements(measure_number, expected, given)
-        return
-
-    # everything
-    for e, g in zip(expected, given):
-        compare_elements(measure_number, e, g)
-    
-    # pitch only
-    # for e, g in zip(expected.iterfind("note"), given.iterfind("note")):
-    #     e = e.find("pitch")
-    #     g = g.find("pitch")
-    #     if e is None or g is None:
-    #         continue
-    #     compare_elements(measure_number, e, g)
-
-
-def compare_elements(measure_number: str, expected: ET.Element, given: ET.Element):
-    e = ET.canonicalize(
-        ET.tostring(expected),
-        strip_text=True
-    )
-    g = ET.canonicalize(
-        ET.tostring(given),
-        strip_text=True
-    )
-    if e != g:
-        print()
-        print("MEASURE: ", measure_number)
-        print("EXPECTED:", e)
-        print("GIVEN:   ", g)

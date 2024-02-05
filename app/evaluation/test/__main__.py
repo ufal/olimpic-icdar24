@@ -5,6 +5,7 @@ import sys
 import glob
 import json
 from .scan_corpus import scan_corpus
+from .scan_testset import scan_testset
 
 
 ##########
@@ -30,6 +31,12 @@ build_parser = subparsers.add_parser(
     help="Executes the evaluation function on the entire OpenScore Lieder corpus"
 )
 
+build_parser = subparsers.add_parser(
+    "scan-testset",
+    aliases=[],
+    help="Executes the evaluation function on the scanned testset"
+)
+
 
 ########
 # Main #
@@ -44,6 +51,8 @@ if args.command_name == "convert-corpus":
     ) == 0
 elif args.command_name == "scan-corpus":
     scan_corpus()
+elif args.command_name == "scan-testset":
+    scan_testset()
 else:
     parser.print_help()
     exit(2)

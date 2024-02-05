@@ -85,6 +85,9 @@ class Pruner:
         time_element = attributes.find("time")
         if time_element is not None:
             time_element.attrib.pop("symbol", None)
+        
+        for clef_element in attributes.findall("clef"):
+            clef_element.attrib.pop("after-barline", None)
 
     def process_note(self, note: ET.Element):
         assert note.tag == "note"
@@ -97,7 +100,8 @@ class Pruner:
 
         rest_element = note.find("rest")
         if rest_element is not None:
-            rest_element.clear()
+            if len(rest_element) > 0:
+                rest_element[:] = [] # remove children
 
         type_element = note.find("type")
         if type_element is not None:
@@ -139,7 +143,8 @@ class Pruner:
                     element.attrib.pop("number", None)
             elif element.tag == "tuplet":
                 element.attrib.pop("bracket", None)
-                element.clear()
+                element.attrib.pop("show-number", None)
+                element[:] = [] # clear children
             elif element.tag == "fermata":
                 element.attrib.clear()
             elif element.tag == "arpeggiate":
@@ -158,7 +163,6 @@ class Pruner:
             "staccato", "accent", "strong-accent", "tenuto"
         })
         for element in articulations:
-            element.attrib.clear()
             element.clear()
     
     def process_ornaments(self, ornaments: ET.Element):
@@ -170,7 +174,6 @@ class Pruner:
                 if self.prune_tremolo_marks:
                     element.clear()
             elif element.tag == "trill-mark":
-                element.attrib.clear()
                 element.clear()
 
 
