@@ -1,10 +1,8 @@
 import glob
-import os
 import sys
 from ..Linearizer import Linearizer
 from ..Delinearizer import Delinearizer
 from ...symbolic.MxlFile import MxlFile
-from ...symbolic.split_part_to_systems import split_part_to_systems
 from ...symbolic.Pruner import Pruner
 import xml.etree.ElementTree as ET
 
@@ -23,7 +21,7 @@ def scan_corpus():
 
 def scan_mxl_file(path: str):
     pruner = Pruner(
-        prune_durations=True, # TODO: this should be removed once I start to work on durations!
+        prune_durations=True, # durations depend on divisions
         prune_tremolo_marks=True, # patches a bug in the linearizer
     )
 
@@ -33,10 +31,8 @@ def scan_mxl_file(path: str):
         linearizer.process_part(part)
 
         text = " ".join(linearizer.output_tokens)
-        # print(text)
         delinearizer = Delinearizer(errout=sys.stdout)
         delinearizer.process_text(text)
-        # print(str(ET.tostring(delinearizer.part_element, "utf-8"), "utf-8"))
 
         pruner.process_part(part) # simplify gold before comparison
         pruner.process_part(delinearizer.part_element)
@@ -44,25 +40,6 @@ def scan_mxl_file(path: str):
             expected=part,
             given=delinearizer.part_element
         )
-
-        # pages = split_part_to_systems(part)
-        # for page in pages:
-        #     for system in page.systems:
-        #         linearizer = Linearizer() # errout=sys.stdout
-        #         linearizer.process_part(system.part)
-
-        #         text = " ".join(linearizer.output_tokens)
-        #         # print(text)
-        #         delinearizer = Delinearizer(errout=sys.stdout)
-        #         delinearizer.process_text(text)
-        #         # print(str(ET.tostring(delinearizer.part_element, "utf-8"), "utf-8"))
-
-        #         pruner.process_part(system.part) # simplify gold before comparison
-        #         pruner.process_part(delinearizer.part_element)
-        #         compare_parts(
-        #             expected=system.part,
-        #             given=delinearizer.part_element
-        #         )
 
 
 def compare_parts(expected: ET.Element, given: ET.Element):

@@ -6,6 +6,7 @@ from fractions import Fraction
 from ..symbolic.PitchAlternator import PitchAlternator
 from ..symbolic.get_head_attributes import get_head_attributes
 from ..symbolic.sort_attributes import sort_attributes
+from ..symbolic.fractional_durations_to_actual import fractional_durations_to_actual
 
 
 MEASURE_ITEM_ROOTS = set([
@@ -46,9 +47,15 @@ class Tree:
 
 
 class Delinearizer:
-    def __init__(self, errout: Optional[TextIO] = None):
+    def __init__(
+        self,
+        errout: Optional[TextIO] = None,
+        keep_fractional_durations=False
+    ):
         self._errout = errout or io.StringIO()
         """Print errors and warnings here"""
+
+        self.keep_fractional_durations = keep_fractional_durations
 
         self.part_element = ET.Element("part")
 
@@ -80,6 +87,10 @@ class Delinearizer:
 
         # add the <staves> element if 2 or more staves present
         self._add_staves_head_element()
+
+        # add <divisions> and update all <duration> elements
+        if not self.keep_fractional_durations:
+            fractional_durations_to_actual(self.part_element)
         
         return self.part_element
     
@@ -118,10 +129,6 @@ class Delinearizer:
         for cluster_tokens in measure_clusters:
             measure_element = self.process_measure(cluster_tokens)
             self.part_element.append(measure_element)
-        
-        # TODO: replace fractional durations with actual durations and insert divisions
-        # TODO: this will be part of the symbolic module, not this one
-        # TODO: condition this by a setting in the constructor
     
     def cluster_measures(self, tokens: List[Token]) -> List[List[Token]]:
         clusters: List[List[Token]] = []
