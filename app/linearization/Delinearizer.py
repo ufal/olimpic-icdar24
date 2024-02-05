@@ -49,11 +49,24 @@ class Delinearizer:
 
         self.part_element = ET.Element("part")
 
+        # within-part state
+        self._open_beam_count = 0
+        self._open_slur_count = 0
+
+        # within-measure state
+        self._stem_orientation: Optional[str] = None # "up", "down", None
+        self._staff: Optional[str] = None # "1", "2", None
+        self._voice: Optional[str] = None # "1", "2", ... "8", None
+
     def _error(self, token: Token, *values):
         header = f"[ERROR][Token '{token.terminal}' at position {token.position}]:"
         print(header, *values, file=self._errout)
 
     def process_text(self, text: str) -> ET.Element:
+        # reset within-part state
+        self._open_beam_count = 0
+        self._open_slur_count = 0
+
         tokens = self.lex(text)
         self.process_system(tokens)
         return self.part_element
@@ -77,6 +90,8 @@ class Delinearizer:
         for cluster_tokens in measure_clusters:
             self.process_measure(cluster_tokens)
         
+        # TODO: add measure rest durations (to match measure duration)
+
         # TODO: replace fractional durations with actual durations and insert divisions
         # TODO: this will be part of the symbolic module, not this one
         # TODO: condition this by a setting in the constructor
@@ -114,6 +129,11 @@ class Delinearizer:
         """Takes tokens within a measure, without the measure token itself"""
         assert all(token.terminal != "measure" for token in tokens), \
             "Measure tokens should not contain the 'measure' token"
+        
+        # reset within-measure state
+        self._stem_orientation = None
+        self._staff = None
+        self._voice = None
 
         measure_element = ET.Element("measure")
         attributes_element: Optional[ET.Element] = None
@@ -318,11 +338,6 @@ class Delinearizer:
 
         # === parse the note tokens ====
 
-        note_type = tree.root.terminal
-        is_measure_rest = note_type == "rest:measure"
-        if is_measure_rest:
-            note_type = None
-
         no_print_token = self._extract_prefix(tree, {"print-object:no"})
         grace_token = self._extract_prefix(tree, {"grace"})
         grace_slash_token = self._extract_prefix(tree, {"grace:slash"})
@@ -330,10 +345,53 @@ class Delinearizer:
         rest_token = self._extract_prefix(tree, {"rest"})
         pitch_token = self._extract_prefix(tree, PITCH_TOKENS)
         voice_token = self._extract_prefix(tree, VOICE_TOKENS)
-        # TODO ..........
+
         time_modification_token = self._extract_suffix(tree, TIME_MODIFICATION_TOKENS)
-        # TODO ..........
+        dot_tokens = self._extract_suffixes(tree, {"dot"})
+        accidental_token = self._extract_suffix(tree, ACCIDENTAL_TOKENS)
+        stem_token = self._extract_suffix(tree, STEM_TOKENS)
+        staff_token = self._extract_suffix(tree, STAFF_TOKENS)
+        beam_tokens = self._extract_suffixes(tree, BEAM_TOKENS)
+        tied_start_token = self._extract_suffix(tree, {"tied:start"})
+        tied_stop_token = self._extract_suffix(tree, {"tied:stop"})
+        tuplet_start_token = self._extract_suffix(tree, {"tuplet:start"})
+        tuplet_stop_token = self._extract_suffix(tree, {"tuplet:stop"})
+        slur_tokens = self._extract_suffixes(tree, {"slur:start", "slur:stop"})
+        fermata_token = self._extract_suffix(tree, {"fermata"})
+        arpeggiate_token = self._extract_suffix(tree, {"arpeggiate"})
+        staccato_token = self._extract_suffix(tree, {"staccato"})
+        accent_token = self._extract_suffix(tree, {"accent"})
+        strong_accent_token = self._extract_suffix(tree, {"strong-accent"})
+        tenuto_token = self._extract_suffix(tree, {"tenuto"})
+        tremolo_token = self._extract_suffix(tree, TREMOLO_TOKENS)
+        trill_mark_token = self._extract_suffix(tree, {"trill-mark"})
+
         self._list_unexpected_valencies(tree)
+
+        # === extract higher-level information ====
+
+        note_type = tree.root.terminal
+        is_measure_rest = note_type == "rest:measure"
+        if is_measure_rest:
+            note_type = None
+        
+        is_grace = grace_token is not None
+
+        has_articulations = any((t is not None) for t in [
+            staccato_token, accent_token, strong_accent_token, tenuto_token
+        ])
+
+        has_ornaments = any((t is not None) for t in [
+            tremolo_token, trill_mark_token
+        ])
+
+        has_notations = any((t is not None) for t in [
+            tied_start_token, tied_stop_token,
+            *slur_tokens,
+            tuplet_start_token, tuplet_stop_token,
+            fermata_token,
+            arpeggiate_token
+        ]) or has_articulations or has_ornaments
 
         # === reconstruct the note element ====
 
@@ -370,27 +428,246 @@ class Delinearizer:
             pitch_element.append(octave_element)
             note_element.append(pitch_element)
         
-        # <voice>
-        # TODO: use tracked state which is overriden by given voice tokens
+        # <duration>
+        if is_grace:
+            pass # no duration element
+        elif is_measure_rest:
+            duration_element = ET.Element("duration")
+            duration_element.text = "" # TODO: from tracked measure duration or dont print at all if missing!
+            note_element.append(duration_element)
+        elif note_type is not None:
+            duration_element = ET.Element("duration")
+            tm = (
+                time_modification_token.terminal
+                if time_modification_token is not None
+                else None
+            )
+            duration_element.text = self._get_fractional_duration(
+                note_type, tm, len(dot_tokens)
+            )
+            note_element.append(duration_element)
 
-        # TODO ..........
+        # <tie> (generated just like the <tied> element)
+        if tied_stop_token is not None:
+            note_element.append(ET.Element("tie", {"type": "stop"}))
+        if tied_start_token is not None:
+            note_element.append(ET.Element("tie", {"type": "start"}))
+
+        # <voice>
+        if voice_token is not None:
+            self._voice = voice_token.terminal.split(":")[1]
+        if self._voice is not None:
+            voice_element = ET.Element("voice")
+            voice_element.text = self._voice
+            note_element.append(voice_element)
+        
+        # <type>
+        if note_type is not None:
+            type_element = ET.Element("type")
+            type_element.text = note_type
+            note_element.append(type_element)
+
+        # <dot>
+        for _ in dot_tokens:
+            note_element.append(ET.Element("dot"))
+
+        # <accidental>
+        if accidental_token is not None:
+            accidental_element = ET.Element("accidental")
+            accidental_element.text = accidental_token.terminal
+            note_element.append(accidental_element)
+
+        # <time-modification>
+        if time_modification_token is not None:
+            actual, normal = time_modification_token.terminal.split("in")
+            tm_element = ET.Element("time-modification")
+            actual_notes_element = ET.Element("actual-notes")
+            actual_notes_element.text = actual
+            normal_notes_element = ET.Element("normal-notes")
+            normal_notes_element.text = normal
+            tm_element.append(actual_notes_element)
+            tm_element.append(normal_notes_element)
+            note_element.append(tm_element)
+
+        # <stem>
+        if stem_token is not None:
+            self._stem_orientation = stem_token.terminal.split(":")[1]
+        if self._stem_orientation is not None:
+            stem_element = ET.Element("stem")
+            stem_element.text = self._stem_orientation
+            note_element.append(stem_element)
+
+        # <staff>
+        if staff_token is not None:
+            self._staff = staff_token.terminal.split(":")[1]
+        if self._staff is not None:
+            staff_element = ET.Element("staff")
+            staff_element.text = self._staff
+            note_element.append(staff_element)
+
+        # <beam>
+        beam_begin_count = len(
+            list(t for t in beam_tokens if t.terminal == "beam:begin")
+        )
+        beam_end_count = len(
+            list(t for t in beam_tokens if t.terminal == "beam:end")
+        )
+        beam_count_delta = beam_begin_count - beam_end_count
+        if beam_count_delta < -self._open_beam_count:
+            beam_count_delta = -self._open_beam_count # close at most the open count
+        
+        emitted_beam_count = None
+        
+        if beam_count_delta >= 0: # we are adding more beams
+            for i in range(self._open_beam_count):
+                e = ET.Element("beam", {"number": str(i + 1)})
+                e.text = "continue"
+                note_element.append(e)
+            for _ in range(beam_count_delta):
+                self._open_beam_count += 1
+                e = ET.Element("beam", {"number": str(self._open_beam_count)})
+                e.text = "begin"
+                note_element.append(e)
+            emitted_beam_count = self._open_beam_count
+        elif beam_count_delta < 0: # we are removing beams
+            emitted_beam_count = self._open_beam_count
+            self._open_beam_count += beam_count_delta
+            for i in range(self._open_beam_count):
+                e = ET.Element("beam", {"number": str(i + 1)})
+                e.text = "continue"
+                note_element.append(e)
+            for i in range(-beam_count_delta):
+                e = ET.Element("beam", {"number": str(self._open_beam_count + i + 1)})
+                e.text = "end"
+                note_element.append(e)
+        
+        hook_tokens = list(
+            t for t in beam_tokens if "hook" in t.terminal
+        )
+        for i, token in enumerate(hook_tokens):
+            e = ET.Element("beam", {"number": str(emitted_beam_count + i + 1)})
+            e.text = token.terminal.split(":")[1].replace("-", " ")
+            note_element.append(e)
+
+        # === reconstruct the notations element ====
+
+        if has_notations:
+            notations_element = ET.Element("notations")
+            note_element.append(notations_element)
+
+        # <tied>
+        if tied_stop_token is not None:
+            notations_element.append(ET.Element("tied", {"type": "stop"}))
+        if tied_start_token is not None:
+            notations_element.append(ET.Element("tied", {"type": "start"}))
+
+        # <slur>
+        slur_tokens.sort(key=lambda t: t.terminal, reverse=True) # first stops, then starts
+        for slur_token in slur_tokens:
+            if slur_token.terminal == "slur:stop":
+                e = ET.Element("slur", {"type": "stop"})
+                notations_element.append(e)
+                if self._open_slur_count > 0:
+                    e.attrib["number"] = str(self._open_slur_count)
+                    self._open_slur_count -= 1
+            if slur_token.terminal == "slur:start":
+                self._open_slur_count += 1
+                notations_element.append(ET.Element("slur", {
+                    "type": "start",
+                    "number": str(self._open_slur_count)
+                }))
+            # NOTE: slur "continue" is not produced by MuseScore, so we also ignore it
+
+        # <tuplet>
+        if tuplet_stop_token is not None:
+            notations_element.append(ET.Element("tuplet", {"type": "stop"}))
+        if tuplet_start_token is not None:
+            notations_element.append(ET.Element("tuplet", {"type": "start"}))
+
+        # <ornaments>
+        if has_ornaments:
+            ornaments_element = ET.Element("ornaments")
+            notations_element.append(ornaments_element)
+
+        # <trill-mark>
+        if trill_mark_token is not None:
+            ornaments_element.append(ET.Element("trill-mark"))
+
+        # <tremolo>
+        if tremolo_token is not None:
+            tremolo_element = ET.Element("tremolo", {
+                "type": tremolo_token.terminal.split(":")[1]
+            })
+            # NOTE: this is not a rule, this is hack! The number should
+            # have been encoded in LMX, but I forgot about it.
+            # It needs to be fixed in the next LMX version!
+            tremolo_element.text = "3"
+            if note_type == "half":
+                tremolo_element.text = "2"
+            ornaments_element.append(tremolo_element)
+        
+        # </ornaments>
+
+        # <articulations>
+        if has_articulations:
+            articulations_element = ET.Element("articulations")
+            notations_element.append(articulations_element)
+        
+        # <accent>
+        if accent_token is not None:
+            articulations_element.append(ET.Element("accent"))
+
+        # <strong-accent>
+        if strong_accent_token is not None:
+            articulations_element.append(ET.Element("strong-accent"))
+
+        # <staccato>
+        if staccato_token is not None:
+            articulations_element.append(ET.Element("staccato"))
+
+        # <tenuto>
+        if tenuto_token is not None:
+            articulations_element.append(ET.Element("tenuto"))
+        
+        # </articulation>
+
+        # <fermata>
+        if fermata_token is not None:
+            notations_element.append(ET.Element("fermata"))
+
+        # <arpeggiate>
+        if arpeggiate_token is not None:
+            notations_element.append(ET.Element("arpeggiate"))
+
+        # </notations>
 
         return note_element
     
-    def _get_fractional_duration(self, note_type: str, time_modification: Optional[str]) -> str:
+    def _get_fractional_duration(
+        self,
+        note_type: str,
+        time_modification: Optional[str],
+        dots: int = 0
+    ) -> str:
         assert note_type in NOTE_TYPE_TOKENS
         if time_modification is not None:
             assert time_modification in TIME_MODIFICATION_TOKENS
 
+        # simple conversion
         quarter_multiple = NOTE_TYPE_TO_QUARTER_MULTIPLE[note_type]
 
+        # handle duration dots
+        dot_duration = quarter_multiple / 2
+        for _ in range(dots):
+            quarter_multiple += dot_duration
+            dot_duration /= 2
+
+        # handle time modification
         if time_modification is not None:
             denominator, numerator = time_modification.split("in")
-            modified_quarter_multiple = quarter_multiple * Fraction(int(numerator), int(denominator))
-        else:
-            modified_quarter_multiple = quarter_multiple
+            quarter_multiple = quarter_multiple * Fraction(int(numerator), int(denominator))
         
-        return str(modified_quarter_multiple)
+        return str(quarter_multiple)
     
     def _extract_suffix(self, tree: Tree, terminals: Set[str]) -> Optional[Token]:
         target_token: Optional[Token] = None
@@ -413,6 +690,21 @@ class Delinearizer:
             i += 1
 
         return target_token
+    
+    def _extract_suffixes(self, tree: Tree, terminals: Set[str]) -> List[Token]:
+        target_tokens: List[Token] = []
+
+        i = 0
+        while i < len(tree.suffixes):
+            token = tree.suffixes[i]
+            if token.terminal in terminals:
+                target_tokens.append(token)
+                
+                del tree.suffixes[i]
+                i -= 1
+            i += 1
+
+        return target_tokens
     
     def _extract_prefix(self, tree: Tree, terminals: Set[str]) -> Optional[Token]:
         target_token: Optional[Token] = None
