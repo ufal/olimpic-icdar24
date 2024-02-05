@@ -1,6 +1,8 @@
 import xml.etree.ElementTree as ET
 from typing import List, Optional
 import copy
+from .sort_attributes import sort_attributes
+from .get_head_attributes import get_head_attributes
 
 
 class System:
@@ -95,11 +97,11 @@ def split_part_to_systems(
                 measure.remove(print_element)
         
         # emit the head attributes element
-        head_attributes = _get_head_attributes(measure, create_if_missing=False)
+        head_attributes = get_head_attributes(measure, create_if_missing=False)
         if head_attributes is not None:
             _update_tracked_attributes(tracked_attributes, head_attributes)
         if emit_attributes_header and new_system_measure and _something_is_tracked(tracked_attributes):
-            head_attributes = _get_head_attributes(measure, create_if_missing=True)
+            head_attributes = get_head_attributes(measure, create_if_missing=True)
             _emit_header(tracked_attributes, head_attributes, attributes_to_emit)
         for attributes_element in measure.iterfind("attributes"):
             _update_tracked_attributes(tracked_attributes, attributes_element)
@@ -108,28 +110,6 @@ def split_part_to_systems(
         system.append_measure(measure)
 
     return pages
-
-
-def _get_head_attributes(measure: ET.Element, create_if_missing=False) -> Optional[ET.Element]:
-    _IGNORE = {"print", "barline"}
-
-    position = 0
-    for i, child in enumerate(measure):
-        position = i
-        if child.tag in _IGNORE:
-            continue
-        elif child.tag == "attributes":
-            return child
-        else:
-            # we hit a note/forward/backup or similar content
-            break
-    
-    if create_if_missing:
-        attributes_element = ET.Element("attributes")
-        measure.insert(position, attributes_element)
-        return attributes_element
-    
-    return None
 
 
 def _update_tracked_attributes(tracked_attributes: dict, attributes: ET.Element):
@@ -215,7 +195,7 @@ def _emit_header(tracked_attributes: dict, attributes: ET.Element, attributes_to
                     copy.deepcopy(tracked_attributes["clef"][number])
                 )
     
-    _sort_attributes(attributes)
+    sort_attributes(attributes)
 
 
 def _something_is_tracked(tracked_attributes: dict) -> bool:
@@ -230,16 +210,3 @@ def _something_is_tracked(tracked_attributes: dict) -> bool:
     if len(tracked_attributes["clef"]) > 0:
         return True
     return False
-
-
-def _sort_attributes(attributes: ET.Element):
-    tag_order = [
-        # https://www.w3.org/2021/06/musicxml40/musicxml-reference/elements/attributes/
-        "footnote", "level", "divisions", "key", "time", "staves",
-        "part-symbol", "instruments", "clef", "staff-details", "transpose",
-        "for-part", "directive", "measure-style"
-    ]
-    attributes[:] = sorted(
-        attributes,
-        key=lambda e: (tag_order.index(e.tag), e.get("number", "1"))
-    )

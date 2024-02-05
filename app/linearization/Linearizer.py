@@ -244,8 +244,7 @@ class Linearizer:
                     self._emit("beam:" + beam.text)
 
         # [tied]
-        tied_element = note.find("notations/tied")
-        if tied_element is not None:
+        for tied_element in note.findall("notations/tied"):
             tied_type = tied_element.attrib.get("type")
             assert tied_type in ["start", "stop"]
             self._emit("tied:" + tied_type)
