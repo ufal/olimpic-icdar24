@@ -29,6 +29,7 @@ import copy
 #       the <duration> element inside <note> element.
 # 11. Filtered out some additional sound-related and metadata-related elements.
 # 12. Added more pitch encoding characters, since the corpus required it.
+# 13. Added .strip() for Xml4ZSS_Levenshtein in text comparison (was forgotten).
 
 
 def TEDn(predicted_element: ET.Element, gold_element: ET.Element) -> "TEDnResult":
@@ -241,7 +242,7 @@ class Xml4ZSS_Levenshtein(Xml4ZSS_Filtered):
                 text_edit_cost = len(e.text)
             else:
                 text_edit_cost: int = Levenshtein.distance(e.text, f.text)
-        elif e.text != f.text:
+        elif (e.text or "").strip() != (f.text or "").strip():
             text_edit_cost += 1
 
         return tag_change_cost + text_edit_cost

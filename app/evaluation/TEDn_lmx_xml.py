@@ -13,16 +13,16 @@ def TEDn_lmx_xml(
     gold_musicxml: str,
     prune=True,
     debug=False,
+    canonicalize_gold=True,
     errout: Optional[TextIO] = None
 ) -> TEDnResult:
-    # remove whitespace from gold XML
-    # THIS IS IMPORTANT!
-    # TEDn as is currently implemented introduces some error when
-    # whitespace is not stripped. Maybe whitespace between elements? IDK...
-    gold_musicxml = ET.canonicalize(
-        gold_musicxml,
-        strip_text=True
-    )
+    # preprocess gold XML to remove whitespace
+    # (not necessary after the TEDn .strip() bugfix, but present just in case...)
+    if canonicalize_gold:
+        gold_musicxml = ET.canonicalize(
+            gold_musicxml,
+            strip_text=True
+        )
 
     # prepare gold data
     gold_score = ET.fromstring(gold_musicxml)
@@ -44,7 +44,7 @@ def TEDn_lmx_xml(
         # should not happen, unless there's a bug in the delinearizer
         if errout is not None:
             print("DELINEARIZATION CRASHED:", traceback.format_exc(), file=errout)
-        predicted_part = ET.Element("part")
+        predicted_part = ET.Element("part") # pretend empty output
     
     # prune down to the elements that we actually predict
     # (otherwise TEDn penalizes missing <direction> and various ornaments)
