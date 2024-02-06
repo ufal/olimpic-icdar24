@@ -19,22 +19,28 @@ subparsers = parser.add_subparsers(
     dest="command_name"
 )
 
-build_parser = subparsers.add_parser(
+subparsers.add_parser(
     "convert-corpus",
     aliases=[],
     help="Converts MuseScore files to MXL files in the OS Lieder corpus"
 )
 
-build_parser = subparsers.add_parser(
+subparsers.add_parser(
     "scan-corpus",
     aliases=[],
     help="Executes the evaluation function on the entire OpenScore Lieder corpus"
 )
 
-build_parser = subparsers.add_parser(
+scan_testset_parser = subparsers.add_parser(
     "scan-testset",
     aliases=[],
     help="Executes the evaluation function on the scanned testset"
+)
+scan_testset_parser.add_argument(
+    "--tedn_flavor",
+    required=True,
+    type=str,
+    help="TEDn flavor to use, one of: 'full', 'lmx'"
 )
 
 
@@ -52,7 +58,7 @@ if args.command_name == "convert-corpus":
 elif args.command_name == "scan-corpus":
     scan_corpus()
 elif args.command_name == "scan-testset":
-    scan_testset()
+    scan_testset(args.tedn_flavor)
 else:
     parser.print_help()
     exit(2)
