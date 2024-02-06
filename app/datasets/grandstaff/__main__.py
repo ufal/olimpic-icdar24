@@ -1,6 +1,5 @@
 import argparse
 import os
-from .remove_problematic import remove_problematic
 from .build import build
 from ..config import GRANDSTAFF_DATASET_PATH
 from .check_correspondence import check_correspondence
@@ -16,12 +15,6 @@ parser = argparse.ArgumentParser()
 subparsers = parser.add_subparsers(
     title="available commands",
     dest="command_name"
-)
-
-subparsers.add_parser(
-    "remove-problematic",
-    aliases=[],
-    help="Removes problematic scores from the dataset"
 )
 
 build_parser=subparsers.add_parser(
@@ -66,9 +59,7 @@ subparsers.add_parser(
 args = parser.parse_args()
 
 # annotation commans
-if args.command_name == "remove-problematic":
-    remove_problematic()
-elif args.command_name == "build":
+if args.command_name == "build":
     build(
         slice_index=args.slice_index,
         slice_count=args.slice_count,

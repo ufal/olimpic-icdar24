@@ -55,18 +55,16 @@ def _kern_to_crude_musicxml(base_paths: List[str], soft: bool):
         print(f"Kern to crude musicxml:", base_path)
 
         # load the kern score into music21
-        try:
-            score = music21.converter.parse(base_path + ".krn")
-        except Exception as e:
-            print(e, "@", base_path)
-            continue
+        # (via the low-level converter API)
+        converter = music21.converter.subConverters.ConverterHumdrum()
+        kern_data = _load_kern_file(base_path + ".krn")
+        converter.parseData(kern_data)
+        score = converter.stream
 
         # replaces parts with "PartStaff" so that MusicXML exported
         # serializes the piano staff-parts properly into one part
         parts = list(score.parts)
-        if len(parts) != 2:
-            print("[ERROR] Invalid number of parts.", "@", base_path)
-            continue
+        assert len(parts) == 2, f"Invalid number of parts @ {base_path}"
 
         piano_parts = []
         for part in parts:
@@ -107,6 +105,39 @@ def _kern_to_crude_musicxml(base_paths: List[str], soft: bool):
         ), "utf-8")
         with open(base_path + ".crude.musicxml", "w") as file:
             file.write(xml_string)
+
+
+def _load_kern_file(path: str) -> str:
+    with open(path) as file:
+        lines = file.readlines()
+    
+    # Chop-short kern files where the two piano spines merge into one spine.
+    # These occur like 80 times in the whole dataset, and they crash
+    # the music21 ConverterHumdrum. They even cause trouble to Verovio,
+    # as you can see the images lack any notes after the merger. So we
+    # decided to treat it in accordance with what is seen in those images
+    # and crop the LMX and MusicXML annotations short.
+    #
+    # You can check out these examples:
+    # - beethoven/piano-sonatas/sonata07-3/original_m-20-25
+    # - beethoven/piano-sonatas/sonata07-3/original_m-30-35
+    # - beethoven/piano-sonatas/sonata07-3/original_m-35-40
+    # - beethoven/piano-sonatas/sonata15-1/original_m-445-449
+    # - chopin/mazurkas/mazurka41-2/original_m-66-71
+    # - joplin/joplin/pleasant/original_m-41-46
+    # - joplin/joplin/pleasant/original_m-81-86
+    #
+    chop_score_at = None
+    for i, line in enumerate(lines):
+        if line == "*v\t*v\n": # merger of the last two spines
+            chop_score_at = i
+            break
+    if chop_score_at is not None:
+        lines = lines[0:chop_score_at] # chop to just before the spine merger
+        lines.append("=\t=\n") # measure end
+        lines.append("*-\t*-\n") # score end
+
+    return "".join(lines) # each line already contains "\n"
 
 
 def _refine_musicxml_via_musescore(base_paths: List[str], soft: bool):
