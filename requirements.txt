@@ -3,6 +3,10 @@ pyyaml>=6.0.1
 numpy>= 1.24.4
 opencv-python>=4.8.0.74
 scikit-image>=0.17.2
+
+# evaluation
 zss>=1.2.0
 Levenshtein>=0.24.0
+
+# grandstaff dataset, kern->mxl
 music21
