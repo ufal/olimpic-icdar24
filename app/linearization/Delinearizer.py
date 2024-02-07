@@ -427,7 +427,8 @@ class Delinearizer:
         accent_token = self._extract_suffix(tree, {"accent"})
         strong_accent_token = self._extract_suffix(tree, {"strong-accent"})
         tenuto_token = self._extract_suffix(tree, {"tenuto"})
-        tremolo_token = self._extract_suffix(tree, TREMOLO_TOKENS)
+        tremolo_type_token = self._extract_suffix(tree, TREMOLO_TYPE_TOKENS)
+        tremolo_marks_token = self._extract_suffix(tree, TREMOLO_MARKS_TOKENS)
         trill_mark_token = self._extract_suffix(tree, {"trill-mark"})
 
         self._list_unexpected_valencies(tree)
@@ -443,8 +444,8 @@ class Delinearizer:
         is_rest = rest_token is not None
         is_chord = chord_token is not None
         is_double_tremolo = (
-            tremolo_token is not None
-            and tremolo_token.terminal in ["tremolo:start", "tremolo:stop"]
+            tremolo_type_token is not None
+            and tremolo_type_token.terminal in ["tremolo:start", "tremolo:stop"]
         )
 
         has_articulations = any((t is not None) for t in [
@@ -452,7 +453,7 @@ class Delinearizer:
         ])
 
         has_ornaments = any((t is not None) for t in [
-            tremolo_token, trill_mark_token
+            tremolo_type_token, trill_mark_token
         ])
 
         has_notations = any((t is not None) for t in [
@@ -678,16 +679,14 @@ class Delinearizer:
             ornaments_element.append(ET.Element("trill-mark"))
 
         # <tremolo>
-        if tremolo_token is not None:
+        if tremolo_type_token is not None:
             tremolo_element = ET.Element("tremolo", {
-                "type": tremolo_token.terminal.split(":")[1]
+                "type": tremolo_type_token.terminal.split(":")[1]
             })
-            # NOTE: this is not a rule, this is hack! The number should
-            # have been encoded in LMX, but I forgot about it.
-            # It needs to be fixed in the next LMX version!
-            tremolo_element.text = "3"
-            if note_type == "half":
-                tremolo_element.text = "2"
+            if tremolo_marks_token is not None:
+                tremolo_element.text = tremolo_marks_token.terminal.split(":")[1]
+            else:
+                tremolo_element.text = "3"
             ornaments_element.append(tremolo_element)
         
         # </ornaments>

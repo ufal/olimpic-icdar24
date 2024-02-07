@@ -116,11 +116,23 @@ BEAM_TOKENS = [
     "beam:backward-hook"
 ]
 
-TREMOLO_TOKENS = [
+TREMOLO_MARKS_TOKENS = [
+    "tremolo:1",
+    "tremolo:2",
+    "tremolo:3",
+    "tremolo:4"
+]
+
+TREMOLO_TYPE_TOKENS = [
     "tremolo:single",
     "tremolo:start",
     "tremolo:stop",
     "tremolo:unmeasured"
+]
+
+TREMOLO_TOKENS = [
+    *TREMOLO_TYPE_TOKENS,
+    *TREMOLO_MARKS_TOKENS
 ]
 
 EXTENDED_FLAVOR_TOKENS = [

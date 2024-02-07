@@ -441,6 +441,27 @@ tremolo:single
 tremolo:start
 tremolo:stop
 tremolo:unmeasured
+
+tremolo:1
+tremolo:2
+tremolo:3
+tremolo:4
+```
+
+Tremolo element statisticis in OSLiC:
+
+```xml
+<tremolo type="start">3</tremolo>  1104
+<tremolo type="stop">3</tremolo>   1104
+<tremolo type="start">2</tremolo>  893
+<tremolo type="stop">2</tremolo>   893
+<tremolo type="single">1</tremolo> 444
+<tremolo type="single">3</tremolo> 105
+<tremolo type="start">1</tremolo>  50
+<tremolo type="stop">1</tremolo>   50
+<tremolo type="single">2</tremolo> 20
+<tremolo type="start">4</tremolo>  2
+<tremolo type="stop">4</tremolo>   2
 ```
 
 Note that there are no `tremolo:unmeasured` tremolos in the corpus.
@@ -828,11 +849,19 @@ This is an attempt at modelling the linearized MusicXML by a simple grammar:
 [tenuto] = "tenuto"
 [trill-mark] = "trill-mark"
 
-[tremolo] =
+[tremolo] = [tremolo-type] [tremolo-marks]
+
+[tremolo-type] =
     | "tremolo:single"
     | "tremolo:start"
     | "tremolo:stop"
     | "tremolo:unmeasured"
+
+[termolo-marks] =
+    | "tremolo:1"
+    | "tremolo:2"
+    | "tremolo:3"
+    | "tremolo:4"
 
 ```
 

@@ -326,8 +326,11 @@ class Linearizer:
         tremolo_element = notations.find("ornaments/tremolo")
         if tremolo_element is not None:
             tremolo_type = tremolo_element.attrib.get("type", "single")
+            tremolo_marks = tremolo_element.text
             assert tremolo_type in ["single", "start", "stop", "unmeasured"]
+            assert tremolo_marks in ["1", "2", "3", "4"]
             self._emit("tremolo:" + tremolo_type)
+            self._emit("tremolo:" + tremolo_marks)
 
         # [trill-mark]
         trill_mark_element = notations.find("ornaments/trill-mark")
