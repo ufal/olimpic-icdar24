@@ -121,14 +121,6 @@ class Linearizer:
     def process_note(self, note: ET.Element, measure: ET.Element):
         assert note.tag == "note"
 
-        # detect if double tremolo
-        tremolo_element = note.find("notations/ornaments/tremolo")
-        is_double_tremolo = False
-        if tremolo_element is not None:
-            tremolo_type = tremolo_element.attrib.get("type", "single")
-            if tremolo_type in ["start", "stop"]:
-                is_double_tremolo = True
-
         # [print-object:no]
         if note.attrib.get("print-object") == "no":
             self._emit("print-object:no")
@@ -182,12 +174,10 @@ class Linearizer:
         
         # [time-modification] (tuplets rhythm-wise)
         if note.find("time-modification") is not None:
-            actual = int(note.find("time-modification/actual-notes").text)
-            normal = int(note.find("time-modification/normal-notes").text)
-            ratio = Fraction(normal, actual)
-            token = str(ratio.denominator) + "in" + str(ratio.numerator)
-            if not is_double_tremolo:
-                self._emit(token)
+            actual = note.find("time-modification/actual-notes").text
+            normal = note.find("time-modification/normal-notes").text
+            token = actual + "in" + normal
+            self._emit(token)
 
         # [dot]
         for dot_element in note.findall("dot"):

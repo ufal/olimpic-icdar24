@@ -443,10 +443,6 @@ class Delinearizer:
         is_grace = grace_token is not None
         is_rest = rest_token is not None
         is_chord = chord_token is not None
-        is_double_tremolo = (
-            tremolo_type_token is not None
-            and tremolo_type_token.terminal in ["tremolo:start", "tremolo:stop"]
-        )
 
         has_articulations = any((t is not None) for t in [
             staccato_token, accent_token, strong_accent_token, tenuto_token
@@ -513,8 +509,6 @@ class Delinearizer:
                 if time_modification_token is not None
                 else None
             )
-            if is_double_tremolo:
-                tm = "2in1"
             duration_element.text = self._get_fractional_duration(
                 note_type, tm, len(dot_tokens)
             )
@@ -558,16 +552,6 @@ class Delinearizer:
             actual_notes_element.text = actual
             normal_notes_element = ET.Element("normal-notes")
             normal_notes_element.text = normal
-            tm_element.append(actual_notes_element)
-            tm_element.append(normal_notes_element)
-            note_element.append(tm_element)
-        
-        elif is_double_tremolo:
-            tm_element = ET.Element("time-modification")
-            actual_notes_element = ET.Element("actual-notes")
-            actual_notes_element.text = "2"
-            normal_notes_element = ET.Element("normal-notes")
-            normal_notes_element.text = "1"
             tm_element.append(actual_notes_element)
             tm_element.append(normal_notes_element)
             note_element.append(tm_element)

@@ -84,10 +84,11 @@ VOICE_TOKENS = [
 ]
 
 TIME_MODIFICATION_TOKENS = [
-    '3in2', '2in1', '2in3', '5in4', '7in8', '7in6',
-    '9in8', '7in4', '4in3', '11in8', '13in8', '5in2',
-    '9in4', '9in2', '15in8', '11in12', '5in3', '7in1',
-    '35in16', '4in1'
+    '3in2', '6in4', '2in1', '2in3', '5in4', '7in8', '7in6',
+    '9in8', '4in3', '7in4', '4in6', '13in8', '22in16', '10in4',
+    '12in8', '9in4', '10in8', '18in4', '16in8', '15in8', '5in3',
+    '11in8', '11in12', '5in2', '8in2', '4in2', '7in1', '35in16',
+    '9in2'
 ]
 
 ACCIDENTAL_TOKENS = [

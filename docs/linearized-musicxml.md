@@ -424,7 +424,7 @@ C4 quarter 3in2
 
 There are two regular quarters in two quarters (in a half note), so a regular quarter note is `2in2`, or rather `1in1` so the time modification is omitted. But there are three triplet quarter notes in two regular quarter notes, so `3in2`.
 
-We do not take just take the values from the `<time-modification>` element, but we also simplifying them. So a `6in4` is simplified to `3in2`. We encode only irreducible time modifications.
+Sometimes, triplets are actually written in groups of 6, which makes them sixtuplets (with the same duration). In such a case, their time modification is `6in4` (which is technically identical to `3in2`, but semantically not).
 
 Apart from the duration information, tuplets are usually grouped by brackets or beams to form tuplet groups, so that they are easier to read. This information in MusicXML is stored in `<notations>/<tuplet>` element. We encode this information separately in two tokens:
 
@@ -434,7 +434,9 @@ tuplet:start tuplet:stop
 
 There are no nested tuplets in the corpus, so we ignore these.
 
-Double-note tremolos come with `<time-modification>`, but that is a hack for their notation, because the modification is always `2in1`. For this reason we omit the `[time-modification]` token for them. Tremolos are marked like other ornaments with tokens:
+Double-note tremolos come with `<time-modification>` as well, because these are two notes, that together have the duration of one of only one of these notes. (e.g. two tremolo-beamed half notes in the duration of a single half note). For this reason, MusicXML adds a `2in1` time modification to these double tremolos. LMX keeps this information as well.
+
+Tremolos are marked like other ornaments with tokens:
 
 ```
 tremolo:single
@@ -473,13 +475,15 @@ Interesting scores to test on:
 - https://musescore.com/user/27638568/scores/4985999 (triplets with invisible numbers - rule of continuation)
 - https://musescore.com/openscore-lieder-corpus/scores/5052823 (more tremolos)
 
-Time modification statistics (after simplifying fractions):
+Time modification statistics:
 
 ```py
-Counter({'3in2': 103821, '2in1': 865, '2in3': 739, '5in4': 372, '7in8': 203,
-    '7in6': 196, '9in8': 174, '7in4': 70, '4in3': 67, '11in8': 53, '13in8': 52,
-    '5in2': 45, '9in4': 19, '9in2': 18, '15in8': 15, '11in12': 11, '5in3': 10,
-    '7in1': 7, '35in16': 5})
+Counter({'3in2': 100988, '6in4': 13514, '2in1': 4935, '2in3': 1133,
+    '5in4': 718, '7in8': 203, '7in6': 196, '9in8': 174, '4in3': 96,
+    '7in4': 70, '4in6': 61, '13in8': 52, '22in16': 42, '10in4': 40,
+    '12in8': 24, '9in4': 19, '10in8': 19, '18in4': 18, '16in8': 16,
+    '15in8': 15, '5in3': 14, '11in8': 11, '11in12': 11, '5in2': 10,
+    '8in2': 9, '4in2': 8, '7in1': 7, '35in16': 5})
 ```
 
 We encode all the time modification tokens that appear in the corpus.
@@ -787,10 +791,11 @@ This is an attempt at modelling the linearized MusicXML by a simple grammar:
 
 # tuplets have this time modification right after the type name
 [time-modification] =
-    | '3in2' | '2in1' | '2in3' | '5in4' | '7in8' | '7in6'
-    | '9in8' | '7in4' | '4in3' | '11in8' | '13in8' | '5in2'
-    | '9in4' | '9in2' | '15in8' | '11in12' | '5in3' | '7in1'
-    | '35in16'
+    | '3in2' | '6in4' | '2in1' | '2in3' | '5in4' | '7in8' | '7in6'
+    | '9in8' | '4in3' | '7in4' | '4in6' | '13in8' | '22in16' | '10in4'
+    | '12in8' | '9in4' | '10in8' | '18in4' | '16in8' | '15in8' | '5in3'
+    | '11in8' | '11in12' | '5in2' | '8in2' | '4in2' | '7in1' | '35in16'
+    | '9in2'
 
 # [dot] is a duration dot, one occurence for each notated dot
 [dot] = "dot"
