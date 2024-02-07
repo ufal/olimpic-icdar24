@@ -163,7 +163,7 @@ class Pruner:
 
 def prune_children(element: ET.Element, tags: set):
     children_to_remove = [
-        ch for ch in element.getchildren()
+        ch for ch in element
         if ch.tag in tags
     ]
     for ch in children_to_remove:
@@ -172,7 +172,7 @@ def prune_children(element: ET.Element, tags: set):
 
 def allow_children(element: ET.Element, tags: set):
     children_to_remove = [
-        ch for ch in element.getchildren()
+        ch for ch in element
         if ch.tag not in tags
     ]
     for ch in children_to_remove:
