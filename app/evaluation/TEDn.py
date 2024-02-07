@@ -144,7 +144,7 @@ class Xml4ZSS(ZSSMetricClass):
     Pass to ``zss.distance()``"""
     @staticmethod
     def get_children(e: ET.Element) -> List[ET.Element]:
-        return e.getchildren()
+        return list(e)
 
     @staticmethod
     def update(e: ET.Element, f: ET.Element) -> int:
@@ -212,7 +212,7 @@ class Xml4ZSS_Filtered(Xml4ZSS):
     @staticmethod
     def get_children(e: ET.Element) -> List[ET.Element]:
         children = []
-        for child in e.getchildren():
+        for child in e:
             if child.tag in Xml4ZSS_Filtered.filtered_out["*"]:
                 continue
             if e.tag in Xml4ZSS_Filtered.filtered_out:
@@ -410,7 +410,7 @@ def encode_notes(root: ET.Element, coder: NoteContentCoder):
         code = coder.encode(note)
         note.text = code
         to_remove = [
-            e for e in note.getchildren()
+            e for e in note
             if e.tag in NoteContentCoder.ENCODES_TAGS
         ]
         for e in to_remove:
