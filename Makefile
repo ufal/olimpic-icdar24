@@ -19,14 +19,14 @@ install-scanned-dataset:
 	rm -rf datasets/scanned
 	rm -rf datasets/scanned.tgz
 	mkdir -p datasets/scanned
-	wget https://github.com/Jirka-Mayer/ICDAR2024/releases/download/2024-02-01/2024-02-01_scanned.tgz
-	mv 2024-02-01_scanned.tgz datasets/scanned.tgz
+	wget https://github.com/Jirka-Mayer/ICDAR2024/releases/download/datasets/2024-02-07_scanned.tgz
+	mv 2024-02-07_scanned.tgz datasets/scanned.tgz
 	tar -xf datasets/scanned.tgz -C datasets/scanned
 
 install-synthetic-dataset:
 	rm -rf datasets/synthetic
 	rm -rf datasets/synthetic.tgz
 	mkdir -p datasets/synthetic
-	wget https://github.com/Jirka-Mayer/ICDAR2024/releases/download/2024-02-01/2024-02-01_synthetic.tgz
-	mv 2024-02-01_synthetic.tgz datasets/synthetic.tgz
+	wget https://github.com/Jirka-Mayer/ICDAR2024/releases/download/datasets/2024-02-07_synthetic.tgz
+	mv 2024-02-07_synthetic.tgz datasets/synthetic.tgz
 	tar -xf datasets/synthetic.tgz -C datasets/synthetic
