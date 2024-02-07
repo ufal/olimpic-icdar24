@@ -87,14 +87,6 @@ def TEDn_lmx_xml(
             prune_barlines=True,
             prune_harmony=True,
             
-            # LMX encodes time-modification in the reduced form,
-            # so this information is actually lost by design
-            reduce_time_modification=True,
-
-            # tremolos should have their number encoded in some future
-            # LMX version, that is a valid error to be counted
-            prune_tremolo_marks=False,
-            
         )
         pruner.process_part(gold_part)
         pruner.process_part(predicted_part)

@@ -24,7 +24,6 @@ def scan_corpus():
 def scan_mxl_file(path: str):
     pruner = Pruner(
         prune_durations=False, # durations depend on divisions
-        prune_tremolo_marks=True, # patches a bug in the linearizer
     )
 
     mxl = MxlFile.load_mxl(path)

@@ -17,14 +17,10 @@ class Pruner:
         prune_barlines=True,
         prune_harmony=True,
         prune_slur_numbering=True,
-        reduce_time_modification=True,
-        prune_tremolo_marks=False,
     ):
         self.prune_durations = prune_durations
         self.prune_measure_attributes = prune_measure_attributes
         self.prune_slur_numbering = prune_slur_numbering
-        self.reduce_time_modification = reduce_time_modification
-        self.prune_tremolo_marks = prune_tremolo_marks
 
         self.measure_prune_tags = {"sound", "listening", "figured-bass", "bookmark", "grouping"}
         if prune_prints:
@@ -114,15 +110,6 @@ class Pruner:
         time_modification_element = note.find("time-modification")
         if time_modification_element is not None:
             allow_children(time_modification_element, {"actual-notes", "normal-notes"})
-            if self.reduce_time_modification:
-                actual_element = time_modification_element.find("actual-notes")
-                normal_element = time_modification_element.find("normal-notes")
-                ratio = Fraction(
-                    int(actual_element.text),
-                    int(normal_element.text)
-                )
-                actual_element.text = str(ratio.numerator)
-                normal_element.text = str(ratio.denominator)
 
         notations_element = note.find("notations")
         if notations_element is not None:
@@ -170,10 +157,7 @@ class Pruner:
             "tremolo", "trill-mark"
         })
         for element in list(ornaments):
-            if element.tag == "tremolo":
-                if self.prune_tremolo_marks:
-                    element.clear()
-            elif element.tag == "trill-mark":
+            if element.tag == "trill-mark":
                 element.clear()
 
 
