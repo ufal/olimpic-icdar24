@@ -43,6 +43,12 @@ def musescore_corpus_conversion(
         json.dump(conversion, tmp)
         tmp.close()
 
+        # clear musescore settings, since it may remember not to print
+        # page and system breaks, but we do want those to be printed
+        assert os.system(
+            f"rm -f ~/.config/MuseScore/MuseScore3.ini"
+        ) == 0
+
         assert os.system(
             f"{MSCORE} -j \"{tmp.name}\""
         ) == 0

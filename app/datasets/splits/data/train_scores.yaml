@@ -2028,6 +2028,27 @@
   imslp: '#234590'
   set_id: 5103561
   lyricist_url: https://imslp.org/wiki/Category:Nash,_Thomas
+6601006:
+  path: Dickson,_Ellen/_/Destiny
+  name: Destiny
+  link: https://musescore.com/openscore-lieder-corpus/scores/6601006
+  imslp: '#286583'
+  set_id: 5107056
+  lyricist_url: null
+6601058:
+  path: Dickson,_Ellen/_/Drifting
+  name: Drifting
+  link: https://musescore.com/openscore-lieder-corpus/scores/6601058
+  imslp: '#286682'
+  set_id: 5107056
+  lyricist_url: https://imslp.org/wiki/Category:Longfellow,_Henry_Wadsworth
+6600932:
+  path: Dickson,_Ellen/_/The_Land_of_Long_Ago
+  name: The Land of Long Ago
+  link: https://musescore.com/openscore-lieder-corpus/scores/6600932
+  imslp: '#286582'
+  set_id: 5107056
+  lyricist_url: https://imslp.org/wiki/Category:Westwood,_Thomas
 6233544:
   path: Elgar,_Edward/2_Songs,_Op.60/1_The_Torch
   name: The Torch

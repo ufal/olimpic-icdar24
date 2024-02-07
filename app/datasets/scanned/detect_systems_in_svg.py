@@ -10,7 +10,7 @@ def detect_systems_in_svg(score_id: int):
     pattern = os.path.join(LIEDER_CORPUS_PATH, "scores", "**", f"lc{score_id}-*.svg")
     for svg_path in sorted(glob.glob(pattern, recursive=True)):
         basename = os.path.basename(svg_path)
-        page_number = int(basename[len(str(score_id))+1:-len(".svg")])
+        page_number = int(basename[len(str(score_id))+3:-len(".svg")])
         
         geometry = find_systems_in_svg_page(svg_path)
         geometry["path"] = os.path.realpath(svg_path)
@@ -19,4 +19,6 @@ def detect_systems_in_svg(score_id: int):
 
         svg_pages.append(geometry)
     
+    assert len(svg_pages) > 0
+
     return svg_pages

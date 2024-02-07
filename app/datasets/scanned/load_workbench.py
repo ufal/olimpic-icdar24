@@ -4,6 +4,7 @@ import io
 import glob
 import cv2
 from .detect_systems_in_svg import detect_systems_in_svg
+from ..musescore_corpus_conversion import musescore_corpus_conversion
 from ..config import SCANNED_DATASET_PATH, LIEDER_CORPUS_PATH
 
 
@@ -31,6 +32,12 @@ def load_workbench(score_id: int):
     open_imslp_pdf(imslp_id)
     
     start_page = int(input("Enter the starting page: "))
+
+    musescore_corpus_conversion(
+        {score_id: all_scores[score_id]},
+        format="svg",
+        soft=True
+    )
 
     svg_pages = detect_systems_in_svg(score_id)
     imslp_pages = get_imslp_pages(imslp_id, start_page, len(svg_pages))
@@ -132,9 +139,9 @@ def create_inkscape_file(svg_pages, imslp_pages, score_id, imslp_id, file: io.Fi
         path = svg_page["path"]
         score_id = svg_page["score_id"]
         page_number = svg_page["page_number"]
-        ratio = PAGE_HEIGHT / svg_page["height"]
-        height = svg_page["height"] * ratio
-        width = svg_page["width"] * ratio
+        ratio = PAGE_HEIGHT / svg_page["page_height"]
+        height = svg_page["page_height"] * ratio
+        width = svg_page["page_width"] * ratio
         px = CORPUS_X
         py = pi * (PAGE_HEIGHT + SPACING)
         imslp_x = max(imslp_x, px + width + SPACING)
@@ -198,16 +205,16 @@ def create_inkscape_file(svg_pages, imslp_pages, score_id, imslp_id, file: io.Fi
         path = svg_page["path"]
         score_id = svg_page["score_id"]
         page_number = svg_page["page_number"]
-        ratio = PAGE_HEIGHT / svg_page["height"]
-        height = svg_page["height"] * ratio
-        width = svg_page["width"] * ratio
+        ratio = PAGE_HEIGHT / svg_page["page_height"]
+        height = svg_page["page_height"] * ratio
+        width = svg_page["page_width"] * ratio
         px = CORPUS_X
         py = pi * (PAGE_HEIGHT + SPACING)
         for si, system in enumerate(svg_page["systems"]):
-            sx = system["x"] * ratio
-            sy = system["y"] * ratio
-            sw = system["width"] * ratio
-            sh = system["height"] * ratio
+            sx = system["left"] * ratio
+            sy = system["top"] * ratio
+            sw = (system["right"] - system["left"]) * ratio
+            sh = (system["bottom"] - system["top"]) * ratio
             file.write(f"""
             <rect
                 style="fill:{WORKBENCH_RECT_COLOR};fill-opacity:0.366049;"

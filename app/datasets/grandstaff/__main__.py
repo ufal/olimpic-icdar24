@@ -66,7 +66,7 @@ if args.command_name == "build":
         soft=args.soft
     )
 elif args.command_name == "tar-dataset":
-    tar_path = os.path.realpath(GRANDSTAFF_DATASET_PATH + "-extended.tgz")
+    tar_path = os.path.realpath(GRANDSTAFF_DATASET_PATH + "-lmx.tgz")
     assert os.system(
         f"cd {GRANDSTAFF_DATASET_PATH} && tar -czvf {tar_path} " +
             f"beethoven/ " +

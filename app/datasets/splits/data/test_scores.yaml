@@ -117,6 +117,13 @@
   imslp: '#97696'
   set_id: 5069034
   lyricist_url: https://imslp.org/wiki/Category:H%C3%B6lty,_Ludwig_Christoph_Heinrich
+5069028:
+  path: Brahms,_Johannes/5_Poems,_Op.19/2_Scheiden_und_Meiden
+  name: Scheiden und Meiden
+  link: https://musescore.com/openscore-lieder-corpus/scores/5069028
+  imslp: '#97696'
+  set_id: 5069034
+  lyricist_url: https://imslp.org/wiki/Category:Uhland,_Ludwig
 6565727:
   path: Burleigh,_Harry_Thacker/_/Ethiopia_Saluting_the_Colors
   name: Ethiopia Saluting the Colors
@@ -229,13 +236,6 @@
   imslp: '#14816'
   set_id: 5110892
   lyricist_url: https://imslp.org/wiki/Category:Bourget,_Paul
-6600532:
-  path: Dickson,_Ellen/_/The_Brook
-  name: The Brook
-  link: https://musescore.com/openscore-lieder-corpus/scores/6600532
-  imslp: '#483603'
-  set_id: 5107056
-  lyricist_url: https://imslp.org/wiki/Category:Tennyson,_Alfred
 6592539:
   path: Duchambge,_Pauline/_/Guitare
   name: Guitare

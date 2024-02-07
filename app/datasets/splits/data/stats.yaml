@@ -1,12 +1,12 @@
 train:
-  scores: 1092
+  scores: 1095
 dev:
   scores: 100
 test:
   scores: 100
-  sets: 34
+  sets: 33
 corpus:
   scores: 1356
   sets: 249
-globally_ignored_scores: 51
+globally_ignored_scores: 52
 annotation_problematic_scores: 60
