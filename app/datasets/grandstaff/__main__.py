@@ -74,7 +74,11 @@ elif args.command_name == "tar-dataset":
             f"hummel/ " +
             f"joplin/ " +
             f"mozart/ " +
-            f"scarlatti-d/"
+            f"scarlatti-d/ " +
+            f"README.txt " +
+            f"samples.train.txt " +
+            f"samples.dev.txt " +
+            f"samples.test.txt"
     ) == 0
 elif args.command_name == "check-correspondence":
     check_correspondence()
