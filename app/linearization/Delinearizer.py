@@ -96,8 +96,9 @@ class Delinearizer:
     
     def _add_staves_head_element(self):
         max_clef_number = max(
-            int(clef.get("number", "1"))
-            for clef in self.part_element.iterfind("measure/attributes/clef")
+            (int(clef.get("number", "1"))
+            for clef in self.part_element.iterfind("measure/attributes/clef")),
+            default=1
         )
         if max_clef_number > 1 and len(self.part_element) > 0:
             attributes = get_head_attributes(
