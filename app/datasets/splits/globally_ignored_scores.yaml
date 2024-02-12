@@ -7,7 +7,7 @@
 # Scores listed here are not used in training, nor testing. They are not
 # present in the synthetic, nor the scanned dataset.
 #
-# Currently there are 51 ignored scores out of 1356 total.
+# Currently there are 52 ignored scores out of 1356 total.
 #
 # To see the score, simply go to:
 #   https://musescore.com/score/{score_id}
