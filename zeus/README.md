@@ -20,7 +20,7 @@ Training a Model
 
 To train a model, run for example
 ```sh
-python3 zeus.py --train olimpic-1.0-synthetic-train --dev olimpic-1.0-synthetic-dev olimpic-1.0-scanned-dev --test olimpic-1.0-synthetic-test olimpic-1.0-scanned-test --threads=8 --epochs=200
+python3 zeus.py --train olimpic-1.0-synthetic-train --dev olimpic-1.0-synthetic-dev olimpic-1.0-scanned-dev --test olimpic-1.0-synthetic-test olimpic-1.0-scanned-test --epochs=200
 ```
 - the development data are evaluated every epoch
 - the test data are evaluated once at the end of training
