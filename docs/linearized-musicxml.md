@@ -20,14 +20,7 @@ Additional decisions:
 - Ignores all the metadata (`<part-list>`, `<identification>`), linearizes only the `<part>` element contents (measures with music).
 - Linearizes measures "in-parallel", no measure-to-measure dependencies (keeps minimal state information - no assumed key signature or time signature).
 
-The encoding comes in two flavors:
-
-- **Core:** Contains only essential symbols.
-    - e.g. notes, rests, measures, beams, duration dots, ties, triplets, staves, voices, clefs, accidentals
-- **Extended:** Contains additional ornaments and markings.
-    - e.g. slurs, staccato, accents, fermata, tremolo
-
-Some symbols are omitted even from the extended encoding:
+Some symbols are omitted from the encoding:
     - e.g. dynamic markings, hairpins, pedal signs, glisando
 
 In this documentation, MusicXML elements are represented by angle brackets (e.g. `<note>`, `<chord>`) and linearized MusicXML token types are represented by square brackets (e.g. `[pitch]`, `[type]`).
@@ -725,7 +718,7 @@ This is an attempt at modelling the linearized MusicXML by a simple grammar:
     [tied]?
     [tuplet]*
 
-    # EXTENDED encoding
+    # ornaments
     [slur]*
     [fermata]?
     [arpeggiate]?
@@ -840,8 +833,6 @@ This is an attempt at modelling the linearized MusicXML by a simple grammar:
     | "tuplet:start"
     | "tuplet:stop"
 
-
-# EXTENDED notation symbols
 [slur] =
     | "slur:start"
     | "slur:stop"
@@ -873,7 +864,7 @@ This is an attempt at modelling the linearized MusicXML by a simple grammar:
 
 ## MusicXML element reference with implementation notes
 
-At [this page](https://www.w3.org/2021/06/musicxml40/musicxml-reference/element-tree/) you can see the list of all MusicXML elements in a tree-structure. Here we list these elements (or element groups) and state, whether they belong to the core encoding, the extended, or are ignored for some reason:
+At [this page](https://www.w3.org/2021/06/musicxml40/musicxml-reference/element-tree/) you can see the list of all MusicXML elements in a tree-structure. Here we list these elements (or element groups) and state, whether they belong to the encoding, or are ignored for some reason:
 
 
 ### Used elements
@@ -890,7 +881,7 @@ Root of the actual musical content
 ```
 
 ```xml
-Used, Linearization: CORE
+Used elements:
 <measure> converted to [measure]
 <attributes> not explicitly linearized, only its contents
 <clef><line><sign> converted to [clef]
@@ -920,10 +911,6 @@ Used, Linearization: CORE
 <technical> not explicitly linearized, only its contents
 <tied> converted to [tied]
 <tuplet> converted to [tuplet]
-```
-
-```xml
-Used, Linearization: EXTENDED
 <slur>
 <fermata>
 <arpeggiate>
