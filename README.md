@@ -1,4 +1,4 @@
-# OLiMPiC dataset - an ICDAR 2024 Paper
+# OLiMPiC 1.0 dataset - an ICDAR 2024 Paper
 
 This repository contains the source code for the article:
 
@@ -59,7 +59,7 @@ Screenshot from the annotation process:
 
 ## Zeus model
 
-TODO
+Zeus is the OMR model for the OLiMPiC dataset. It is desribed and implemented in the [`zeus`](zeus) folder of this repository.
 
 
 ## TEDn evaluation metric
@@ -91,8 +91,7 @@ python3 -m venv .venv
 .venv/bin/pip3 install -r requirements.txt
 
 # to run the Zeus model
-# TODO:
-.venv/bin/pip3 install -r requirements-zeus.txt
+.venv/bin/pip3 install -r zeus/requirements.txt
 ```
 
 Install dependencies:
