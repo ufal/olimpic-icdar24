@@ -1,12 +1,11 @@
 import glob
 import sys
-from ..Linearizer import Linearizer
-from ..Delinearizer import Delinearizer
-from ...symbolic.MxlFile import MxlFile
-from ...symbolic.Pruner import Pruner
-from ...symbolic.actual_durations_to_fractional import actual_durations_to_fractional
-from ...symbolic.debug_compare import compare_parts
-import xml.etree.ElementTree as ET
+from app.linearization.Linearizer import Linearizer
+from app.linearization.Delinearizer import Delinearizer
+from app.symbolic.MxlFile import MxlFile
+from app.symbolic.Pruner import Pruner
+from app.symbolic.actual_durations_to_fractional import actual_durations_to_fractional
+from app.symbolic.debug_compare import compare_parts
 
 
 def scan_corpus():

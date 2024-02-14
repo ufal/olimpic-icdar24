@@ -1,6 +1,6 @@
 import os
-from ...datasets.config import SCANNED_DATASET_PATH
-from ..TEDn_lmx_xml import TEDn_lmx_xml
+from app.datasets.config import SCANNED_DATASET_PATH
+from app.evaluation.TEDn_lmx_xml import TEDn_lmx_xml
 import sys
 
 

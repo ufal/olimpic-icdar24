@@ -1,9 +1,5 @@
 import argparse
-import unittest
 import os
-import sys
-import glob
-import json
 from .scan_corpus import scan_corpus
 from .scan_testset import scan_testset
 

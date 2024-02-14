@@ -2,8 +2,8 @@ import glob
 import os
 import sys
 import xml.etree.ElementTree as ET
-from ..TEDn import TEDn, TEDnResult
-from ...symbolic.MxlFile import MxlFile
+from app.evaluation.TEDn import TEDn, TEDnResult
+from app.symbolic.MxlFile import MxlFile
 
 
 def scan_corpus():
