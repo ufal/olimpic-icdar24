@@ -59,7 +59,7 @@ Screenshot from the annotation process:
 
 ## Zeus model
 
-Zeus is the OMR model for the OLiMPiC dataset. It is desribed and implemented in the [`zeus`](zeus) folder of this repository.
+Zeus is the OMR model for the OLiMPiC dataset. It is described and implemented in the [`zeus`](zeus) folder of this repository.
 
 
 ## TEDn evaluation metric
@@ -101,13 +101,27 @@ Install dependencies:
 
 # to be able to build the datasets yourself
 make install-musescore
-make install-open-score-lieder-dataset
+make install-open-score-lieder
 
 # to just download the finished datasets
 # (from this repo's releases page)
-make install-scanned-dataset
-make install-synthetic-dataset
+make install-olimpic-synthetic
+make install-olimpic-scanned
+make install-grandstaff-lmx
 ```
+
+
+## Licenses
+
+Datasets are available under CC BY-SA license.
+
+- OLiMPiC synthetic
+- OLiMPiC scanned
+- GrandStaff-LMX (only the added `.lmx` and `.musicxml` files)
+
+The trained Zeus model is available under CC BY-SA license (available for download in the releases page).
+
+Source code in this repository is available under the MIT license.
 
 
 ## Acknowledgement
