@@ -1,3 +1,11 @@
+> 📢 **Want to train an end-to-end OMR model?** Check out the refactored code in two separate repositories:
+> - 🌩️ [**Zeus model**](https://github.com/OmniOMR/zeus) - CLI for inference and training, Python API also provided
+> - 🎵 [**LMX package**](https://github.com/OMR-Research/lmx) - MusicXML tokenization
+> - 🎵 [**LMX package v2**](https://github.com/OMR-Research/lmx/tree/v2-development) - MusicXML tokenization, IO, normalization, parsing, utilities (in development but usable)
+>
+> This repository ⬇️ contains the original code that gave rise to Zeus and LMX and is becoming outdated. It acts as a reference for the paper. For any up-to-date research or applications, use the code linked above ⬆️.
+
+
 # OLiMPiC 1.0 dataset - an ICDAR 2024 Paper
 
 This repository contains the source code for the article:
